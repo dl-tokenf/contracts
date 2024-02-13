@@ -1,0 +1,13 @@
+name: Feature request
+description: Suggest a new feature
+labels: ['feature']
+assignees: 
+  - 
+body:
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "Describe the feature"
+      description: "A description of what you would like to see in the project"
+    validations:
+      required: true
