@@ -42,9 +42,9 @@
     "lint-sol-fix": "prettier --write \"contracts/**/*.sol\""
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.1",
-    "@openzeppelin/contracts-upgradeable": "5.0.1",
-    "@solarity/solidity-lib": "2.6.12",
+    "@openzeppelin/contracts": "4.9.5",
+    "@openzeppelin/contracts-upgradeable": "4.9.5",
+    "@solarity/solidity-lib": "2.6.18",
     "dotenv": "^16.3.1",
     "hardhat": "^2.19.0",
     "typechain": "^8.3.2"
