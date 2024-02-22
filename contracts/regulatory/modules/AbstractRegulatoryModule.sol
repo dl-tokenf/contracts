@@ -3,12 +3,12 @@ pragma solidity ^0.8.20;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-import {IKYCModule} from "../interfaces/IKYCModule.sol";
+import {IRegulatoryModule} from "../../interfaces/IRegulatoryModule.sol";
 
-abstract contract AbstractKYCModule is IKYCModule, Initializable {
+abstract contract AbstractRegulatoryModule is IRegulatoryModule, Initializable {
     address private _tokenF;
 
-    function __AbstractKYCModule_init(address tokenF_) internal onlyInitializing {
+    function __AbstractRegulatoryModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
     }
 

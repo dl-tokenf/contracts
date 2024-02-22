@@ -5,7 +5,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 
 import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 
-import {AbstractKYCModule} from "../AbstractKYCModule.sol";
+import {AbstractKYCModule} from "./AbstractKYCModule.sol";
 import {TokenF} from "../../TokenF.sol";
 
 abstract contract RarimoModule is AbstractKYCModule {
@@ -17,10 +17,10 @@ abstract contract RarimoModule is AbstractKYCModule {
 
     function isKYCed(
         bytes4 selector_,
-        address from_,
+        address,
         address to_,
         uint256,
-        address operator_
+        address
     ) public view virtual override returns (bool) {
         if (selector_ == TokenF.forcedTransfer.selector || selector_ == TokenF.burn.selector) {
             return true;
