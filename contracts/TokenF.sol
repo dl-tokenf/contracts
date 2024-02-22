@@ -5,14 +5,16 @@ import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
 import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
+import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 
 abstract contract TokenF is Diamond, DiamondERC20 {
-    modifier onlyPermission() {
+    modifier onlyRole() {
         _;
     }
 
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
+        _isKYCed(msg.sender, to_, amount_, address(0));
 
         super.transfer(to_, amount_);
 
@@ -27,6 +29,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         uint256 amount_
     ) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
+        _isKYCed(msg.sender, to_, amount_, address(0));
 
         super.transferFrom(from_, to_, amount_);
 
@@ -35,45 +38,45 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         return true;
     }
 
-    function mint(address account_, uint256 amount_) public virtual onlyPermission {
+    function mint(address account_, uint256 amount_) public virtual onlyRole {
         _canTransfer(address(0), account_, amount_, msg.sender);
+        _isKYCed(address(0), account_, amount_, msg.sender);
 
         _mint(account_, amount_);
 
         _transferred(address(0), account_, amount_, msg.sender);
     }
 
-    function burn(address account_, uint256 amount_) public virtual onlyPermission {
+    function burn(address account_, uint256 amount_) public virtual onlyRole {
         _canTransfer(account_, address(0), amount_, msg.sender);
+        _isKYCed(account_, address(0), amount_, msg.sender);
 
         _burn(account_, amount_);
 
         _transferred(account_, address(0), amount_, msg.sender);
     }
 
-    function forcedTransfer(
-        address from_,
-        address to_,
-        uint256 amount_
-    ) public virtual onlyPermission {
+    function forcedTransfer(address from_, address to_, uint256 amount_) public virtual onlyRole {
         _canTransfer(from_, to_, amount_, msg.sender);
+        _isKYCed(from_, to_, amount_, msg.sender);
 
         _transfer(from_, to_, amount_);
 
         _transferred(from_, to_, amount_, msg.sender);
     }
 
-    function recovery(address oldAccount_, address newAccount_) public virtual onlyPermission {
+    function recovery(address oldAccount_, address newAccount_) public virtual onlyRole {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
         _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
+        _isKYCed(oldAccount_, newAccount_, oldBalance_, msg.sender);
 
         _transfer(oldAccount_, newAccount_, oldBalance_);
 
         _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
     }
 
-    function diamondCut(Facet[] memory modules_) public virtual onlyPermission {
+    function diamondCut(Facet[] memory modules_) public virtual onlyRole {
         diamondCut(modules_, address(0), "");
     }
 
@@ -81,7 +84,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         Facet[] memory modules_,
         address initModule_,
         bytes memory initData_
-    ) public virtual onlyPermission {
+    ) public virtual onlyRole {
         _diamondCut(modules_, initModule_, initData_);
     }
 
@@ -122,6 +125,27 @@ abstract contract TokenF is Diamond, DiamondERC20 {
             require(canTransfer_, "TokenF: cannot transfer");
         } catch {
             revert("TokenF: canTransfer reverted");
+        }
+    }
+
+    function _isKYCed(
+        address from_,
+        address to_,
+        uint256 amount_,
+        address operator_
+    ) internal virtual {
+        try
+            KYCCompliance(address(this)).isKYCed(
+                bytes4(bytes(msg.data[:4])),
+                from_,
+                to_,
+                amount_,
+                operator_
+            )
+        returns (bool isKYCed_) {
+            require(isKYCed_, "TokenF: not KYCed");
+        } catch {
+            revert("TokenF: isKYCed reverted");
         }
     }
 }

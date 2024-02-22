@@ -14,7 +14,11 @@ abstract contract KYCCompliance is KYCComplianceStorage {
         _;
     }
 
-    function addKYCModules(address[] memory kycModules_) public virtual {
+    modifier onlyRole() {
+        _;
+    }
+
+    function addKYCModules(address[] memory kycModules_) public virtual onlyRole {
         EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
 
         for (uint256 i = 0; i < kycModules_.length; ++i) {
@@ -22,7 +26,7 @@ abstract contract KYCCompliance is KYCComplianceStorage {
         }
     }
 
-    function removeKYCModules(address[] memory kycModules_) public virtual {
+    function removeKYCModules(address[] memory kycModules_) public virtual onlyRole {
         EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
 
         for (uint256 i = 0; i < kycModules_.length; ++i) {
@@ -36,11 +40,23 @@ abstract contract KYCCompliance is KYCComplianceStorage {
         address to_,
         uint256 amount_,
         address operator_
-    ) public virtual onlyThis {
+    ) public view virtual onlyThis returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            IKYCModule(regulatoryModules_[i]).isKYCed(selector_, from_, to_, amount_, operator_);
+            if (
+                !IKYCModule(regulatoryModules_[i]).isKYCed(
+                    selector_,
+                    from_,
+                    to_,
+                    amount_,
+                    operator_
+                )
+            ) {
+                return false;
+            }
         }
+
+        return true;
     }
 }

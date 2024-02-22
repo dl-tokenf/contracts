@@ -14,7 +14,11 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         _;
     }
 
-    function addRegulatoryModules(address[] memory rModules_) public virtual {
+    modifier onlyRole() {
+        _;
+    }
+
+    function addRegulatoryModules(address[] memory rModules_) public virtual onlyRole {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
@@ -23,7 +27,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         }
     }
 
-    function removeRegulatoryModules(address[] memory rModules_) public virtual {
+    function removeRegulatoryModules(address[] memory rModules_) public virtual onlyRole {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
