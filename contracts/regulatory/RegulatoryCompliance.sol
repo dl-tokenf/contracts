@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
@@ -10,11 +9,12 @@ import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
 abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    modifier onlyPermission() {
+    modifier onlyThis() {
+        require(msg.sender == address(this), "RCompliance: not this");
         _;
     }
 
-    function addRegulatoryModules(address[] memory rModules_) public virtual onlyPermission {
+    function addRegulatoryModules(address[] memory rModules_) public virtual {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
@@ -23,7 +23,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         }
     }
 
-    function removeRegulatoryModules(address[] memory rModules_) public virtual onlyPermission {
+    function removeRegulatoryModules(address[] memory rModules_) public virtual {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
@@ -32,41 +32,49 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         }
     }
 
-    function _transferred(
+    function transferred(
         bytes4 selector_,
         address from_,
         address to_,
         uint256 amount_,
         address operator_
-    ) internal virtual {
+    ) public virtual onlyThis {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            regulatoryModules_[i].functionDelegateCall(
-                abi.encodeCall(
-                    IRegulatoryModule.transferred,
-                    (selector_, from_, to_, amount_, operator_)
-                )
+            IRegulatoryModule(regulatoryModules_[i]).transferred(
+                selector_,
+                from_,
+                to_,
+                amount_,
+                operator_
             );
         }
     }
 
-    function _canTransfer(
+    function canTransfer(
         bytes4 selector_,
         address from_,
         address to_,
         uint256 amount_,
         address operator_
-    ) internal virtual {
+    ) public view virtual onlyThis returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            regulatoryModules_[i].functionDelegateCall(
-                abi.encodeCall(
-                    IRegulatoryModule.canTransfer,
-                    (selector_, from_, to_, amount_, operator_)
+            if (
+                !IRegulatoryModule(regulatoryModules_[i]).canTransfer(
+                    selector_,
+                    from_,
+                    to_,
+                    amount_,
+                    operator_
                 )
-            );
+            ) {
+                return false;
+            }
         }
+
+        return true;
     }
 }

@@ -7,7 +7,7 @@ abstract contract RegulatoryComplianceStorage {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     bytes32 internal constant REGULATORY_COMPLIANCE_STORAGE_SLOT =
-        keccak256("diamond.standard.tokenf.storage");
+        keccak256("tokenf.standard.regulatory.compliance.storage");
 
     struct RCStorage {
         EnumerableSet.AddressSet regulatoryModules;
@@ -17,15 +17,19 @@ abstract contract RegulatoryComplianceStorage {
         return _getRegulatoryComplianceStorage().regulatoryModules.values();
     }
 
-    function getRegulatoryModulesLength() public view returns (uint256) {
+    function getRegulatoryModulesCount() public view virtual returns (uint256) {
         return _getRegulatoryComplianceStorage().regulatoryModules.length();
     }
 
-    function _getRegulatoryComplianceStorage() internal pure returns (RCStorage storage _rcs) {
+    function _getRegulatoryComplianceStorage()
+        internal
+        pure
+        returns (RCStorage storage _rcStorage)
+    {
         bytes32 slot_ = REGULATORY_COMPLIANCE_STORAGE_SLOT;
 
         assembly {
-            _rcs.slot := slot_
+            _rcStorage.slot := slot_
         }
     }
 }

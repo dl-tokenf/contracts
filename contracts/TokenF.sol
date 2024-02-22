@@ -6,9 +6,7 @@ import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondE
 
 import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
 
-abstract contract TokenF is Diamond, DiamondERC20, RegulatoryCompliance {
-    using EnumerableSet for EnumerableSet.Bytes32Set;
-
+abstract contract TokenF is Diamond, DiamondERC20 {
     modifier onlyPermission() {
         _;
     }
@@ -75,6 +73,10 @@ abstract contract TokenF is Diamond, DiamondERC20, RegulatoryCompliance {
         _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
     }
 
+    function diamondCut(Facet[] memory modules_) public virtual onlyPermission {
+        diamondCut(modules_, address(0), "");
+    }
+
     function diamondCut(
         Facet[] memory modules_,
         address initModule_,
@@ -89,7 +91,17 @@ abstract contract TokenF is Diamond, DiamondERC20, RegulatoryCompliance {
         uint256 amount_,
         address operator_
     ) internal virtual {
-        _transferred(bytes4(msg.data[:4]), from_, to_, amount_, operator_);
+        try
+            RegulatoryCompliance(address(this)).transferred(
+                bytes4(bytes(msg.data[:4])),
+                from_,
+                to_,
+                amount_,
+                operator_
+            )
+        {} catch {
+            revert("TokenF: transferred reverted");
+        }
     }
 
     function _canTransfer(
@@ -98,6 +110,18 @@ abstract contract TokenF is Diamond, DiamondERC20, RegulatoryCompliance {
         uint256 amount_,
         address operator_
     ) internal virtual {
-        _canTransfer(bytes4(msg.data[:4]), from_, to_, amount_, operator_);
+        try
+            RegulatoryCompliance(address(this)).canTransfer(
+                bytes4(bytes(msg.data[:4])),
+                from_,
+                to_,
+                amount_,
+                operator_
+            )
+        returns (bool canTransfer_) {
+            require(canTransfer_, "TokenF: cannot transfer");
+        } catch {
+            revert("TokenF: canTransfer reverted");
+        }
     }
 }
