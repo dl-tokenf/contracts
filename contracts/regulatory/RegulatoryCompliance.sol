@@ -15,6 +15,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
     }
 
     modifier onlyRole() {
+        /// TODO: inherit
         _;
     }
 
@@ -62,7 +63,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         address to_,
         uint256 amount_,
         address operator_
-    ) public view virtual onlyThis returns (bool) {
+    ) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

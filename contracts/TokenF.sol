@@ -9,6 +9,7 @@ import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 
 abstract contract TokenF is Diamond, DiamondERC20 {
     modifier onlyRole() {
+        /// TODO: inherit
         _;
     }
 

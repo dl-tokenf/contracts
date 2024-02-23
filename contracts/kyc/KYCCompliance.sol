@@ -9,12 +9,8 @@ import {KYCComplianceStorage} from "./KYCComplianceStorage.sol";
 abstract contract KYCCompliance is KYCComplianceStorage {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    modifier onlyThis() {
-        require(msg.sender == address(this), "KYCCompliance: not this");
-        _;
-    }
-
     modifier onlyRole() {
+        /// TODO: inherit
         _;
     }
 
@@ -40,7 +36,7 @@ abstract contract KYCCompliance is KYCComplianceStorage {
         address to_,
         uint256 amount_,
         address operator_
-    ) public view virtual onlyThis returns (bool) {
+    ) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

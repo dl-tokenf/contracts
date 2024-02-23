@@ -6,6 +6,11 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {IRegulatoryModule} from "../../interfaces/IRegulatoryModule.sol";
 
 abstract contract AbstractRegulatoryModule is IRegulatoryModule, Initializable {
+    modifier onlyRole() {
+        /// TODO: implement
+        _;
+    }
+
     address private _tokenF;
 
     function __AbstractRegulatoryModule_init(address tokenF_) internal onlyInitializing {

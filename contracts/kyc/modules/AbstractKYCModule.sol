@@ -6,6 +6,11 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {IKYCModule} from "../../interfaces/IKYCModule.sol";
 
 abstract contract AbstractKYCModule is IKYCModule, Initializable {
+    modifier onlyRole() {
+        /// TODO: implement
+        _;
+    }
+
     address private _tokenF;
 
     function __AbstractKYCModule_init(address tokenF_) internal onlyInitializing {
