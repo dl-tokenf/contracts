@@ -35,7 +35,8 @@ abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
         address from_,
         address to_,
         uint256 amount_,
-        address operator_
+        address operator_,
+        bytes memory data_
     ) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
@@ -46,7 +47,8 @@ abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
                     from_,
                     to_,
                     amount_,
-                    operator_
+                    operator_,
+                    data_
                 )
             ) {
                 return false;

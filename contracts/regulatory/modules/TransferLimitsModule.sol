@@ -35,11 +35,12 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
     }
 
     function transferred(
-        bytes4 selector_,
-        address from_,
-        address to_,
-        uint256 amount_,
-        address operator_
+        bytes4,
+        address,
+        address,
+        uint256,
+        address,
+        bytes memory
     ) public virtual override {}
 
     function canTransfer(
@@ -47,7 +48,8 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         address,
         address,
         uint256 amount_,
-        address
+        address,
+        bytes memory
     ) public view virtual override returns (bool) {
         if (
             selector_ == TokenF.burn.selector ||

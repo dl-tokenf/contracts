@@ -42,7 +42,8 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
         address from_,
         address to_,
         uint256 amount_,
-        address operator_
+        address operator_,
+        bytes memory data_
     ) public virtual onlyThis {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
@@ -52,7 +53,8 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
                 from_,
                 to_,
                 amount_,
-                operator_
+                operator_,
+                data_
             );
         }
     }
@@ -62,7 +64,8 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
         address from_,
         address to_,
         uint256 amount_,
-        address operator_
+        address operator_,
+        bytes memory data_
     ) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
@@ -73,7 +76,8 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
                     from_,
                     to_,
                     amount_,
-                    operator_
+                    operator_,
+                    data_
                 )
             ) {
                 return false;

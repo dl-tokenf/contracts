@@ -20,7 +20,8 @@ abstract contract RarimoModule is AbstractKYCModule {
         address,
         address to_,
         uint256,
-        address
+        address,
+        bytes memory
     ) public view virtual override returns (bool) {
         if (selector_ == TokenF.forcedTransfer.selector || selector_ == TokenF.burn.selector) {
             return true;

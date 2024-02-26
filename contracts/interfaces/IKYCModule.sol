@@ -7,7 +7,8 @@ interface IKYCModule {
         address from_,
         address to_,
         uint256 amount_,
-        address operator_
+        address operator_,
+        bytes memory data_
     ) external view returns (bool);
 
     function getTokenF() external view returns (address);
