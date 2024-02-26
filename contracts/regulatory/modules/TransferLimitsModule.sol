@@ -22,6 +22,18 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         _maxTransferLimit = maxTransferValue_;
     }
 
+    function setMinTransferLimit(
+        uint256 minTransferLimit_
+    ) public virtual onlyRole(_setTransferLimitsRole()) {
+        _minTransferLimit = minTransferLimit_;
+    }
+
+    function setMaxTransferLimit(
+        uint256 maxTransferLimit_
+    ) public virtual onlyRole(_setTransferLimitsRole()) {
+        _maxTransferLimit = maxTransferLimit_;
+    }
+
     function transferred(
         bytes4 selector_,
         address from_,
@@ -59,5 +71,9 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
 
     function _canTransfer(uint256 amount_) internal view virtual returns (bool) {
         return _minTransferLimit <= amount_ && amount_ <= _maxTransferLimit;
+    }
+
+    function _setTransferLimitsRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
     }
 }

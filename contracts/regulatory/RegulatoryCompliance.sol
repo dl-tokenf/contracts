@@ -3,10 +3,11 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
+import {AgentAccessControl} from "../access/AgentAccessControl.sol";
+import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 
-abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
+abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     modifier onlyThis() {
@@ -14,12 +15,9 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         _;
     }
 
-    modifier onlyRole() {
-        /// TODO: inherit
-        _;
-    }
-
-    function addRegulatoryModules(address[] memory rModules_) public virtual onlyRole {
+    function addRegulatoryModules(
+        address[] memory rModules_
+    ) public virtual onlyRole(_manageRegulatoryModulesRole()) {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
@@ -28,7 +26,9 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         }
     }
 
-    function removeRegulatoryModules(address[] memory rModules_) public virtual onlyRole {
+    function removeRegulatoryModules(
+        address[] memory rModules_
+    ) public virtual onlyRole(_manageRegulatoryModulesRole()) {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
@@ -81,5 +81,9 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage {
         }
 
         return true;
+    }
+
+    function _manageRegulatoryModulesRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
     }
 }

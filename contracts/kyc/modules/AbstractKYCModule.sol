@@ -3,11 +3,12 @@ pragma solidity ^0.8.20;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
+import {IAgentAccessControl} from "../../interfaces/IAgentAccessControl.sol";
 import {IKYCModule} from "../../interfaces/IKYCModule.sol";
 
 abstract contract AbstractKYCModule is IKYCModule, Initializable {
-    modifier onlyRole() {
-        /// TODO: implement
+    modifier onlyRole(bytes32 role_) {
+        IAgentAccessControl(_tokenF).checkRole(role_, msg.sender);
         _;
     }
 

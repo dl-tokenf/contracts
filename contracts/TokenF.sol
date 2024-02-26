@@ -4,15 +4,11 @@ pragma solidity ^0.8.20;
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
+import {AgentAccessControl} from "./access/AgentAccessControl.sol";
 import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
 import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 
-abstract contract TokenF is Diamond, DiamondERC20 {
-    modifier onlyRole() {
-        /// TODO: inherit
-        _;
-    }
-
+abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
         _isKYCed(msg.sender, to_, amount_, address(0));
@@ -39,7 +35,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         return true;
     }
 
-    function mint(address account_, uint256 amount_) public virtual onlyRole {
+    function mint(address account_, uint256 amount_) public virtual onlyRole(_mintRole()) {
         _canTransfer(address(0), account_, amount_, msg.sender);
         _isKYCed(address(0), account_, amount_, msg.sender);
 
@@ -48,7 +44,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         _transferred(address(0), account_, amount_, msg.sender);
     }
 
-    function burn(address account_, uint256 amount_) public virtual onlyRole {
+    function burn(address account_, uint256 amount_) public virtual onlyRole(_burnRole()) {
         _canTransfer(account_, address(0), amount_, msg.sender);
         _isKYCed(account_, address(0), amount_, msg.sender);
 
@@ -57,7 +53,11 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         _transferred(account_, address(0), amount_, msg.sender);
     }
 
-    function forcedTransfer(address from_, address to_, uint256 amount_) public virtual onlyRole {
+    function forcedTransfer(
+        address from_,
+        address to_,
+        uint256 amount_
+    ) public virtual onlyRole(_forcedTransferRole()) {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 
@@ -66,7 +66,10 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         _transferred(from_, to_, amount_, msg.sender);
     }
 
-    function recovery(address oldAccount_, address newAccount_) public virtual onlyRole {
+    function recovery(
+        address oldAccount_,
+        address newAccount_
+    ) public virtual onlyRole(_recoveryRole()) {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
         _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
@@ -77,7 +80,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
     }
 
-    function diamondCut(Facet[] memory modules_) public virtual onlyRole {
+    function diamondCut(Facet[] memory modules_) public virtual onlyRole(_diamondCutRole()) {
         diamondCut(modules_, address(0), "");
     }
 
@@ -85,7 +88,7 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         Facet[] memory modules_,
         address initModule_,
         bytes memory initData_
-    ) public virtual onlyRole {
+    ) public virtual onlyRole(_diamondCutRole()) {
         _diamondCut(modules_, initModule_, initData_);
     }
 
@@ -148,5 +151,25 @@ abstract contract TokenF is Diamond, DiamondERC20 {
         } catch {
             revert("TokenF: isKYCed reverted");
         }
+    }
+
+    function _mintRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
+    }
+
+    function _burnRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
+    }
+
+    function _forcedTransferRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
+    }
+
+    function _recoveryRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
+    }
+
+    function _diamondCutRole() internal view virtual returns (bytes32) {
+        return getAgentRole();
     }
 }
