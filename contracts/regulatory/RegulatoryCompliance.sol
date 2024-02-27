@@ -22,7 +22,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
             .regulatoryModules;
 
         for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.add(rModules_[i]), "RCompliance: modules exists");
+            require(_regulatoryModules.add(rModules_[i]), "RCompliance: module exists");
         }
     }
 
@@ -33,7 +33,7 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
             .regulatoryModules;
 
         for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.remove(rModules_[i]), "RCompliance: modules doesn't exist");
+            require(_regulatoryModules.remove(rModules_[i]), "RCompliance: module doesn't exist");
         }
     }
 

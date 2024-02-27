@@ -16,7 +16,7 @@ abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
         EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
 
         for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.add(kycModules_[i]), "KYCCompliance: modules exists");
+            require(_kycModules.add(kycModules_[i]), "KYCCompliance: module exists");
         }
     }
 
@@ -26,7 +26,7 @@ abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
         EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
 
         for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.remove(kycModules_[i]), "KYCCompliance: modules doesn't exist");
+            require(_kycModules.remove(kycModules_[i]), "KYCCompliance: module doesn't exist");
         }
     }
 
