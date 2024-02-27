@@ -117,7 +117,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         address to_,
         uint256 amount_,
         address operator_
-    ) internal virtual {
+    ) internal view virtual {
         try
             RegulatoryCompliance(address(this)).canTransfer(
                 bytes4(bytes(msg.data[:4])),
@@ -139,7 +139,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         address to_,
         uint256 amount_,
         address operator_
-    ) internal virtual {
+    ) internal view virtual {
         try
             KYCCompliance(address(this)).isKYCed(
                 bytes4(bytes(msg.data[:4])),
