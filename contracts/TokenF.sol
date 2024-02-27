@@ -25,12 +25,12 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         address to_,
         uint256 amount_
     ) public virtual override returns (bool) {
-        _canTransfer(msg.sender, to_, amount_, address(0));
-        _isKYCed(msg.sender, to_, amount_, address(0));
+        _canTransfer(from_, to_, amount_, address(0));
+        _isKYCed(from_, to_, amount_, address(0));
 
         super.transferFrom(from_, to_, amount_);
 
-        _transferred(msg.sender, to_, amount_, address(0));
+        _transferred(from_, to_, amount_, address(0));
 
         return true;
     }
