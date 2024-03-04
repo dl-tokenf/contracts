@@ -24,13 +24,13 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
 
     function setMinTransferLimit(
         uint256 minTransferLimit_
-    ) public virtual onlyRole(_setTransferLimitsRole()) {
+    ) public virtual onlyRole(_RModuleRole()) {
         _minTransferLimit = minTransferLimit_;
     }
 
     function setMaxTransferLimit(
         uint256 maxTransferLimit_
-    ) public virtual onlyRole(_setTransferLimitsRole()) {
+    ) public virtual onlyRole(_RModuleRole()) {
         _maxTransferLimit = maxTransferLimit_;
     }
 
@@ -51,11 +51,7 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         address,
         bytes memory
     ) public view virtual override returns (bool) {
-        if (
-            selector_ == TokenF.burn.selector ||
-            selector_ == TokenF.forcedTransfer.selector ||
-            selector_ == TokenF.recovery.selector
-        ) {
+        if (isBypassedSelector(selector_)) {
             return true;
         }
 
@@ -75,7 +71,5 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         return _minTransferLimit <= amount_ && amount_ <= _maxTransferLimit;
     }
 
-    function _setTransferLimitsRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
-    }
+    uint256[48] private _gap;
 }

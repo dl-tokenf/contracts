@@ -9,6 +9,13 @@ import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
 import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 
 abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
+    bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
+    bytes4 public constant TRANSFER_FROM_SELECTOR = this.transfer.selector;
+    bytes4 public constant MINT_SELECTOR = this.mint.selector;
+    bytes4 public constant BURN_SELECTOR = this.burn.selector;
+    bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
+    bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
+
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
         _isKYCed(msg.sender, to_, amount_, address(0));
@@ -39,7 +46,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         _canTransfer(address(0), account_, amount_, msg.sender);
         _isKYCed(address(0), account_, amount_, msg.sender);
 
-        _mint(account_, amount_);
+        super._mint(account_, amount_);
 
         _transferred(address(0), account_, amount_, msg.sender);
     }
@@ -48,7 +55,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         _canTransfer(account_, address(0), amount_, msg.sender);
         _isKYCed(account_, address(0), amount_, msg.sender);
 
-        _burn(account_, amount_);
+        super._burn(account_, amount_);
 
         _transferred(account_, address(0), amount_, msg.sender);
     }
@@ -61,7 +68,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 
-        _transfer(from_, to_, amount_);
+        super._transfer(from_, to_, amount_);
 
         _transferred(from_, to_, amount_, msg.sender);
     }
@@ -75,7 +82,7 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
         _isKYCed(oldAccount_, newAccount_, oldBalance_, msg.sender);
 
-        _transfer(oldAccount_, newAccount_, oldBalance_);
+        super._transfer(oldAccount_, newAccount_, oldBalance_);
 
         _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
     }

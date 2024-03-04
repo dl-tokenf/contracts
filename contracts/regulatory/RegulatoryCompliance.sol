@@ -17,24 +17,14 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
 
     function addRegulatoryModules(
         address[] memory rModules_
-    ) public virtual onlyRole(_manageRegulatoryModulesRole()) {
-        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
-            .regulatoryModules;
-
-        for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.add(rModules_[i]), "RCompliance: module exists");
-        }
+    ) public virtual onlyRole(_regulatoryComplianceRole()) {
+        _addRegulatoryModules(rModules_);
     }
 
     function removeRegulatoryModules(
         address[] memory rModules_
-    ) public virtual onlyRole(_manageRegulatoryModulesRole()) {
-        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
-            .regulatoryModules;
-
-        for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.remove(rModules_[i]), "RCompliance: module doesn't exist");
-        }
+    ) public virtual onlyRole(_regulatoryComplianceRole()) {
+        _removeRegulatoryModules(rModules_);
     }
 
     function transferred(
@@ -87,7 +77,25 @@ abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAcce
         return true;
     }
 
-    function _manageRegulatoryModulesRole() internal view virtual returns (bytes32) {
+    function _addRegulatoryModules(address[] memory rModules_) internal virtual {
+        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
+            .regulatoryModules;
+
+        for (uint256 i = 0; i < rModules_.length; ++i) {
+            require(_regulatoryModules.add(rModules_[i]), "RCompliance: module exists");
+        }
+    }
+
+    function _removeRegulatoryModules(address[] memory rModules_) internal virtual {
+        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
+            .regulatoryModules;
+
+        for (uint256 i = 0; i < rModules_.length; ++i) {
+            require(_regulatoryModules.remove(rModules_[i]), "RCompliance: module doesn't exist");
+        }
+    }
+
+    function _regulatoryComplianceRole() internal view virtual returns (bytes32) {
         return getAgentRole();
     }
 }
