@@ -3,10 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-import {IRegulatoryModule} from "../../interfaces/IRegulatoryModule.sol";
-
 import {AbstractRegulatoryModule} from "./AbstractRegulatoryModule.sol";
-import {TokenF} from "../../TokenF.sol";
 
 abstract contract TransferLimitsModule is AbstractRegulatoryModule {
     uint256 public constant MAX_TRANSFER_LIMIT = type(uint256).max;

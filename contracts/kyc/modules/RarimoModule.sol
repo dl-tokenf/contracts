@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-
 import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 
 import {AbstractKYCModule} from "./AbstractKYCModule.sol";
-import {TokenF} from "../../TokenF.sol";
 
 abstract contract RarimoModule is AbstractKYCModule {
     address private _sbt;
@@ -23,18 +20,18 @@ abstract contract RarimoModule is AbstractKYCModule {
         address,
         bytes memory
     ) public view virtual override returns (bool) {
-        if (selector_ == TokenF.forcedTransfer.selector || selector_ == TokenF.burn.selector) {
+        if (isBypassedSelector(selector_)) {
             return true;
         }
 
-        return _isKYCed(to_);
+        return _isKYCed(to_, getClaimTopics());
     }
 
     function getSBT() public view virtual returns (address) {
         return _sbt;
     }
 
-    function _isKYCed(address account_) internal view virtual returns (bool) {
+    function _isKYCed(address account_, bytes32[] memory) internal view virtual returns (bool) {
         return ISBT(_sbt).balanceOf(account_) > 0;
     }
 

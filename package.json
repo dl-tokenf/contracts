@@ -44,7 +44,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "4.9.5",
     "@openzeppelin/contracts-upgradeable": "4.9.5",
-    "@solarity/solidity-lib": "2.6.19",
+    "@solarity/solidity-lib": "2.7.0",
     "dotenv": "^16.3.1",
     "hardhat": "^2.19.0",
     "typechain": "^8.3.2"
