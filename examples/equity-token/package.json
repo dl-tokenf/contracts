@@ -1,0 +1,14 @@
+{
+  "name": "equity-token",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Distributed Lab",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy-localhost": "npx hardhat migrate --network localhost"
+  },
+  "dependencies": {
+    "@tokenf/contracts": "file:../../contracts"
+  }
+}
