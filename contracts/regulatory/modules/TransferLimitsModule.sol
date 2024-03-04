@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import {AbstractRegulatoryModule} from "./AbstractRegulatoryModule.sol";
+import {TokenF} from "../../TokenF.sol";
 
 abstract contract TransferLimitsModule is AbstractRegulatoryModule {
     uint256 public constant MAX_TRANSFER_LIMIT = type(uint256).max;
@@ -48,7 +49,13 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         address,
         bytes memory
     ) public view virtual override returns (bool) {
-        if (isBypassedSelector(selector_)) {
+        TokenF tokenF_ = TokenF(payable(getTokenF()));
+
+        if (
+            selector_ == tokenF_.BURN_SELECTOR() ||
+            selector_ == tokenF_.FORCED_TRANSFER_SELECTOR() ||
+            selector_ == tokenF_.RECOVERY_SELECTOR()
+        ) {
             return true;
         }
 

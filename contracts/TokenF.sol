@@ -16,6 +16,10 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
     bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
 
+    uint8 public constant TRANSFER_SENDER = 1;
+    uint8 public constant TRANSFER_RECIPIENT = 2;
+    uint8 public constant TRANSFER_OPERATOR = 3;
+
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
         _isKYCed(msg.sender, to_, amount_, address(0));
