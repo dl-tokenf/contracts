@@ -10,7 +10,7 @@ import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 
 abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
-    bytes4 public constant TRANSFER_FROM_SELECTOR = this.transfer.selector;
+    bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
     bytes4 public constant BURN_SELECTOR = this.burn.selector;
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;

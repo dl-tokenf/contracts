@@ -7,7 +7,7 @@ import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 
-abstract contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAccessControl {
+contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     modifier onlyThis() {

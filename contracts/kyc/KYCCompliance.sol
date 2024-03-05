@@ -7,27 +7,19 @@ import {IKYCModule} from "../interfaces/IKYCModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {KYCComplianceStorage} from "./KYCComplianceStorage.sol";
 
-abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
+contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     function addKYCModules(
         address[] memory kycModules_
     ) public virtual onlyRole(_manageKYCModulesRole()) {
-        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
-
-        for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.add(kycModules_[i]), "KYCCompliance: module exists");
-        }
+        _addKYCModules(kycModules_);
     }
 
     function removeKYCModules(
         address[] memory kycModules_
     ) public virtual onlyRole(_manageKYCModulesRole()) {
-        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
-
-        for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.remove(kycModules_[i]), "KYCCompliance: module doesn't exist");
-        }
+        _removeKYCModules(kycModules_);
     }
 
     function isKYCed(
@@ -56,6 +48,22 @@ abstract contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
         }
 
         return true;
+    }
+
+    function _addKYCModules(address[] memory kycModules_) internal virtual {
+        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
+
+        for (uint256 i = 0; i < kycModules_.length; ++i) {
+            require(_kycModules.add(kycModules_[i]), "KYCCompliance: module exists");
+        }
+    }
+
+    function _removeKYCModules(address[] memory kycModules_) internal virtual {
+        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
+
+        for (uint256 i = 0; i < kycModules_.length; ++i) {
+            require(_kycModules.remove(kycModules_[i]), "KYCCompliance: module doesn't exist");
+        }
     }
 
     function _manageKYCModulesRole() internal view virtual returns (bytes32) {
