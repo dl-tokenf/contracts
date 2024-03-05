@@ -22,13 +22,13 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
 
     function setMinTransferLimit(
         uint256 minTransferLimit_
-    ) public virtual onlyRole(_RModuleRole()) {
+    ) public virtual onlyRole(_regulatoryModuleRole()) {
         _minTransferLimit = minTransferLimit_;
     }
 
     function setMaxTransferLimit(
         uint256 maxTransferLimit_
-    ) public virtual onlyRole(_RModuleRole()) {
+    ) public virtual onlyRole(_regulatoryModuleRole()) {
         _maxTransferLimit = maxTransferLimit_;
     }
 

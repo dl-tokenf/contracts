@@ -3,11 +3,16 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 
-contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAccessControl {
+contract RegulatoryCompliance is
+    IRegulatoryCompliance,
+    RegulatoryComplianceStorage,
+    AgentAccessControl
+{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     modifier onlyThis() {
@@ -96,6 +101,6 @@ contract RegulatoryCompliance is RegulatoryComplianceStorage, AgentAccessControl
     }
 
     function _regulatoryComplianceRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 }

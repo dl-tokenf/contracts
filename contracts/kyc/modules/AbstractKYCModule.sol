@@ -84,7 +84,7 @@ abstract contract AbstractKYCModule is IKYCModule, Initializable {
     }
 
     function _KYCModuleRole() internal view virtual returns (bytes32) {
-        return IAgentAccessControl(_tokenF).getAgentRole();
+        return IAgentAccessControl(_tokenF).AGENT_ROLE();
     }
 
     uint256[48] private _gap;

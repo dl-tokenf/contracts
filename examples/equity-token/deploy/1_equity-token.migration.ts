@@ -20,31 +20,9 @@ export = async (deployer: Deployer) => {
   const kycCompliance = await deployer.deploy(KYCCompliance__factory);
   const regulatoryCompliance = await deployer.deploy(RegulatoryCompliance__factory);
 
-  await equityToken.__EquityToken_init();
+  await equityToken.__EquityToken_init(await regulatoryCompliance.getAddress(), await kycCompliance.getAddress());
 
-  await equityToken.grantRole(await equityToken.getAgentRole(), agents[0]);
-
-  await equityToken.connect(agents[0])["diamondCut((address,uint8,bytes4[])[])"]([
-    {
-      facetAddress: await kycCompliance.getAddress(),
-      action: 0,
-      functionSelectors: [
-        kycCompliance.interface.getFunction("addKYCModules").selector,
-        kycCompliance.interface.getFunction("removeKYCModules").selector,
-        kycCompliance.interface.getFunction("isKYCed").selector,
-      ],
-    },
-    {
-      facetAddress: await regulatoryCompliance.getAddress(),
-      action: 0,
-      functionSelectors: [
-        regulatoryCompliance.interface.getFunction("addRegulatoryModules").selector,
-        regulatoryCompliance.interface.getFunction("removeRegulatoryModules").selector,
-        regulatoryCompliance.interface.getFunction("transferred").selector,
-        regulatoryCompliance.interface.getFunction("canTransfer").selector,
-      ],
-    },
-  ]);
+  await equityToken.grantRole(await equityToken.AGENT_ROLE(), agents[0]);
 
   const equityTransferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
 

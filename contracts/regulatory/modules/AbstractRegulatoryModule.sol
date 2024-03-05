@@ -22,8 +22,8 @@ abstract contract AbstractRegulatoryModule is IRegulatoryModule, Initializable {
         return _tokenF;
     }
 
-    function _RModuleRole() internal view virtual returns (bytes32) {
-        return IAgentAccessControl(_tokenF).getAgentRole();
+    function _regulatoryModuleRole() internal view virtual returns (bytes32) {
+        return IAgentAccessControl(_tokenF).AGENT_ROLE();
     }
 
     uint256[49] private _gap;

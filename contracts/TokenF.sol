@@ -4,11 +4,14 @@ pragma solidity ^0.8.20;
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
+import {IKYCCompliance} from "./interfaces/IKYCCompliance.sol";
+import {IRegulatoryCompliance} from "./interfaces/IRegulatoryCompliance.sol";
 import {AgentAccessControl} from "./access/AgentAccessControl.sol";
 import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
 import {KYCCompliance} from "./kyc/KYCCompliance.sol";
+import {TokenFStorage} from "./TokenFStorage.sol";
 
-abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
+abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
@@ -19,6 +22,28 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
     uint8 public constant TRANSFER_SENDER = 1;
     uint8 public constant TRANSFER_RECIPIENT = 2;
     uint8 public constant TRANSFER_OPERATOR = 3;
+
+    function __TokenF_init(
+        address regulatoryCompliance_,
+        address kycCompliance_
+    ) internal onlyInitializing(TOKEN_F_STORAGE_SLOT) {
+        bytes4[] memory rComplianceSelectors_ = new bytes4[](4);
+        rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
+        rComplianceSelectors_[1] = IRegulatoryCompliance.removeRegulatoryModules.selector;
+        rComplianceSelectors_[2] = IRegulatoryCompliance.transferred.selector;
+        rComplianceSelectors_[3] = IRegulatoryCompliance.canTransfer.selector;
+
+        bytes4[] memory kycComplianceSelectors_ = new bytes4[](3);
+        kycComplianceSelectors_[0] = IKYCCompliance.addKYCModules.selector;
+        kycComplianceSelectors_[1] = IKYCCompliance.removeKYCModules.selector;
+        kycComplianceSelectors_[2] = IKYCCompliance.isKYCed.selector;
+
+        Facet[] memory facets_ = new Facet[](2);
+        facets_[0] = Facet(regulatoryCompliance_, FacetAction.Add, rComplianceSelectors_);
+        facets_[1] = Facet(kycCompliance_, FacetAction.Add, kycComplianceSelectors_);
+
+        _diamondCut(facets_, address(0), "");
+    }
 
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
@@ -46,41 +71,53 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         return true;
     }
 
-    function mint(address account_, uint256 amount_) public virtual onlyRole(_mintRole()) {
+    function mint(
+        address account_,
+        uint256 amount_
+    ) public virtual onlyRole(_mintRole()) returns (bool) {
         _canTransfer(address(0), account_, amount_, msg.sender);
         _isKYCed(address(0), account_, amount_, msg.sender);
 
         super._mint(account_, amount_);
 
         _transferred(address(0), account_, amount_, msg.sender);
+
+        return true;
     }
 
-    function burn(address account_, uint256 amount_) public virtual onlyRole(_burnRole()) {
+    function burn(
+        address account_,
+        uint256 amount_
+    ) public virtual onlyRole(_burnRole()) returns (bool) {
         _canTransfer(account_, address(0), amount_, msg.sender);
         _isKYCed(account_, address(0), amount_, msg.sender);
 
         super._burn(account_, amount_);
 
         _transferred(account_, address(0), amount_, msg.sender);
+
+        return true;
     }
 
     function forcedTransfer(
         address from_,
         address to_,
         uint256 amount_
-    ) public virtual onlyRole(_forcedTransferRole()) {
+    ) public virtual onlyRole(_forcedTransferRole()) returns (bool) {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 
         super._transfer(from_, to_, amount_);
 
         _transferred(from_, to_, amount_, msg.sender);
+
+        return true;
     }
 
     function recovery(
         address oldAccount_,
         address newAccount_
-    ) public virtual onlyRole(_recoveryRole()) {
+    ) public virtual onlyRole(_recoveryRole()) returns (bool) {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
         _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
@@ -89,6 +126,8 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
         super._transfer(oldAccount_, newAccount_, oldBalance_);
 
         _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
+
+        return true;
     }
 
     function diamondCut(Facet[] memory modules_) public virtual onlyRole(_diamondCutRole()) {
@@ -168,22 +207,22 @@ abstract contract TokenF is Diamond, DiamondERC20, AgentAccessControl {
     }
 
     function _mintRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 
     function _burnRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 
     function _forcedTransferRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 
     function _recoveryRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 
     function _diamondCutRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 }

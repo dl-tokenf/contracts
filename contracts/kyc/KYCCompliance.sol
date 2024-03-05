@@ -3,11 +3,12 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IKYCModule} from "../interfaces/IKYCModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {KYCComplianceStorage} from "./KYCComplianceStorage.sol";
 
-contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
+contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     function addKYCModules(
@@ -67,6 +68,6 @@ contract KYCCompliance is KYCComplianceStorage, AgentAccessControl {
     }
 
     function _manageKYCModulesRole() internal view virtual returns (bytes32) {
-        return getAgentRole();
+        return AGENT_ROLE;
     }
 }
