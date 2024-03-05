@@ -12,17 +12,9 @@ import {
 } from "../generated-types/ethers";
 
 import { ethers } from "hardhat";
-import { BaseContract } from "ethers";
-import { ZERO_ADDR } from "@/scripts/utils/constants";
-
-enum FacetAction {
-  Add,
-  Replace,
-  Remove,
-}
 
 export = async (deployer: Deployer) => {
-  const [owner, ...agents] = await ethers.getSigners();
+  const [_, ...agents] = await ethers.getSigners();
 
   const equityToken = await deployer.deploy(EquityToken__factory);
   const kycCompliance = await deployer.deploy(KYCCompliance__factory);
@@ -35,7 +27,7 @@ export = async (deployer: Deployer) => {
   await equityToken.connect(agents[0])["diamondCut((address,uint8,bytes4[])[])"]([
     {
       facetAddress: await kycCompliance.getAddress(),
-      action: FacetAction.Add,
+      action: 0,
       functionSelectors: [
         kycCompliance.interface.getFunction("addKYCModules").selector,
         kycCompliance.interface.getFunction("removeKYCModules").selector,
@@ -44,7 +36,7 @@ export = async (deployer: Deployer) => {
     },
     {
       facetAddress: await regulatoryCompliance.getAddress(),
-      action: FacetAction.Add,
+      action: 0,
       functionSelectors: [
         regulatoryCompliance.interface.getFunction("addRegulatoryModules").selector,
         regulatoryCompliance.interface.getFunction("removeRegulatoryModules").selector,
