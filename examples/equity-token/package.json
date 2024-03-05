@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Distributed Lab",
   "scripts": {
-    "compile": "npx hardhat compile",
+    "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
     "deploy-localhost": "npx hardhat migrate --network localhost"
   },
