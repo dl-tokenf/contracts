@@ -16,5 +16,7 @@ contract EquityToken is TokenF {
         __DiamondAccessControl_init();
         __DiamondERC20_init("Equity Token", "ET");
         __TokenF_init(regulatoryCompliance_, kycCompliance_);
+
+        grantRole(AGENT_ROLE, msg.sender);
     }
 }

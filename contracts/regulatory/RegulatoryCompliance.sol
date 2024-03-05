@@ -8,7 +8,7 @@ import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
 
-contract RegulatoryCompliance is
+abstract contract RegulatoryCompliance is
     IRegulatoryCompliance,
     RegulatoryComplianceStorage,
     AgentAccessControl
@@ -19,6 +19,11 @@ contract RegulatoryCompliance is
         require(msg.sender == address(this), "RCompliance: not this");
         _;
     }
+
+    function __RegulatoryCompliance_init()
+        internal
+        onlyInitializing(REGULATORY_COMPLIANCE_STORAGE_SLOT)
+    {}
 
     function addRegulatoryModules(
         address[] memory rModules_

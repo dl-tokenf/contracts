@@ -8,8 +8,10 @@ import {IKYCModule} from "../interfaces/IKYCModule.sol";
 import {AgentAccessControl} from "../access/AgentAccessControl.sol";
 import {KYCComplianceStorage} from "./KYCComplianceStorage.sol";
 
-contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
+abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
+
+    function __KYCCompliance_init() internal onlyInitializing(KYC_COMPLIANCE_STORAGE_SLOT) {}
 
     function addKYCModules(
         address[] memory kycModules_
