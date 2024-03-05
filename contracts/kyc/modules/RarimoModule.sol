@@ -24,21 +24,21 @@ abstract contract RarimoModule is AbstractKYCModule {
         TokenF tokenF_ = TokenF(payable(getTokenF()));
 
         if (
-            from_ != address(0) &&
+            _isCheckableAddress(tokenF_.TRANSFER_SENDER(), from_) &&
             !_isKYCed(from_, getClaimTopics(selector_, tokenF_.TRANSFER_SENDER(), ""))
         ) {
             return false;
         }
 
         if (
-            to_ != address(0) &&
-            !_isKYCed(from_, getClaimTopics(selector_, tokenF_.TRANSFER_RECIPIENT(), ""))
+            _isCheckableAddress(tokenF_.TRANSFER_RECIPIENT(), to_) &&
+            !_isKYCed(to_, getClaimTopics(selector_, tokenF_.TRANSFER_RECIPIENT(), ""))
         ) {
             return false;
         }
 
         if (
-            operator_ != address(0) &&
+            _isCheckableAddress(tokenF_.TRANSFER_OPERATOR(), operator_) &&
             !_isKYCed(operator_, getClaimTopics(selector_, tokenF_.TRANSFER_OPERATOR(), ""))
         ) {
             return false;
@@ -49,6 +49,13 @@ abstract contract RarimoModule is AbstractKYCModule {
 
     function getSBT() public view virtual returns (address) {
         return _sbt;
+    }
+
+    function _isCheckableAddress(
+        uint8 transferRole_,
+        address user_
+    ) internal view virtual returns (bool) {
+        return user_ != address(0);
     }
 
     function _isKYCed(address account_, bytes32[] memory) internal view virtual returns (bool) {
