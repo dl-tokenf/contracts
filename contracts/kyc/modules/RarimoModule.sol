@@ -51,10 +51,7 @@ abstract contract RarimoModule is AbstractKYCModule {
         return _sbt;
     }
 
-    function _isCheckableAddress(
-        uint8 transferRole_,
-        address user_
-    ) internal view virtual returns (bool) {
+    function _isCheckableAddress(uint8, address user_) internal view virtual returns (bool) {
         return user_ != address(0);
     }
 
