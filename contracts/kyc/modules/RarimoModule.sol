@@ -23,40 +23,41 @@ abstract contract RarimoModule is AbstractKYCModule {
     ) public view virtual override returns (bool) {
         TokenF tokenF_ = TokenF(payable(getTokenF()));
 
-        if (
-            _isCheckableAddress(tokenF_.TRANSFER_SENDER(), from_) &&
-            !_isKYCed(from_, getClaimTopics(selector_, tokenF_.TRANSFER_SENDER(), ""))
-        ) {
-            return false;
-        }
-
-        if (
-            _isCheckableAddress(tokenF_.TRANSFER_RECIPIENT(), to_) &&
-            !_isKYCed(to_, getClaimTopics(selector_, tokenF_.TRANSFER_RECIPIENT(), ""))
-        ) {
-            return false;
-        }
-
-        if (
-            _isCheckableAddress(tokenF_.TRANSFER_OPERATOR(), operator_) &&
-            !_isKYCed(operator_, getClaimTopics(selector_, tokenF_.TRANSFER_OPERATOR(), ""))
-        ) {
-            return false;
-        }
-
-        return true;
+        return
+            _checkTransferParty(selector_, tokenF_.TRANSFER_SENDER(), from_, "") &&
+            _checkTransferParty(selector_, tokenF_.TRANSFER_RECIPIENT(), to_, "") &&
+            _checkTransferParty(selector_, tokenF_.TRANSFER_OPERATOR(), operator_, "");
     }
 
     function getSBT() public view virtual returns (address) {
         return _sbt;
     }
 
+    function _checkTransferParty(
+        bytes4 selector_,
+        uint8 transferRole_,
+        address transferParty_,
+        bytes memory data_
+    ) internal view virtual returns (bool) {
+        if (!_isCheckableAddress(transferRole_, transferParty_)) {
+            return false;
+        }
+
+        bytes32 claimTopicsKey_ = _getClaimTopicsKey(selector_, transferRole_, data_);
+        bytes32[] memory claimTopics_ = getClaimTopics(claimTopicsKey_);
+
+        return _isKYCed(transferParty_, claimTopics_);
+    }
+
     function _isCheckableAddress(uint8, address user_) internal view virtual returns (bool) {
         return user_ != address(0);
     }
 
-    function _isKYCed(address account_, bytes32[] memory) internal view virtual returns (bool) {
-        return ISBT(_sbt).balanceOf(account_) > 0;
+    function _isKYCed(
+        address transferParty_,
+        bytes32[] memory
+    ) internal view virtual returns (bool) {
+        return ISBT(_sbt).balanceOf(transferParty_) > 0;
     }
 
     uint256[49] private _gap;

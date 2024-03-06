@@ -6,7 +6,9 @@ import {TokenF} from "@tokenf/contracts/TokenF.sol";
 contract EquityToken is TokenF {
     function __EquityToken_init(
         address regulatoryCompliance_,
-        address kycCompliance_
+        address kycCompliance_,
+        bytes memory initRegulatory_,
+        bytes memory initKYC_
     )
         external
         initializer(DIAMOND_ERC20_STORAGE_SLOT)
@@ -17,6 +19,6 @@ contract EquityToken is TokenF {
         __DiamondAccessControl_init();
         __DiamondERC20_init("Equity Token", "ET");
         __AgentAccessControl_init();
-        __TokenF_init(regulatoryCompliance_, kycCompliance_);
+        __TokenF_init(regulatoryCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }
 }

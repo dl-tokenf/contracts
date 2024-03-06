@@ -15,13 +15,13 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
 
     function addKYCModules(
         address[] memory kycModules_
-    ) public virtual onlyRole(_manageKYCModulesRole()) {
+    ) public virtual onlyRole(_KYCComplianceRole()) {
         _addKYCModules(kycModules_);
     }
 
     function removeKYCModules(
         address[] memory kycModules_
-    ) public virtual onlyRole(_manageKYCModulesRole()) {
+    ) public virtual onlyRole(_KYCComplianceRole()) {
         _removeKYCModules(kycModules_);
     }
 
@@ -69,7 +69,7 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
         }
     }
 
-    function _manageKYCModulesRole() internal view virtual returns (bytes32) {
+    function _KYCComplianceRole() internal view virtual returns (bytes32) {
         return AGENT_ROLE;
     }
 }

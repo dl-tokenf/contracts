@@ -87,21 +87,24 @@ abstract contract RegulatoryCompliance is
         return true;
     }
 
-    function _addRegulatoryModules(address[] memory rModules_) internal virtual {
+    function _addRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
-        for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.add(rModules_[i]), "RCompliance: module exists");
+        for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
+            require(_regulatoryModules.add(regulatoryModules_[i]), "RCompliance: module exists");
         }
     }
 
-    function _removeRegulatoryModules(address[] memory rModules_) internal virtual {
+    function _removeRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
         EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
             .regulatoryModules;
 
-        for (uint256 i = 0; i < rModules_.length; ++i) {
-            require(_regulatoryModules.remove(rModules_[i]), "RCompliance: module doesn't exist");
+        for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
+            require(
+                _regulatoryModules.remove(regulatoryModules_[i]),
+                "RCompliance: module doesn't exist"
+            );
         }
     }
 

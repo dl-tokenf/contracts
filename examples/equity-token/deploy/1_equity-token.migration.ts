@@ -25,20 +25,11 @@ export = async (deployer: Deployer) => {
   await equityToken.__EquityToken_init(
     await equityRegulatoryCompliance.getAddress(),
     await equityKYCCompliance.getAddress(),
+    equityRegulatoryCompliance.interface.encodeFunctionData("__EquityRegulatoryCompliance_init"),
+    equityKYCCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init"),
   );
 
   await equityToken.grantRole(await equityToken.AGENT_ROLE(), agents[0]);
-
-  await equityToken["diamondCut((address,uint8,bytes4[])[],address,bytes)"](
-    [],
-    await equityKYCCompliance.getAddress(),
-    equityKYCCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init"),
-  );
-  await equityToken["diamondCut((address,uint8,bytes4[])[],address,bytes)"](
-    [],
-    await equityRegulatoryCompliance.getAddress(),
-    equityRegulatoryCompliance.interface.encodeFunctionData("__EquityRegulatoryCompliance_init"),
-  );
 
   const equityTransferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
 

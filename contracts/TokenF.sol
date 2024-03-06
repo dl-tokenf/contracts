@@ -7,8 +7,6 @@ import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondE
 import {IKYCCompliance} from "./interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "./interfaces/IRegulatoryCompliance.sol";
 import {AgentAccessControl} from "./access/AgentAccessControl.sol";
-import {RegulatoryCompliance} from "./regulatory/RegulatoryCompliance.sol";
-import {KYCCompliance} from "./kyc/KYCCompliance.sol";
 import {TokenFStorage} from "./TokenFStorage.sol";
 
 abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
@@ -25,7 +23,9 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
 
     function __TokenF_init(
         address regulatoryCompliance_,
-        address kycCompliance_
+        address kycCompliance_,
+        bytes memory initRegulatory_,
+        bytes memory initKYC_
     ) internal onlyInitializing(TOKEN_F_STORAGE_SLOT) {
         bytes4[] memory rComplianceSelectors_ = new bytes4[](4);
         rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
@@ -43,6 +43,8 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         facets_[1] = Facet(kycCompliance_, FacetAction.Add, kycComplianceSelectors_);
 
         _diamondCut(facets_, address(0), "");
+        _diamondCut(new Facet[](0), regulatoryCompliance_, initRegulatory_);
+        _diamondCut(new Facet[](0), kycCompliance_, initKYC_);
     }
 
     function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
@@ -149,7 +151,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         address operator_
     ) internal virtual {
         try
-            RegulatoryCompliance(address(this)).transferred(
+            IRegulatoryCompliance(address(this)).transferred(
                 bytes4(bytes(msg.data[:4])),
                 from_,
                 to_,
@@ -169,7 +171,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         address operator_
     ) internal view virtual {
         try
-            RegulatoryCompliance(address(this)).canTransfer(
+            IRegulatoryCompliance(address(this)).canTransfer(
                 bytes4(bytes(msg.data[:4])),
                 from_,
                 to_,
@@ -191,7 +193,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         address operator_
     ) internal view virtual {
         try
-            KYCCompliance(address(this)).isKYCed(
+            IKYCCompliance(address(this)).isKYCed(
                 bytes4(bytes(msg.data[:4])),
                 from_,
                 to_,

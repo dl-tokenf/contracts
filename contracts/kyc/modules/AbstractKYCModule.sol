@@ -10,12 +10,6 @@ import {IKYCModule} from "../../interfaces/IKYCModule.sol";
 abstract contract AbstractKYCModule is IKYCModule, Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
-    struct ClaimTopicsParams {
-        bytes4 selector;
-        uint8 transferRole;
-        bytes32[] claimTopics;
-    }
-
     modifier onlyRole(bytes32 role_) {
         IAgentAccessControl(_tokenF).checkRole(role_, msg.sender);
         _;
@@ -23,64 +17,67 @@ abstract contract AbstractKYCModule is IKYCModule, Initializable {
 
     address private _tokenF;
 
-    mapping(bytes4 => mapping(uint8 => EnumerableSet.Bytes32Set)) private _claimTopics;
+    mapping(bytes32 => EnumerableSet.Bytes32Set) private _claimTopics;
 
     function __AbstractKYCModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
     }
 
     function addClaimTopics(
-        ClaimTopicsParams[] memory requests_
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
     ) public virtual onlyRole(_KYCModuleRole()) {
-        _addClaimTopics(requests_);
+        _addClaimTopics(claimTopicKey_, claimTopics_);
     }
 
     function removeClaimTopics(
-        ClaimTopicsParams[] memory requests_
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
     ) public virtual onlyRole(_KYCModuleRole()) {
-        _removeClaimTopics(requests_);
+        _removeClaimTopics(claimTopicKey_, claimTopics_);
     }
 
     function getClaimTopics(
-        bytes4 selector_,
-        uint8 transferRole_,
-        bytes memory
+        bytes32 claimTopicsKey_
     ) public view virtual returns (bytes32[] memory) {
-        return _claimTopics[selector_][transferRole_].values();
+        return _claimTopics[claimTopicsKey_].values();
     }
 
     function getTokenF() public view virtual override returns (address) {
         return _tokenF;
     }
 
-    function _addClaimTopics(ClaimTopicsParams[] memory requests_) internal virtual {
-        for (uint256 i = 0; i < requests_.length; ++i) {
-            ClaimTopicsParams memory request_ = requests_[i];
+    function _addClaimTopics(
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
+    ) internal virtual {
+        EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
 
-            for (uint256 j = 0; j < request_.claimTopics.length; ++j) {
-                require(
-                    _claimTopics[request_.selector][request_.transferRole].add(
-                        request_.claimTopics[j]
-                    ),
-                    "KYCModule: claim topic exists"
-                );
-            }
+        for (uint256 i = 0; i < claimTopics_.length; ++i) {
+            require(_claimTopicList.add(claimTopics_[i]), "KYCModule: claim topic exists");
         }
     }
 
-    function _removeClaimTopics(ClaimTopicsParams[] memory requests_) internal virtual {
-        for (uint256 i = 0; i < requests_.length; ++i) {
-            ClaimTopicsParams memory request_ = requests_[i];
+    function _removeClaimTopics(
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
+    ) internal virtual {
+        EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
 
-            for (uint256 j = 0; j < request_.claimTopics.length; ++j) {
-                require(
-                    _claimTopics[request_.selector][request_.transferRole].remove(
-                        request_.claimTopics[j]
-                    ),
-                    "KYCModule: claim topic doesn't exist"
-                );
-            }
+        for (uint256 i = 0; i < claimTopics_.length; ++i) {
+            require(
+                _claimTopicList.remove(claimTopics_[i]),
+                "KYCModule: claim topic doesn't exist"
+            );
         }
+    }
+
+    function _getClaimTopicsKey(
+        bytes4 selector_,
+        uint8 transferRole_,
+        bytes memory
+    ) internal view virtual returns (bytes32) {
+        return keccak256(abi.encodePacked(selector_, transferRole_));
     }
 
     function _KYCModuleRole() internal view virtual returns (bytes32) {
