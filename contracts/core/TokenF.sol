@@ -4,10 +4,11 @@ pragma solidity ^0.8.20;
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
-import {IKYCCompliance} from "./interfaces/IKYCCompliance.sol";
-import {IRegulatoryCompliance} from "./interfaces/IRegulatoryCompliance.sol";
-import {AgentAccessControl} from "./access/AgentAccessControl.sol";
-import {TokenFStorage} from "./TokenFStorage.sol";
+import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
+import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
+
+import {AgentAccessControl} from "./AgentAccessControl.sol";
+import {TokenFStorage} from "./storages/TokenFStorage.sol";
 
 abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
@@ -17,9 +18,14 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
     bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
 
-    uint8 public constant TRANSFER_SENDER = 1;
-    uint8 public constant TRANSFER_RECIPIENT = 2;
-    uint8 public constant TRANSFER_OPERATOR = 3;
+    struct Context {
+        bytes4 selector;
+        address from;
+        address to;
+        uint256 amount;
+        address operator;
+        bytes data;
+    }
 
     function __TokenF_init(
         address regulatoryCompliance_,
@@ -152,12 +158,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
     ) internal virtual {
         try
             IRegulatoryCompliance(address(this)).transferred(
-                bytes4(bytes(msg.data[:4])),
-                from_,
-                to_,
-                amount_,
-                operator_,
-                ""
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         {} catch {
             revert("TokenF: transferred reverted");
@@ -172,12 +173,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
     ) internal view virtual {
         try
             IRegulatoryCompliance(address(this)).canTransfer(
-                bytes4(bytes(msg.data[:4])),
-                from_,
-                to_,
-                amount_,
-                operator_,
-                ""
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         returns (bool canTransfer_) {
             require(canTransfer_, "TokenF: cannot transfer");
@@ -194,12 +190,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
     ) internal view virtual {
         try
             IKYCCompliance(address(this)).isKYCed(
-                bytes4(bytes(msg.data[:4])),
-                from_,
-                to_,
-                amount_,
-                operator_,
-                ""
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         returns (bool isKYCed_) {
             require(isKYCed_, "TokenF: not KYCed");

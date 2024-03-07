@@ -4,9 +4,12 @@ pragma solidity ^0.8.20;
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
-import {IRegulatoryModule} from "../interfaces/IRegulatoryModule.sol";
-import {AgentAccessControl} from "../access/AgentAccessControl.sol";
-import {RegulatoryComplianceStorage} from "./RegulatoryComplianceStorage.sol";
+
+import {TokenF} from "./TokenF.sol";
+import {AgentAccessControl} from "./AgentAccessControl.sol";
+import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
+
+import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol";
 
 abstract contract RegulatoryCompliance is
     IRegulatoryCompliance,
@@ -37,49 +40,19 @@ abstract contract RegulatoryCompliance is
         _removeRegulatoryModules(rModules_);
     }
 
-    function transferred(
-        bytes4 selector_,
-        address from_,
-        address to_,
-        uint256 amount_,
-        address operator_,
-        bytes memory data_
-    ) public virtual onlyThis {
+    function transferred(TokenF.Context memory ctx_) public virtual onlyThis {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            IRegulatoryModule(regulatoryModules_[i]).transferred(
-                selector_,
-                from_,
-                to_,
-                amount_,
-                operator_,
-                data_
-            );
+            AbstractRegulatoryModule(regulatoryModules_[i]).transferred(ctx_);
         }
     }
 
-    function canTransfer(
-        bytes4 selector_,
-        address from_,
-        address to_,
-        uint256 amount_,
-        address operator_,
-        bytes memory data_
-    ) public view virtual returns (bool) {
+    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            if (
-                !IRegulatoryModule(regulatoryModules_[i]).canTransfer(
-                    selector_,
-                    from_,
-                    to_,
-                    amount_,
-                    operator_,
-                    data_
-                )
-            ) {
+            if (!AbstractRegulatoryModule(regulatoryModules_[i]).canTransfer(ctx_)) {
                 return false;
             }
         }

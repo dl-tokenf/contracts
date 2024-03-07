@@ -4,9 +4,12 @@ pragma solidity ^0.8.20;
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
-import {IKYCModule} from "../interfaces/IKYCModule.sol";
-import {AgentAccessControl} from "../access/AgentAccessControl.sol";
-import {KYCComplianceStorage} from "./KYCComplianceStorage.sol";
+
+import {AgentAccessControl} from "./AgentAccessControl.sol";
+import {TokenF} from "./TokenF.sol";
+import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
+
+import {AbstractKYCModule} from "../modules/AbstractKYCModule.sol";
 
 abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -25,27 +28,11 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
         _removeKYCModules(kycModules_);
     }
 
-    function isKYCed(
-        bytes4 selector_,
-        address from_,
-        address to_,
-        uint256 amount_,
-        address operator_,
-        bytes memory data_
-    ) public view virtual returns (bool) {
+    function isKYCed(TokenF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            if (
-                !IKYCModule(regulatoryModules_[i]).isKYCed(
-                    selector_,
-                    from_,
-                    to_,
-                    amount_,
-                    operator_,
-                    data_
-                )
-            ) {
+            if (!AbstractKYCModule(regulatoryModules_[i]).isKYCed(ctx_)) {
                 return false;
             }
         }
