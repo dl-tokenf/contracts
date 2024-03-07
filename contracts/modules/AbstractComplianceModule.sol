@@ -32,6 +32,20 @@ abstract contract AbstractComplianceModule is Initializable {
 
     function _getClaimTopicKey(TokenF.Context memory ctx_) internal view virtual returns (bytes32);
 
+    function addClaimTopics(
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
+    ) public virtual onlyRole(_complianceModuleRole()) {
+        _addClaimTopics(claimTopicKey_, claimTopics_);
+    }
+
+    function removeClaimTopics(
+        bytes32 claimTopicKey_,
+        bytes32[] memory claimTopics_
+    ) public virtual onlyRole(_complianceModuleRole()) {
+        _removeClaimTopics(claimTopicKey_, claimTopics_);
+    }
+
     function getClaimTopics(
         bytes32 claimTopicsKey_
     ) public view virtual returns (bytes32[] memory) {

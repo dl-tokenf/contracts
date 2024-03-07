@@ -6,6 +6,8 @@ import {TokenF} from "../core/TokenF.sol";
 import {AbstractComplianceModule} from "./AbstractComplianceModule.sol";
 
 abstract contract AbstractRegulatoryModule is AbstractComplianceModule {
+    function __AbstractRegulatoryModule_init() internal onlyInitializing {}
+
     function transferred(TokenF.Context calldata ctx_) public virtual {}
 
     function canTransfer(TokenF.Context calldata ctx_) public view virtual returns (bool) {
