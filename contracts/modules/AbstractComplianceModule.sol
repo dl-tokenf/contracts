@@ -74,7 +74,7 @@ abstract contract AbstractComplianceModule is Initializable {
         _handlers[claimTopic_] = handler_;
     }
 
-    function _hook(TokenF.Context memory ctx_) internal view virtual returns (bool) {
+    function _hook(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
         TokenF.Context[] memory ctxs_ = _getExtContexts(ctx_);
 
         for (uint256 i = 0; i < ctxs_.length; ++i) {
@@ -103,7 +103,7 @@ abstract contract AbstractComplianceModule is Initializable {
     }
 
     function _getExtContexts(
-        TokenF.Context memory ctx_
+        TokenF.Context calldata ctx_
     ) internal view virtual returns (TokenF.Context[] memory) {
         TokenF.Context[] memory ctxs_ = new TokenF.Context[](1);
         ctxs_[0] = ctx_;

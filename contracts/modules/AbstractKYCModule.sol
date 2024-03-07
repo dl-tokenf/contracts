@@ -12,12 +12,12 @@ abstract contract AbstractKYCModule is AbstractComplianceModule {
         Operator
     }
 
-    function isKYCed(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function isKYCed(TokenF.Context calldata ctx_) public view virtual returns (bool) {
         return _hook(ctx_);
     }
 
     function _getExtContexts(
-        TokenF.Context memory ctx_
+        TokenF.Context calldata ctx_
     ) internal view virtual override returns (TokenF.Context[] memory) {
         TokenF.Context[] memory ctxs_ = new TokenF.Context[](3);
         ctxs_[0] = _getExtContext(ctx_, TransferParty.Sender);
@@ -36,7 +36,7 @@ abstract contract AbstractKYCModule is AbstractComplianceModule {
     }
 
     function _getExtContext(
-        TokenF.Context memory ctx_,
+        TokenF.Context calldata ctx_,
         TransferParty transferParty_
     ) private pure returns (TokenF.Context memory extCtx_) {
         extCtx_ = ctx_;

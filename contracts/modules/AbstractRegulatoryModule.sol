@@ -6,9 +6,9 @@ import {TokenF} from "../core/TokenF.sol";
 import {AbstractComplianceModule} from "./AbstractComplianceModule.sol";
 
 abstract contract AbstractRegulatoryModule is AbstractComplianceModule {
-    function transferred(TokenF.Context memory ctx_) public virtual {}
+    function transferred(TokenF.Context calldata ctx_) public virtual {}
 
-    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(TokenF.Context calldata ctx_) public view virtual returns (bool) {
         return _hook(ctx_);
     }
 

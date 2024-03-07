@@ -39,7 +39,7 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         _setHandler(MAX_TRANSFER_LIMIT_TOPIC, _handleMaxTransferLimitTopic);
     }
 
-    function transferred(TokenF.Context memory ctx_) public virtual override {}
+    function transferred(TokenF.Context calldata ctx_) public virtual override {}
 
     function getTransferLimits()
         public

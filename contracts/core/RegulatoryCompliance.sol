@@ -40,7 +40,7 @@ abstract contract RegulatoryCompliance is
         _removeRegulatoryModules(rModules_);
     }
 
-    function transferred(TokenF.Context memory ctx_) public virtual onlyThis {
+    function transferred(TokenF.Context calldata ctx_) public virtual onlyThis {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
@@ -48,7 +48,7 @@ abstract contract RegulatoryCompliance is
         }
     }
 
-    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(TokenF.Context calldata ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
