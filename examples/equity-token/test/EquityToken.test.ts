@@ -117,7 +117,7 @@ describe("EquityToken", () => {
       await expect(token.mint(alice, wei(1))).to.be.revertedWith("TokenF: not KYCed");
     });
 
-    it.only("should mint if all conditions are met", async () => {
+    it("should mint if all conditions are met", async () => {
       await rarimoSBT.mint(owner, 1);
       await rarimoSBT.mint(alice, 2);
 
