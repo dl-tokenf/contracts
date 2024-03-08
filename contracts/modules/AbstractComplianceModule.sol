@@ -85,11 +85,14 @@ abstract contract AbstractComplianceModule is Initializable {
         }
     }
 
-    function _addHandler(
+    function _setHandler(
         bytes32 claimTopic_,
         function(TokenF.Context memory) internal view returns (bool) handler_
     ) internal virtual {
-        _handlers[claimTopic_] = Handler(true, handler_);
+        Handler storage _handler = _handlers[claimTopic_];
+
+        _handler.isHandlerSet = true;
+        _handler.handler = handler_;
     }
 
     function _hook(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
@@ -117,11 +120,11 @@ abstract contract AbstractComplianceModule is Initializable {
         virtual
         returns (function(TokenF.Context memory) internal view returns (bool))
     {
-        Handler memory handler_ = _handlers[claimTopic_];
+        Handler storage _handler = _handlers[claimTopic_];
 
-        require(handler_.isHandlerSet, "ACModule: handler is not set");
+        require(_handler.isHandlerSet, "ACModule: handler is not set");
 
-        return handler_.handler;
+        return _handler.handler;
     }
 
     function _getExtContexts(
