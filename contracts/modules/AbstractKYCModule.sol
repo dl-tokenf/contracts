@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {TokenF} from "../core/TokenF.sol";
 
-import {AbstractComplianceModule} from "./AbstractComplianceModule.sol";
+import {AbstractModule} from "./AbstractModule.sol";
 
-abstract contract AbstractKYCModule is AbstractComplianceModule {
+abstract contract AbstractKYCModule is AbstractModule {
     enum TransferParty {
         Sender,
         Recipient,

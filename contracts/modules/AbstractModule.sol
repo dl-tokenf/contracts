@@ -8,7 +8,7 @@ import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
 
 import {TokenF} from "../core/TokenF.sol";
 
-abstract contract AbstractComplianceModule is Initializable {
+abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     struct Handler {
@@ -67,7 +67,7 @@ abstract contract AbstractComplianceModule is Initializable {
         EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
 
         for (uint256 i = 0; i < claimTopics_.length; ++i) {
-            require(_claimTopicList.add(claimTopics_[i]), "ACModule: claim topic exists");
+            require(_claimTopicList.add(claimTopics_[i]), "AModule: claim topic exists");
         }
     }
 
@@ -78,10 +78,7 @@ abstract contract AbstractComplianceModule is Initializable {
         EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
 
         for (uint256 i = 0; i < claimTopics_.length; ++i) {
-            require(
-                _claimTopicList.remove(claimTopics_[i]),
-                "ACModule: claim topic doesn't exist"
-            );
+            require(_claimTopicList.remove(claimTopics_[i]), "AModule: claim topic doesn't exist");
         }
     }
 
@@ -122,7 +119,7 @@ abstract contract AbstractComplianceModule is Initializable {
     {
         Handler storage _handler = _handlers[claimTopic_];
 
-        require(_handler.isHandlerSet, "ACModule: handler is not set");
+        require(_handler.isHandlerSet, "AModule: handler is not set");
 
         return _handler.handler;
     }

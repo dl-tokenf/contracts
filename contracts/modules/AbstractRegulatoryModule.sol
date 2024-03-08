@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {TokenF} from "../core/TokenF.sol";
 
-import {AbstractComplianceModule} from "./AbstractComplianceModule.sol";
+import {AbstractModule} from "./AbstractModule.sol";
 
-abstract contract AbstractRegulatoryModule is AbstractComplianceModule {
+abstract contract AbstractRegulatoryModule is AbstractModule {
     function __AbstractRegulatoryModule_init() internal onlyInitializing {}
 
     function transferred(TokenF.Context calldata ctx_) public virtual {}
