@@ -1,6 +1,9 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import { expect } from "chai";
+import { wei } from "@/scripts/utils/utils";
 import { Reverter } from "@/test/helpers/reverter";
+import { TransferParty } from "@/test/helpers/types";
 import {
   EquityKYCCompliance,
   EquityRarimoModule,
@@ -25,6 +28,40 @@ describe("EquityToken", () => {
   let rarimoModule: EquityRarimoModule;
   let rarimoSBT: RarimoSBT;
 
+  const setupRarimoModule = async () => {
+    const operatorMintKey = await rarimoModule.getClaimTopicKey(await token.MINT_SELECTOR(), TransferParty.Operator);
+    const toMintKey = await rarimoModule.getClaimTopicKey(await token.MINT_SELECTOR(), TransferParty.Recipient);
+
+    const fromTransferKey = await rarimoModule.getClaimTopicKey(await token.TRANSFER_SELECTOR(), TransferParty.Sender);
+    const toTransferKey = await rarimoModule.getClaimTopicKey(await token.TRANSFER_SELECTOR(), TransferParty.Recipient);
+
+    const fromTransferFromKey = await rarimoModule.getClaimTopicKey(
+      await token.TRANSFER_FROM_SELECTOR(),
+      TransferParty.Sender,
+    );
+    const toTransferFromKey = await rarimoModule.getClaimTopicKey(
+      await token.TRANSFER_FROM_SELECTOR(),
+      TransferParty.Recipient,
+    );
+
+    await rarimoModule.addClaimTopics(operatorMintKey, [await rarimoModule.HAS_SOUL_OPERATOR_TOPIC()]);
+
+    await rarimoModule.addClaimTopics(toMintKey, [await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC()]);
+    await rarimoModule.addClaimTopics(toTransferKey, [await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC()]);
+    await rarimoModule.addClaimTopics(toTransferFromKey, [await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC()]);
+
+    await rarimoModule.addClaimTopics(fromTransferKey, [await rarimoModule.HAS_SOUL_SENDER_TOPIC()]);
+    await rarimoModule.addClaimTopics(fromTransferFromKey, [await rarimoModule.HAS_SOUL_SENDER_TOPIC()]);
+  };
+
+  const setupTransferLimitsModule = async () => {
+    const transferKey = await transferLimitsModule.getClaimTopicKey(await token.TRANSFER_SELECTOR());
+    const transferFromKey = await transferLimitsModule.getClaimTopicKey(await token.TRANSFER_FROM_SELECTOR());
+
+    await transferLimitsModule.addClaimTopics(transferKey, [await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC()]);
+    await transferLimitsModule.addClaimTopics(transferFromKey, [await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC()]);
+  };
+
   before("setup", async () => {
     [owner, agent, bob, alice] = await ethers.getSigners();
 
@@ -41,8 +78,8 @@ describe("EquityToken", () => {
     const _regulatoryCompliance = await EquityRegulatoryCompliance.deploy();
 
     await token.__EquityToken_init(
-      await _regulatoryCompliance.getAddress(),
-      await _kycCompliance.getAddress(),
+      _regulatoryCompliance,
+      _kycCompliance,
       _regulatoryCompliance.interface.encodeFunctionData("__EquityRegulatoryCompliance_init"),
       _kycCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init"),
     );
@@ -57,8 +94,8 @@ describe("EquityToken", () => {
 
     await rarimoSBT.__RarimoSBT_init();
 
-    await transferLimitsModule.__EquityTransferLimitsModule_init(await token.getAddress());
-    await rarimoModule.__EquityRarimoModule_init(await token.getAddress(), await rarimoSBT.getAddress());
+    await transferLimitsModule.__EquityTransferLimitsModule_init(token);
+    await rarimoModule.__EquityRarimoModule_init(token, rarimoSBT);
 
     await kycCompliance.addKYCModules([rarimoModule]);
     await regulatoryCompliance.addRegulatoryModules([transferLimitsModule]);
@@ -70,11 +107,23 @@ describe("EquityToken", () => {
 
   afterEach(reverter.revert);
 
-  context("happy flow", () => {
-    beforeEach(async () => {});
+  context("if restrictions are setup", () => {
+    beforeEach(async () => {
+      await setupRarimoModule();
+      await setupTransferLimitsModule();
+    });
 
-    it.only("test", async () => {
-      console.log("works");
+    it("should not mint if transfer party has no role", async () => {
+      await expect(token.mint(alice, wei(1))).to.be.revertedWith("TokenF: not KYCed");
+    });
+
+    it.only("should mint if all conditions are met", async () => {
+      await rarimoSBT.mint(owner, 1);
+      await rarimoSBT.mint(alice, 2);
+
+      await token.mint(alice, wei(1));
+
+      expect(await token.balanceOf(alice)).to.eq(wei(1));
     });
   });
 });

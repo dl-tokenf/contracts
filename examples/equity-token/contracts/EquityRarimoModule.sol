@@ -10,7 +10,7 @@ contract EquityRarimoModule is RarimoModule {
         __RarimoModule_init(sbt_);
     }
 
-    function _getClaimTopicKey(
+    function getClaimTopicKey(
         bytes4 selector_,
         TransferParty transferParty_
     ) external view returns (bytes32) {

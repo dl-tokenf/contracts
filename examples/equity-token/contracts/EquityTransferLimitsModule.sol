@@ -10,7 +10,7 @@ contract EquityTransferLimitsModule is TransferLimitsModule {
         __TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
     }
 
-    function _getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
+    function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
         TokenF.Context memory ctx_;
         ctx_.selector = selector_;
 
