@@ -23,8 +23,8 @@ abstract contract AbstractComplianceModule is Initializable {
 
     address private _tokenF;
 
-    mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set) private _claimTopics;
-    mapping(bytes32 claimTopic => Handler) private _handlers;
+    mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set claimTopics) private _claimTopics;
+    mapping(bytes32 claimTopic => Handler handler) private _handlers;
 
     function __AbstractComplianceModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
