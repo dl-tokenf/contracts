@@ -11,7 +11,9 @@ import {AbstractKYCModule} from "../AbstractKYCModule.sol";
 abstract contract RarimoModule is AbstractKYCModule {
     using Address for address;
 
-    bytes32 public constant HAS_SOUL_TOPIC = keccak256("HAS_SOUL");
+    bytes32 public constant HAS_SOUL_SENDER_TOPIC = keccak256("HAS_SOUL_SENDER");
+    bytes32 public constant HAS_SOUL_RECIPIENT_TOPIC = keccak256("HAS_SOUL_RECIPIENT");
+    bytes32 public constant HAS_SOUL_OPERATOR = keccak256("HAS_SOUL_OPERATOR");
 
     address private _sbt;
 
@@ -24,21 +26,33 @@ abstract contract RarimoModule is AbstractKYCModule {
     }
 
     function _router() internal virtual override {
-        _setHandler(HAS_SOUL_TOPIC, _handleHasSoulTopic);
+        _setHandler(HAS_SOUL_SENDER_TOPIC, _handleHasSoulSenderTopic);
+        _setHandler(HAS_SOUL_RECIPIENT_TOPIC, _handleHasSoulRecipientTopic);
+        _setHandler(HAS_SOUL_OPERATOR_TOPIC, _handleHasSoulOperatorTopic);
     }
 
-    function _handleHasSoulTopic(TokenF.Context memory ctx_) internal view virtual returns (bool) {
-        TransferParty transferParty_ = abi.decode(ctx_.data, (TransferParty));
+    function _handleHasSoulSenderTopic(
+        TokenF.Context memory ctx_
+    ) internal view virtual returns (bool) {
+        return ISBT(_sbt).balanceOf(ctx_.from) > 0;
+    }
 
-        if (transferParty_ == TransferParty.Sender) {
-            return ISBT(_sbt).balanceOf(ctx_.from) > 0;
+    function _handleHasSoulRecipientTopic(
+        TokenF.Context memory ctx_
+    ) internal view virtual returns (bool) {
+        return ISBT(_sbt).balanceOf(ctx_.to) > 0;
+    }
+
+    function _handleHasSoulOperatorTopic(
+        TokenF.Context memory ctx_
+    ) internal view virtual returns (bool) {
+        if (ctx_.operator.isContract()) {
+            /// @dev If the operator is a contract, it has no identity.
+            /// In this case, it's enough that it has a certain role in `AccessControl` to initiate the transfer.
+            return true;
         }
 
-        if (transferParty_ == TransferParty.Recipient) {
-            return ISBT(_sbt).balanceOf(ctx_.to) > 0;
-        }
-
-        revert("RarimoModule: unexpected party");
+        return ISBT(_sbt).balanceOf(ctx_.operator) > 0;
     }
 
     uint256[49] private _gap;
