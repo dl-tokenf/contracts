@@ -13,7 +13,7 @@ abstract contract RarimoModule is AbstractKYCModule {
 
     bytes32 public constant HAS_SOUL_SENDER_TOPIC = keccak256("HAS_SOUL_SENDER");
     bytes32 public constant HAS_SOUL_RECIPIENT_TOPIC = keccak256("HAS_SOUL_RECIPIENT");
-    bytes32 public constant HAS_SOUL_OPERATOR = keccak256("HAS_SOUL_OPERATOR");
+    bytes32 public constant HAS_SOUL_OPERATOR_TOPIC = keccak256("HAS_SOUL_OPERATOR");
 
     address private _sbt;
 
