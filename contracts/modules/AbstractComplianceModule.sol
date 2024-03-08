@@ -11,6 +11,11 @@ import {TokenF} from "../core/TokenF.sol";
 abstract contract AbstractComplianceModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
+    struct Handler {
+        bool isHandlerSet;
+        function(TokenF.Context memory) internal view returns (bool) handler;
+    }
+
     modifier onlyRole(bytes32 role_) {
         _onlyRole(role_);
         _;
@@ -18,9 +23,8 @@ abstract contract AbstractComplianceModule is Initializable {
 
     address private _tokenF;
 
-    mapping(bytes32 => EnumerableSet.Bytes32Set) private _claimTopics;
-    mapping(bytes32 => function(TokenF.Context memory) internal view returns (bool))
-        private _handlers;
+    mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set) private _claimTopics;
+    mapping(bytes32 claimTopic => Handler) private _handlers;
 
     function __AbstractComplianceModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
@@ -63,7 +67,7 @@ abstract contract AbstractComplianceModule is Initializable {
         EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
 
         for (uint256 i = 0; i < claimTopics_.length; ++i) {
-            require(_claimTopicList.add(claimTopics_[i]), "KYCModule: claim topic exists");
+            require(_claimTopicList.add(claimTopics_[i]), "ACModule: claim topic exists");
         }
     }
 
@@ -76,16 +80,16 @@ abstract contract AbstractComplianceModule is Initializable {
         for (uint256 i = 0; i < claimTopics_.length; ++i) {
             require(
                 _claimTopicList.remove(claimTopics_[i]),
-                "KYCModule: claim topic doesn't exist"
+                "ACModule: claim topic doesn't exist"
             );
         }
     }
 
-    function _setHandler(
+    function _addHandler(
         bytes32 claimTopic_,
         function(TokenF.Context memory) internal view returns (bool) handler_
     ) internal virtual {
-        _handlers[claimTopic_] = handler_;
+        _handlers[claimTopic_] = Handler(true, handler_);
     }
 
     function _hook(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
@@ -113,7 +117,11 @@ abstract contract AbstractComplianceModule is Initializable {
         virtual
         returns (function(TokenF.Context memory) internal view returns (bool))
     {
-        return _handlers[claimTopic_];
+        Handler memory handler_ = _handlers[claimTopic_];
+
+        require(handler_.isHandlerSet, "ACModule: handler is not set");
+
+        return handler_.handler;
     }
 
     function _getExtContexts(
