@@ -34,7 +34,7 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         _maxTransferLimit = maxTransferLimit_;
     }
 
-    function _router() internal virtual override {
+    function _handlerer() internal virtual override {
         _setHandler(MIN_TRANSFER_LIMIT_TOPIC, _handleMinTransferLimitTopic);
         _setHandler(MAX_TRANSFER_LIMIT_TOPIC, _handleMaxTransferLimitTopic);
     }

@@ -11,7 +11,7 @@ abstract contract AbstractRegulatoryModule is AbstractModule {
     function transferred(TokenF.Context calldata ctx_) public virtual {}
 
     function canTransfer(TokenF.Context calldata ctx_) public view virtual returns (bool) {
-        return _hook(ctx_);
+        return _handle(ctx_);
     }
 
     function _getClaimTopicKey(

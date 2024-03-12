@@ -29,10 +29,10 @@ abstract contract AbstractModule is Initializable {
     function __AbstractComplianceModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
 
-        _router();
+        _handlerer();
     }
 
-    function _router() internal virtual;
+    function _handlerer() internal virtual;
 
     function _getClaimTopicKey(TokenF.Context memory ctx_) internal view virtual returns (bytes32);
 
@@ -92,7 +92,7 @@ abstract contract AbstractModule is Initializable {
         _handler.handler = handler_;
     }
 
-    function _hook(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
+    function _handle(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
         TokenF.Context[] memory ctxs_ = _getExtContexts(ctx_);
 
         for (uint256 i = 0; i < ctxs_.length; ++i) {

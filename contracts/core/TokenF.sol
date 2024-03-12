@@ -32,7 +32,7 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         address kycCompliance_,
         bytes memory initRegulatory_,
         bytes memory initKYC_
-    ) internal onlyInitializing(TOKEN_F_STORAGE_SLOT) {
+    ) internal virtual onlyInitializing(TOKEN_F_STORAGE_SLOT) {
         bytes4[] memory rComplianceSelectors_ = new bytes4[](4);
         rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
         rComplianceSelectors_[1] = IRegulatoryCompliance.removeRegulatoryModules.selector;
@@ -69,12 +69,12 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         address to_,
         uint256 amount_
     ) public virtual override returns (bool) {
-        _canTransfer(from_, to_, amount_, address(0));
-        _isKYCed(from_, to_, amount_, address(0));
+        _canTransfer(from_, to_, amount_, msg.sender);
+        _isKYCed(from_, to_, amount_, msg.sender);
 
         super.transferFrom(from_, to_, amount_);
 
-        _transferred(from_, to_, amount_, address(0));
+        _transferred(from_, to_, amount_, msg.sender);
 
         return true;
     }

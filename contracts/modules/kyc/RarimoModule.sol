@@ -25,7 +25,7 @@ abstract contract RarimoModule is AbstractKYCModule {
         return _sbt;
     }
 
-    function _router() internal virtual override {
+    function _handlerer() internal virtual override {
         _setHandler(HAS_SOUL_SENDER_TOPIC, _handleHasSoulSenderTopic);
         _setHandler(HAS_SOUL_RECIPIENT_TOPIC, _handleHasSoulRecipientTopic);
         _setHandler(HAS_SOUL_OPERATOR_TOPIC, _handleHasSoulOperatorTopic);

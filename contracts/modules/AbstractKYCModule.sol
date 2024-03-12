@@ -15,7 +15,7 @@ abstract contract AbstractKYCModule is AbstractModule {
     function __AbstractKYCModule_init() internal onlyInitializing {}
 
     function isKYCed(TokenF.Context calldata ctx_) public view virtual returns (bool) {
-        return _hook(ctx_);
+        return _handle(ctx_);
     }
 
     function _getExtContexts(
