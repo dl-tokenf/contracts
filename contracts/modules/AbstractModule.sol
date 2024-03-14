@@ -15,26 +15,30 @@ import {TokenF} from "../core/TokenF.sol";
  *
  * The AbstractModule contract provides a framework for implementing compliance modules.
  *
- * Each compliance module is capable of matching claim topics to corresponding handlers,
- * with claim topics organized under user-defined claim topic keys.
+ * Each module is capable of matching claim topics to corresponding handlers, with claim topics organized under user-defined claim topic keys.
  *
- * Here are examples illustrating how modules could be setup.
+ * Here are some examples illustrating how modules could be setup.
  *
  * 1. KYC Verification:
- * - Claim Topic Key:  TransferSender
- * - Claim Topics:     [KYCed, LegalAge]
- * - Handlers:         [_handleKYCed, _handleAge]
+ *
+ * TransferSender <claimTopicKey> =>
+ *   KYCed <claimTopic> => _handleKYCed <handler>
+ *   LegalAge <claimTopic> => _handleLegalAge <handler>
  *
  * In this example, whenever a transfer occurs, the compliance module checks if the sender is KYC compliant
  * and of legal age. Corresponding handlers `_handleIsKYCed` and `_handleCountryCheck` are invoked to execute
  * the necessary checks, allowing the transfer to proceed.
  *
  * 2. Mint Amount Verification:
- * - Claim Topic Key:  Mint
- * - Claim Topics:     [MinTransferLimit, MaxTransferLimit]
- * - Handlers:         [_handleMinTransferLimit, _handleMaxTransferLimit]
  *
- * In this scenario, when a new token is being minted, the `_handleMinTransferLimit` and `_handleMaxTransferLimit`
+ * Transfer <claimTopicKey> =>
+ *   MinTransferLimit <claimTopic> => _handleMinTransferLimit <handler>
+ *   MaxTransferLimit <claimTopic> => _handleMaxTransferLimit <handler>
+ * TransferFrom <claimTopicKey> =>
+ *   MinTransferLimit <claimTopic> => _handleMinTransferLimit <handler>
+ *   MaxTransferLimit <claimTopic> => _handleMaxTransferLimit <handler>
+ *
+ * In this scenario, when a new token is being transferred, the `_handleMinTransferLimit` and `_handleMaxTransferLimit`
  * handlers are triggered to verify if the minted amount falls within predefined transfer limits.
  */
 abstract contract AbstractModule is Initializable {
