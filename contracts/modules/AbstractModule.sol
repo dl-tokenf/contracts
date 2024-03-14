@@ -8,6 +8,33 @@ import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
 
 import {TokenF} from "../core/TokenF.sol";
 
+/**
+ * @notice The AbstractModule contract
+ *
+ * The AbstractModule contract provides a framework for implementing compliance modules.
+ *
+ * Each compliance module instance is capable of matching claim topics to corresponding handlers,
+ * with claim topics organized under user-defined claim topic keys.
+ *
+ * Here are examples illustrating how this contract could be utilized:
+ *
+ * 1. KYC Verification:
+ * - Claim Topic Key:  TransferSender
+ * - Claim Topics:     [KYCed, LegalAge]
+ * - Handlers:         [_handleKYCed, _handleAge]
+ *
+ * In this example, whenever a transfer occurs, the compliance module checks if the sender is KYC compliant
+ * and of legal age. Corresponding handlers `_handleIsKYCed` and `_handleCountryCheck` are invoked to execute
+ * the necessary checks, allowing the transfer to proceed.
+ *
+ * 2. Mint Amount Verification:
+ * - Claim Topic Key:  Mint
+ * - Claim Topics:     [MinTransferLimit, MaxTransferLimit]
+ * - Handlers:         [_handleMinTransferLimit, _handleMaxTransferLimit]
+ *
+ * In this scenario, when a new token is being minted, the `_handleMinTransferLimit` and `_handleMaxTransferLimit`
+ * handlers are triggered to verify if the minted amount falls within predefined transfer limits.
+ */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
