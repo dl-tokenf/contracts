@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
+
 import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
 
 import {TokenF} from "../core/TokenF.sol";
@@ -13,7 +15,7 @@ import {TokenF} from "../core/TokenF.sol";
  *
  * The AbstractModule contract provides a framework for implementing compliance modules.
  *
- * Each compliance module instance is capable of matching claim topics to corresponding handlers,
+ * Each compliance module is capable of matching claim topics to corresponding handlers,
  * with claim topics organized under user-defined claim topic keys.
  *
  * Here are examples illustrating how modules could be setup.
@@ -37,6 +39,7 @@ import {TokenF} from "../core/TokenF.sol";
  */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
+    using SetHelper for EnumerableSet.Bytes32Set;
 
     struct Handler {
         bool isHandlerSet;
@@ -91,22 +94,14 @@ abstract contract AbstractModule is Initializable {
         bytes32 claimTopicKey_,
         bytes32[] memory claimTopics_
     ) internal virtual {
-        EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
-
-        for (uint256 i = 0; i < claimTopics_.length; ++i) {
-            require(_claimTopicList.add(claimTopics_[i]), "AModule: claim topic exists");
-        }
+        _claimTopics[claimTopicKey_].strictAdd(claimTopics_);
     }
 
     function _removeClaimTopics(
         bytes32 claimTopicKey_,
         bytes32[] memory claimTopics_
     ) internal virtual {
-        EnumerableSet.Bytes32Set storage _claimTopicList = _claimTopics[claimTopicKey_];
-
-        for (uint256 i = 0; i < claimTopics_.length; ++i) {
-            require(_claimTopicList.remove(claimTopics_[i]), "AModule: claim topic doesn't exist");
-        }
+        _claimTopics[claimTopicKey_].strictRemove(claimTopics_);
     }
 
     function _setHandler(

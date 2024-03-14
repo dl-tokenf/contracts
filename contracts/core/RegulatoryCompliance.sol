@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
+
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
 import {TokenF} from "./TokenF.sol";
@@ -23,6 +25,7 @@ abstract contract RegulatoryCompliance is
     AgentAccessControl
 {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using SetHelper for EnumerableSet.AddressSet;
 
     modifier onlyThis() {
         require(msg.sender == address(this), "RCompliance: not this");
@@ -67,24 +70,11 @@ abstract contract RegulatoryCompliance is
     }
 
     function _addRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
-        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
-            .regulatoryModules;
-
-        for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            require(_regulatoryModules.add(regulatoryModules_[i]), "RCompliance: module exists");
-        }
+        _getRegulatoryComplianceStorage().regulatoryModules.strictAdd(regulatoryModules_);
     }
 
     function _removeRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
-        EnumerableSet.AddressSet storage _regulatoryModules = _getRegulatoryComplianceStorage()
-            .regulatoryModules;
-
-        for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
-            require(
-                _regulatoryModules.remove(regulatoryModules_[i]),
-                "RCompliance: module doesn't exist"
-            );
-        }
+        _getRegulatoryComplianceStorage().regulatoryModules.strictRemove(regulatoryModules_);
     }
 
     function _regulatoryComplianceRole() internal view virtual returns (bytes32) {

@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
+
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
@@ -19,6 +21,7 @@ import {AbstractKYCModule} from "../modules/AbstractKYCModule.sol";
  */
 abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using SetHelper for EnumerableSet.AddressSet;
 
     function __KYCCompliance_init() internal onlyInitializing(KYC_COMPLIANCE_STORAGE_SLOT) {}
 
@@ -47,19 +50,11 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
     }
 
     function _addKYCModules(address[] memory kycModules_) internal virtual {
-        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
-
-        for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.add(kycModules_[i]), "KYCCompliance: module exists");
-        }
+        _getKYCComplianceStorage().kycModules.strictAdd(kycModules_);
     }
 
     function _removeKYCModules(address[] memory kycModules_) internal virtual {
-        EnumerableSet.AddressSet storage _kycModules = _getKYCComplianceStorage().kycModules;
-
-        for (uint256 i = 0; i < kycModules_.length; ++i) {
-            require(_kycModules.remove(kycModules_[i]), "KYCCompliance: module doesn't exist");
-        }
+        _getKYCComplianceStorage().kycModules.strictRemove(kycModules_);
     }
 
     function _KYCComplianceRole() internal view virtual returns (bytes32) {
