@@ -16,7 +16,7 @@ import {TokenF} from "../core/TokenF.sol";
  * Each compliance module instance is capable of matching claim topics to corresponding handlers,
  * with claim topics organized under user-defined claim topic keys.
  *
- * Here are examples illustrating how this contract could be utilized:
+ * Here are examples illustrating how modules could be setup.
  *
  * 1. KYC Verification:
  * - Claim Topic Key:  TransferSender
