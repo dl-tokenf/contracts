@@ -46,12 +46,6 @@ abstract contract RarimoModule is AbstractKYCModule {
     function _handleHasSoulOperatorTopic(
         TokenF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        if (ctx_.operator.isContract()) {
-            /// @dev If the operator is a contract, it has no identity.
-            /// In this case, it's enough that it has a certain role in `AccessControl` to initiate the transfer.
-            return true;
-        }
-
         return ISBT(_sbt).balanceOf(ctx_.operator) > 0;
     }
 
