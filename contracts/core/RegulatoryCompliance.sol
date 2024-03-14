@@ -11,6 +11,12 @@ import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorag
 
 import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol";
 
+/**
+ * @notice The RegulatoryCompliance contract
+ *
+ * The RegulatoryCompliance is a core contract that serves as a repository for regulatory modules.
+ * It monitors every transfer made within the TokenF contract and disseminates its context to registered regulatory modules.
+ */
 abstract contract RegulatoryCompliance is
     IRegulatoryCompliance,
     RegulatoryComplianceStorage,
