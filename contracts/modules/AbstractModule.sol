@@ -15,14 +15,15 @@ import {TokenF} from "../core/TokenF.sol";
  *
  * The AbstractModule contract provides a framework for implementing compliance modules.
  *
- * Each module is capable of matching claim topics to corresponding handlers, with claim topics organized under user-defined claim topic keys.
+ * Each module is capable of matching claim topics to corresponding handlers, with claim topics organized under
+ * user-defined claim topic keys.
  *
  * Here are some examples illustrating how modules could be setup.
  *
  * 1. KYC Verification:
  *
  * TransferSender <claimTopicKey> =>
- *   KYCed <claimTopic>    => _handleKYCed <handler>
+ *   KYCed <claimTopic> => _handleKYCed <handler>
  *   LegalAge <claimTopic> => _handleLegalAge <handler>
  *
  * In this example, whenever a transfer occurs, the compliance module checks if the sender is KYC compliant
