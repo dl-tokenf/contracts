@@ -17,7 +17,7 @@ import {AbstractKYCModule} from "../modules/AbstractKYCModule.sol";
  * @notice The KYCCompliance contract
  *
  * The KYCCompliance is a core contract that serves as a repository for KYC modules.
- * It monitors every transfer made within the TokenF contract and disseminates its context to registered KYC modules.
+ * It tracks every transfer made within the TokenF contract and disseminates its context to registered KYC modules.
  */
 abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
