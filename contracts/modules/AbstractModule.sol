@@ -127,6 +127,11 @@ abstract contract AbstractModule is Initializable {
             bytes32[] memory claimTopics_ = getClaimTopics(claimTopicKey_);
 
             for (uint256 j = 0; j < claimTopics_.length; ++j) {
+                /*
+                 * TODO: This handler cannot be called externally with `ctxs_[i]` passed as `TokenF.Context calldata`.
+                 * Furthermore, `ctx_` is taken as `TokenF.Context calldata` to explicitly avoid reference issues while copying
+                 * `ctx_` in `_getExtContexts`. The temporary solution is to simply pass `ctxs_[i]` as `TokenF.Context memory` here.
+                 */
                 if (!_getHandler(claimTopics_[j])(ctxs_[i])) {
                     return false;
                 }
