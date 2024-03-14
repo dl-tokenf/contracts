@@ -18,8 +18,8 @@ import {TokenFStorage} from "./storages/TokenFStorage.sol";
  * The TokenF provides flexibility for implementing eligibility checks through the integration of compliance modules without
  * affecting the standard ERC20 behaviour.
  *
- * Transfer methods trigger the forwarding of the entire transfer context to compliance modules, ensuring adherence to specific
- * requirements, such as regulatory standards or KYC protocols.
+ * Transfer methods forward the entire transfer context to compliance modules, ensuring adherence to specific requirements,
+ * such as regulatory standards or KYC protocols.
  */
 abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
