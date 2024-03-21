@@ -1,63 +1,55 @@
-# Hardhat template 
+# TokenF - Tokenize Finance
 
-Template hardhat repository for ad-hoc smart contracts development.
+Bring Real World Assets (RWA) on-chain via flexible tokenization framework - TokenF.
 
-### How to use
+## Application
 
-The template works out of the box. To clean up the repo, you may need to delete the mock contracts, tests and migration files.
+TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
 
-#### Compilation
+TokenF is built with certain levels of abstraction in mind: 
 
-To compile the contracts, use the next script:
+- ERC2535 Diamond beating heart that allows extensibility and upgradeability.
+- Support of custom compliance modules to be plugged in the TokenF core.
+- Rich configuration of check/hooks/behavior with imagination being the only limit.
 
-```bash
-npm run compile
-```
+| **What TokenF Is ✅**                       | **What TokenF Is Not ❌**        |
+| :-----------------------------------------: | :------------------------------: |
+| On-chain tokenization framework             | Fullstack tokenization framework |
+| Smart contracts to configure RWA behavior   | RWA launchpad/RWA consulting set |
+| Reimagined and enhanced ERC3643 alternative | Yet another ERC3643 copy         |
 
-#### Test
+> [!NOTE]
+> TokenF is at the early stage of development, many breaking changes are foreseen.
 
-To run the tests, execute the following command:
+## Usage
 
-```bash
-npm run test
-```
-
-Or to see the coverage, run:
-
-```bash
-npm run coverage
-```
-
-#### Local deployment
-
-To deploy the contracts locally, run the following commands (in the different terminals):
+TokenF is an open-source product with no limitation for the private usage (check out the license for commercialization). The framework is available as an NPM package:
 
 ```bash
-npm run private-network
-npm run deploy-localhost
+npm install @tokenf/contracts
 ```
 
-#### Bindings
+You will then be able to start using the framework:
 
-The command to generate the bindings is as follows:
+```solidity
+pragma solidity ^0.8.20;
 
-```bash
-npm run generate-types
+import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
+
+contract EquityToken is TokenF {
+    . . .
+}
 ```
 
-> See the full list of available commands in the `package.json` file.
+> [!TIP]
+> Check out the `examples` directory to learn how to bring your RWA on-chain!
 
-### Integrated plugins
+There is an abundant [documentation]() available for the framework. If you are planning to build with TokenF, do check it out!
 
-- Hardhat official `ethers` + `ethers-v6`
-- [`Typechain`](https://www.npmjs.com/package/@typechain/hardhat)
-- [`hardhat-migrate`](https://www.npmjs.com/package/@solarity/hardhat-migrate), [`hardhat-markup`](https://www.npmjs.com/package/@solarity/hardhat-markup), [`hardhat-gobind`](https://www.npmjs.com/package/@solarity/hardhat-gobind)
-- [`hardhat-contract-sizer`](https://www.npmjs.com/package/hardhat-contract-sizer)
-- [`hardhat-gas-reporter`](https://www.npmjs.com/package/hardhat-gas-reporter)
-- [`solidity-coverage`](https://www.npmjs.com/package/solidity-coverage)
+## Contribution
 
-### Other niceties
+With an ambitios goal to make RWA simple, we are open to any mind-blowing improvement proposals.
 
-- The template comes with presetup `prettier` and `solhint` that lint the project via `husky` before compilation hook.
-- The `.env.example` file is provided to check what is required as ENVs
-- Preinstalled `@openzeppelin/contracts` and `@solarity/solidity-lib`
+## License
+
+Custom license, please check `LICENSE.md` for more information.

@@ -17,9 +17,9 @@ Licensor and Licensee are individually each the "Party", and collectively – th
 3. "Licensee" means any person, which intends to use Software in compliance with these Terms;  
 4. "Non-Commercial Private Use" means use of Software by Licensee solely for the purposes of testing and research, and not for any purposes connected with any trade, business or other activity, which is commercial in nature;
 5. "Commercial Use" means any use of Software, other than Non-Commercial Private Use;
-6. "Software" means any IP, located at [link](https://github.com/dl-tokene), on Website;
+6. "Software" means any IP, located at [link](https://github.com/dl-tokenf), on Website;
 7. "Trademarks" means: (i) the trademarks, trade names and service marks used by the relevant person, whether registered or unregistered; (ii) the respective stylistic marks and distinctive logotypes for such trademarks, trade names and service marks, and (iii) such other marks and logotypes as the relevant person may designate from time to time in writing; and
-8. "Website" means the website, located at [link](https://github.com/dl-tokene), or any replacement website. 
+8. "Website" means the website, located at [link](https://github.com/dl-tokenf), or any replacement website. 
 
 **2. LIMITED LICENSE**
 
