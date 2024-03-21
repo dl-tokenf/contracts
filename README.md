@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # TokenF - Tokenize Finance
 
 Bring Real World Assets (RWA) on-chain via flexible tokenization framework - TokenF.
@@ -23,13 +25,15 @@ TokenF is built with certain levels of abstraction in mind:
 
 ## Usage
 
-TokenF is an open-source product with no limitation for the private usage (check out the license for commercialization). The framework is available as an NPM package:
+TokenF is an open-source product with no limitation for the usage (MIT license)!
+
+The framework is available as an NPM package:
 
 ```bash
 npm install @tokenf/contracts
 ```
 
-You will then be able to start using the framework:
+You will then be able to start using TokenF:
 
 ```solidity
 pragma solidity ^0.8.20;
@@ -52,4 +56,4 @@ With an ambitios goal to make RWA simple, we are open to any mind-blowing improv
 
 ## License
 
-Custom license, please check `LICENSE.md` for more information.
+The library is released under the MIT License.
