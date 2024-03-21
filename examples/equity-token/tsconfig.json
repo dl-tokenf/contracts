@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@ethers-v6": ["./generated-types/ethers"]
+    }
+  }
+}
