@@ -1,9 +1,10 @@
 {
   "name": "@tokenf/contracts",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "author": "Distributed Lab",
-  "description": "Tokenize Finance",
+  "description": "On-chain Real World Assets Tokenization Framework",
+  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/dl-tokenf/core-contracts"
@@ -15,6 +16,10 @@
     "tokenf",
     "rwa",
     "distributedlab"
+  ],
+  "files": [
+    "**/*.sol",
+    "!mock/**/*"
   ],
   "scripts": {
     "prepare": "husky",
@@ -40,15 +45,13 @@
     "lint-fix": "npm run lint-sol-fix && npm run lint-ts-fix && npm run lint-json-fix",
     "lint-json-fix": "prettier --write \"./**/*.json\"",
     "lint-ts-fix": "prettier --write \"./**/*.ts\"",
-    "lint-sol-fix": "prettier --write \"./**/*.sol\""
+    "lint-sol-fix": "prettier --write \"./**/*.sol\"",
+    "publish-to-npm": "npm run lint-fix && bash ./scripts/publish.sh --public"
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.9.5",
     "@openzeppelin/contracts-upgradeable": "4.9.5",
-    "@solarity/solidity-lib": "2.7.2",
-    "dotenv": "^16.3.1",
-    "hardhat": "2.20.1",
-    "typechain": "^8.3.2"
+    "@solarity/solidity-lib": "2.7.2"
   },
   "devDependencies": {
     "@metamask/eth-sig-util": "^7.0.1",
@@ -63,6 +66,9 @@
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.16.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "2.20.1",
+    "typechain": "^8.3.2",
     "bignumber.js": "^9.1.2",
     "chai": "^4.3.10",
     "hardhat-contract-sizer": "^2.10.0",
