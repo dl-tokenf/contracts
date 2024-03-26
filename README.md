@@ -4,6 +4,8 @@
 
 Bring Real World Assets (RWA) on-chain via flexible tokenization framework - TokenF.
 
+!["TokenF Architecture"](https://github.com/dl-tokenf/core-contracts/assets/47551140/b3c395a1-c5b5-4363-904a-7ecf5eef3eef)
+
 ## Application
 
 TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
@@ -48,7 +50,7 @@ contract EquityToken is TokenF {
 > [!TIP]
 > Check out the `examples` directory to learn how to bring your RWA on-chain!
 
-There is an abundant [documentation]() available for the framework. If you are planning to build with TokenF, do check it out!
+There is an abundant [whitepaper](https://docs.google.com/document/d/1emJep8kqYRofAnU1W7Q8PCbRGhUytqVy3WCwD78SF2Y/edit?usp=sharing) available for the framework. If you are planning to build with TokenF, do check it out!
 
 ## Contribution
 
