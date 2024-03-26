@@ -55,7 +55,7 @@ There is an abundant [whitepaper](https://docs.google.com/document/d/1emJep8kqYR
 
 ## Contribution
 
-With an ambitios goal to make RWA simple, we are open to any mind-blowing improvement proposals.
+With an ambitious goal to make RWA simple, we are open to any mind-blowing improvement proposals.
 
 ## License
 
