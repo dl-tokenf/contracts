@@ -1,3 +1,4 @@
+[![npm](https://img.shields.io/npm/v/@tokenf/contracts.svg)](https://www.npmjs.com/package/@tokenf/contracts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # TokenF - Tokenize Finance
