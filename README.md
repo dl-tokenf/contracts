@@ -5,7 +5,7 @@
 
 Bring Real World Assets (RWA) on-chain via flexible tokenization framework - TokenF.
 
-!["TokenF Architecture"](https://github.com/dl-tokenf/core-contracts/assets/47551140/b3c395a1-c5b5-4363-904a-7ecf5eef3eef)
+!["TokenF Architecture"](https://github.com/dl-tokenf/core-contracts/assets/47551140/9e912d07-bc4d-407d-bf25-859e0da40f32)
 
 ## Application
 
