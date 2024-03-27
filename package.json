@@ -1,6 +1,6 @@
 {
   "name": "@tokenf/contracts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": "Distributed Lab",
   "description": "On-chain Real World Assets Tokenization Framework",
