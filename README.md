@@ -1,7 +1,7 @@
 [![npm](https://img.shields.io/npm/v/@tokenf/contracts.svg)](https://www.npmjs.com/package/@tokenf/contracts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# TokenF - Tokenize Finance
+# TokenF - RWA Tokenization Framework
 
 Bring Real World Assets (RWA) on-chain via flexible tokenization framework - TokenF.
 
@@ -51,7 +51,7 @@ contract EquityToken is TokenF {
 > [!TIP]
 > Check out the `examples` directory to learn how to bring your RWA on-chain!
 
-There is an abundant [whitepaper](https://docs.google.com/document/d/1emJep8kqYRofAnU1W7Q8PCbRGhUytqVy3WCwD78SF2Y/edit?usp=sharing) available for the framework. If you are planning to build with TokenF, do check it out!
+There is an abundant [documentation](https://tokenf.gitbook.io/tokenf) available for the framework. If you are planning to build with TokenF, do check it out!
 
 ## Contribution
 
@@ -59,4 +59,4 @@ With an ambitios goal to make RWA simple, we are open to any mind-blowing improv
 
 ## License
 
-The library is released under the MIT License.
+The framework is released under the MIT License.
