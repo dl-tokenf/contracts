@@ -9,19 +9,19 @@ Bring Real World Assets (RWA) on-chain via flexible tokenization framework - Tok
 
 ## Application
 
-TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
+TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
 
 TokenF is built with certain levels of abstraction in mind: 
 
-- ERC2535 Diamond beating heart that allows extensibility and upgradeability.
+- ERC-2535 Diamond beating heart that allows extensibility and upgradeability.
 - Support of custom compliance modules to be plugged in the TokenF core.
 - Rich configuration of check/hooks/behavior with imagination being the only limit.
 
-| **What TokenF Is ✅**                       | **What TokenF Is Not ❌**        |
-| :-----------------------------------------: | :------------------------------: |
-| On-chain tokenization framework             | Fullstack tokenization framework |
-| Smart contracts to configure RWA behavior   | RWA launchpad/RWA consulting set |
-| Reimagined and enhanced ERC3643 alternative | Yet another ERC3643 copy         |
+| **What TokenF Is ✅**                        | **What TokenF Is Not ❌**        |
+| :-----------------------------------------:  | :------------------------------: |
+| On-chain tokenization framework              | Fullstack tokenization framework |
+| Smart contracts to configure RWA behavior    | RWA launchpad/RWA consulting set |
+| Reimagined and enhanced ERC-3643 alternative | Yet another ERC-3643 copy        |
 
 > [!NOTE]
 > TokenF is at the early stage of development, many breaking changes are foreseen.
