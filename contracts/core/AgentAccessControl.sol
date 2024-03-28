@@ -18,6 +18,7 @@ abstract contract AgentAccessControl is
     AgentAccessControlStorage,
     DiamondAccessControl
 {
+    /// @inheritdoc IAgentAccessControl
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
 
     function __AgentAccessControl_init()
@@ -27,6 +28,7 @@ abstract contract AgentAccessControl is
         grantRole(AGENT_ROLE, msg.sender);
     }
 
+    /// @inheritdoc IAgentAccessControl
     function checkRole(bytes32 role_, address account_) public view virtual {
         _checkRole(role_, account_);
     }

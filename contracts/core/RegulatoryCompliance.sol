@@ -37,18 +37,21 @@ abstract contract RegulatoryCompliance is
         onlyInitializing(REGULATORY_COMPLIANCE_STORAGE_SLOT)
     {}
 
+    /// @inheritdoc IRegulatoryCompliance
     function addRegulatoryModules(
         address[] memory rModules_
     ) public virtual onlyRole(_regulatoryComplianceRole()) {
         _addRegulatoryModules(rModules_);
     }
 
+    /// @inheritdoc IRegulatoryCompliance
     function removeRegulatoryModules(
         address[] memory rModules_
     ) public virtual onlyRole(_regulatoryComplianceRole()) {
         _removeRegulatoryModules(rModules_);
     }
 
+    /// @inheritdoc IRegulatoryCompliance
     function transferred(TokenF.Context calldata ctx_) public virtual onlyThis {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
@@ -57,6 +60,7 @@ abstract contract RegulatoryCompliance is
         }
     }
 
+    /// @inheritdoc IRegulatoryCompliance
     function canTransfer(TokenF.Context calldata ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 

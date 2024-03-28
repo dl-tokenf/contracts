@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
+
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
+import {ITokenF} from "../interfaces/ITokenF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
@@ -21,7 +24,7 @@ import {TokenFStorage} from "./storages/TokenFStorage.sol";
  * Transfer methods forward the entire transfer context to compliance modules, ensuring adherence to specific requirements,
  * such as regulatory standards or KYC protocols.
  */
-abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
+abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
@@ -64,7 +67,11 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         _diamondCut(new Facet[](0), kycCompliance_, initKYC_);
     }
 
-    function transfer(address to_, uint256 amount_) public virtual override returns (bool) {
+    /// @inheritdoc IERC20
+    function transfer(
+        address to_,
+        uint256 amount_
+    ) public virtual override(DiamondERC20, IERC20) returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
         _isKYCed(msg.sender, to_, amount_, address(0));
 
@@ -75,11 +82,12 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
+    /// @inheritdoc IERC20
     function transferFrom(
         address from_,
         address to_,
         uint256 amount_
-    ) public virtual override returns (bool) {
+    ) public virtual override(DiamondERC20, IERC20) returns (bool) {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 
@@ -90,10 +98,11 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
+    /// @inheritdoc ITokenF
     function mint(
         address account_,
         uint256 amount_
-    ) public virtual onlyRole(_mintRole()) returns (bool) {
+    ) public virtual override onlyRole(_mintRole()) returns (bool) {
         _canTransfer(address(0), account_, amount_, msg.sender);
         _isKYCed(address(0), account_, amount_, msg.sender);
 
@@ -104,10 +113,11 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
+    /// @inheritdoc ITokenF
     function burn(
         address account_,
         uint256 amount_
-    ) public virtual onlyRole(_burnRole()) returns (bool) {
+    ) public virtual override onlyRole(_burnRole()) returns (bool) {
         _canTransfer(account_, address(0), amount_, msg.sender);
         _isKYCed(account_, address(0), amount_, msg.sender);
 
@@ -118,11 +128,12 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
+    /// @inheritdoc ITokenF
     function forcedTransfer(
         address from_,
         address to_,
         uint256 amount_
-    ) public virtual onlyRole(_forcedTransferRole()) returns (bool) {
+    ) public virtual override onlyRole(_forcedTransferRole()) returns (bool) {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 
@@ -133,10 +144,11 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
+    /// @inheritdoc ITokenF
     function recovery(
         address oldAccount_,
         address newAccount_
-    ) public virtual onlyRole(_recoveryRole()) returns (bool) {
+    ) public virtual override onlyRole(_recoveryRole()) returns (bool) {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
         _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
@@ -149,15 +161,19 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         return true;
     }
 
-    function diamondCut(Facet[] memory modules_) public virtual onlyRole(_diamondCutRole()) {
+    /// @inheritdoc ITokenF
+    function diamondCut(
+        Facet[] memory modules_
+    ) public virtual override onlyRole(_diamondCutRole()) {
         diamondCut(modules_, address(0), "");
     }
 
+    /// @inheritdoc ITokenF
     function diamondCut(
         Facet[] memory modules_,
         address initModule_,
         bytes memory initData_
-    ) public virtual onlyRole(_diamondCutRole()) {
+    ) public virtual override onlyRole(_diamondCutRole()) {
         _diamondCut(modules_, initModule_, initData_);
     }
 
