@@ -57,7 +57,7 @@ There is an abundant [documentation](https://tokenf.gitbook.io/tokenf) available
 
 ## Contribution
 
-With an ambitios goal to make RWA simple, we are open to any mind-blowing improvement proposals.
+With an ambitious goal to make RWA simple, we are open to any mind-blowing improvement proposals.
 
 ## License
 
