@@ -7,6 +7,8 @@ Bring Real World Assets (RWA) on-chain via flexible tokenization framework - Tok
 
 !["TokenF Architecture"](https://github.com/dl-tokenf/core-contracts/assets/47551140/9e912d07-bc4d-407d-bf25-859e0da40f32)
 
+Built with [Solarity](https://github.com/dl-solarity), [Openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts), and aspiration to perfection.
+
 ## Application
 
 TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
