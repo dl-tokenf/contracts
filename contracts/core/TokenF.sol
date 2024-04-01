@@ -13,17 +13,6 @@ import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {TokenFStorage} from "./storages/TokenFStorage.sol";
 
-/**
- * @notice The TokenF contract
- *
- * The TokenF is a Diamond-based ERC20 token implementation enabling the storage of all core contracts under the same Diamond proxy.
- *
- * The TokenF provides flexibility for implementing eligibility checks through the integration of compliance modules without
- * affecting the standard ERC20 behaviour.
- *
- * Transfer methods forward the entire transfer context to compliance modules, ensuring adherence to specific requirements,
- * such as regulatory standards or KYC protocols.
- */
 abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
