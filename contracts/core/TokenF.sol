@@ -9,6 +9,8 @@ import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {TokenFStorage} from "./storages/TokenFStorage.sol";
+import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
+import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
 
 /**
  * @notice The TokenF contract
@@ -44,16 +46,20 @@ abstract contract TokenF is TokenFStorage, Diamond, DiamondERC20, AgentAccessCon
         bytes memory initRegulatory_,
         bytes memory initKYC_
     ) internal virtual onlyInitializing(TOKEN_F_STORAGE_SLOT) {
-        bytes4[] memory rComplianceSelectors_ = new bytes4[](4);
+        bytes4[] memory rComplianceSelectors_ = new bytes4[](6);
         rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
         rComplianceSelectors_[1] = IRegulatoryCompliance.removeRegulatoryModules.selector;
         rComplianceSelectors_[2] = IRegulatoryCompliance.transferred.selector;
         rComplianceSelectors_[3] = IRegulatoryCompliance.canTransfer.selector;
+        rComplianceSelectors_[4] = RegulatoryComplianceStorage.getRegulatoryModules.selector;
+        rComplianceSelectors_[5] = RegulatoryComplianceStorage.getRegulatoryModulesCount.selector;
 
-        bytes4[] memory kycComplianceSelectors_ = new bytes4[](3);
+        bytes4[] memory kycComplianceSelectors_ = new bytes4[](5);
         kycComplianceSelectors_[0] = IKYCCompliance.addKYCModules.selector;
         kycComplianceSelectors_[1] = IKYCCompliance.removeKYCModules.selector;
         kycComplianceSelectors_[2] = IKYCCompliance.isKYCed.selector;
+        kycComplianceSelectors_[3] = KYCComplianceStorage.getKYCModules.selector;
+        kycComplianceSelectors_[4] = KYCComplianceStorage.getKYCModulesCount.selector;
 
         Facet[] memory facets_ = new Facet[](2);
         facets_[0] = Facet(regulatoryCompliance_, FacetAction.Add, rComplianceSelectors_);
