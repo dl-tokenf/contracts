@@ -5,6 +5,10 @@ import {TokenF} from "../../core/TokenF.sol";
 
 import {AbstractRegulatoryModule} from "../AbstractRegulatoryModule.sol";
 
+/**
+ * @notice `TransferLimitsModule` is an example of a possible implementation of a regulatory module,
+ * which adds rules for minimum and maximum amount for transfers.
+ */
 abstract contract TransferLimitsModule is AbstractRegulatoryModule {
     bytes32 public constant MIN_TRANSFER_LIMIT_TOPIC = keccak256("MIN_TRANSFER_LIMIT");
     bytes32 public constant MAX_TRANSFER_LIMIT_TOPIC = keccak256("MAX_TRANSFER_LIMIT");

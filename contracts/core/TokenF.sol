@@ -21,15 +21,6 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, Agent
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
     bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
 
-    struct Context {
-        bytes4 selector;
-        address from;
-        address to;
-        uint256 amount;
-        address operator;
-        bytes data;
-    }
-
     function __TokenF_init(
         address regulatoryCompliance_,
         address kycCompliance_,

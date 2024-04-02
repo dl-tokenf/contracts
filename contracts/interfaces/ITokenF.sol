@@ -20,6 +20,15 @@ import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
  * This inheritance allows to realise a rather flexible system of roles for controlling privileged functions in the whole system.
  */
 interface ITokenF is IERC20Metadata {
+    struct Context {
+        bytes4 selector;
+        address from;
+        address to;
+        uint256 amount;
+        address operator;
+        bytes data;
+    }
+
     /**
      * @notice Function to create new `TokenF` contract tokens.
      *

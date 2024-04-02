@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {ITokenF} from "./ITokenF.sol";
 import {IRegulatoryComplianceView} from "./IRegulatoryComplianceView.sol";
-
-import {TokenF} from "../core/TokenF.sol";
 
 /**
  * @notice `RegulatoryCompliance` contract is used to manage Regulatory Compliance modules.
@@ -57,7 +56,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      *
      * @param ctx_ The context of transaction
      */
-    function transferred(TokenF.Context calldata ctx_) external;
+    function transferred(ITokenF.Context calldata ctx_) external;
 
     /**
      * @notice Function that is used to verify that all necessary regulatory rules that have been added to `RegulatoryCompliance` have been met.
@@ -67,5 +66,5 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * @param ctx_ The context of transaction
      * @return true if the passed context satisfies the rules in all installed regulatory modules.
      */
-    function canTransfer(TokenF.Context calldata ctx_) external view returns (bool);
+    function canTransfer(ITokenF.Context calldata ctx_) external view returns (bool);
 }

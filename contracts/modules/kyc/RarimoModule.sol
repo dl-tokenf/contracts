@@ -8,6 +8,10 @@ import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 import {TokenF} from "../../core/TokenF.sol";
 import {AbstractKYCModule} from "../AbstractKYCModule.sol";
 
+/**
+ * @notice `RarimoModule` is an example of a possible KYC module implementation,
+ * within which the user's SBT token is checked.
+ */
 abstract contract RarimoModule is AbstractKYCModule {
     using Address for address;
 
