@@ -10,6 +10,10 @@ contract KYCComplianceMock is KYCCompliance {
         __KYCCompliance_init();
     }
 
+    function __KYCComplianceDirect_init() external {
+        __KYCCompliance_init();
+    }
+
     function defaultKYCComplianceRole() external view returns (bytes32) {
         return super._KYCComplianceRole();
     }

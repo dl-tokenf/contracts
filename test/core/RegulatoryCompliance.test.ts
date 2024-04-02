@@ -1,13 +1,12 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
-import { wei } from "@/scripts/utils/utils";
 import { Reverter } from "@/test/helpers/reverter";
 import { RegulatoryComplianceMock, RegulatoryFalseModuleMock, RegulatoryTrueModuleMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
 import { AGENT_ROLE, DIAMOND_CUT_ROLE, hasRoleErrorMessage, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
-describe.only("RegulatoryCompliance", () => {
+describe("RegulatoryCompliance", () => {
   const reverter = new Reverter();
 
   let owner: SignerWithAddress;
