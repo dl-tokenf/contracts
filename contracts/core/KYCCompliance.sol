@@ -25,18 +25,21 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
 
     function __KYCCompliance_init() internal onlyInitializing(KYC_COMPLIANCE_STORAGE_SLOT) {}
 
+    /// @inheritdoc IKYCCompliance
     function addKYCModules(
         address[] memory kycModules_
     ) public virtual onlyRole(_KYCComplianceRole()) {
         _addKYCModules(kycModules_);
     }
 
+    /// @inheritdoc IKYCCompliance
     function removeKYCModules(
         address[] memory kycModules_
     ) public virtual onlyRole(_KYCComplianceRole()) {
         _removeKYCModules(kycModules_);
     }
 
+    /// @inheritdoc IKYCCompliance
     function isKYCed(TokenF.Context calldata ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 

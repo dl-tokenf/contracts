@@ -3,7 +3,9 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-abstract contract RegulatoryComplianceStorage {
+import {IRegulatoryComplianceView} from "../../interfaces/IRegulatoryComplianceView.sol";
+
+abstract contract RegulatoryComplianceStorage is IRegulatoryComplianceView {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     bytes32 internal constant REGULATORY_COMPLIANCE_STORAGE_SLOT =
@@ -13,12 +15,14 @@ abstract contract RegulatoryComplianceStorage {
         EnumerableSet.AddressSet regulatoryModules;
     }
 
-    function getRegulatoryModules() public view returns (address[] memory) {
-        return _getRegulatoryComplianceStorage().regulatoryModules.values();
+    /// @inheritdoc IRegulatoryComplianceView
+    function getRegulatoryModulesCount() public view virtual override returns (uint256) {
+        return _getRegulatoryComplianceStorage().regulatoryModules.length();
     }
 
-    function getRegulatoryModulesCount() public view virtual returns (uint256) {
-        return _getRegulatoryComplianceStorage().regulatoryModules.length();
+    /// @inheritdoc IRegulatoryComplianceView
+    function getRegulatoryModules() public view virtual override returns (address[] memory) {
+        return _getRegulatoryComplianceStorage().regulatoryModules.values();
     }
 
     function _getRegulatoryComplianceStorage()

@@ -3,7 +3,9 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-abstract contract KYCComplianceStorage {
+import {IKYCComplianceView} from "../../interfaces/IKYCComplianceView.sol";
+
+abstract contract KYCComplianceStorage is IKYCComplianceView {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     bytes32 internal constant KYC_COMPLIANCE_STORAGE_SLOT =
@@ -13,12 +15,14 @@ abstract contract KYCComplianceStorage {
         EnumerableSet.AddressSet kycModules;
     }
 
-    function getKYCModules() public view virtual returns (address[] memory) {
-        return _getKYCComplianceStorage().kycModules.values();
+    /// @inheritdoc IKYCComplianceView
+    function getKYCModulesCount() public view virtual override returns (uint256) {
+        return _getKYCComplianceStorage().kycModules.length();
     }
 
-    function getKYCModulesCount() public view virtual returns (uint256) {
-        return _getKYCComplianceStorage().kycModules.length();
+    /// @inheritdoc IKYCComplianceView
+    function getKYCModules() public view virtual override returns (address[] memory) {
+        return _getKYCComplianceStorage().kycModules.values();
     }
 
     function _getKYCComplianceStorage() internal pure returns (KYCCStorage storage _kyccStorage) {

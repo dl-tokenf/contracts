@@ -5,6 +5,16 @@ import {TokenF} from "../core/TokenF.sol";
 
 import {AbstractModule} from "./AbstractModule.sol";
 
+/**
+ * @notice The `AbstractKYCModule` contract is the standard base implementation for KYC modules.
+ *
+ * This implementation overrides the `_getExtContexts` and `_getClaimTopicKey` functions so that,
+ * that `keccak256(selector, TransferParty)` is used to create the claim topic key,
+ * and `_getExtContexts` returns extended contexts to validate each `TransferParty`,
+ * where `TransferParty` is a `SENDER`, `RECIPIENT`, or `OPERATOR`.
+ *
+ * Existing overrides allow you to specify checks for a specific function and a specific `TransferParty`.
+ */
 abstract contract AbstractKYCModule is AbstractModule {
     enum TransferParty {
         Sender,

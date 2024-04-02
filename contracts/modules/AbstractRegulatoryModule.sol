@@ -5,6 +5,12 @@ import {TokenF} from "../core/TokenF.sol";
 
 import {AbstractModule} from "./AbstractModule.sol";
 
+/**
+ * @notice `AbstractRegulatoryModule` contract is the standard base implementation for regulatory modules.
+ *
+ * In this implementation, the overridden function `_getClaimTopicKey` creates a claim topic key as follows - `keccak256(selector)`,
+ * which allows the rules to be defined separately for each function.
+ */
 abstract contract AbstractRegulatoryModule is AbstractModule {
     function __AbstractRegulatoryModule_init() internal onlyInitializing {}
 
