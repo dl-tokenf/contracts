@@ -21,7 +21,7 @@ contract RegulatoryComplianceMock is RegulatoryCompliance {
         return super._regulatoryComplianceRole();
     }
 
-    function _regulatoryComplianceRole() internal view override returns (bytes32) {
+    function _regulatoryComplianceRole() internal pure override returns (bytes32) {
         return REGULATORY_COMPLIANCE_ROLE;
     }
 }

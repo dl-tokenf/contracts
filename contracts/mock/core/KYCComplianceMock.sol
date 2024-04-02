@@ -18,7 +18,7 @@ contract KYCComplianceMock is KYCCompliance {
         return super._KYCComplianceRole();
     }
 
-    function _KYCComplianceRole() internal view override returns (bytes32) {
+    function _KYCComplianceRole() internal pure override returns (bytes32) {
         return KYC_COMPLIANCE_ROLE;
     }
 }
