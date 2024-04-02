@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import { KYCComplianceMock, KYCFalseModuleMock, KYCTrueModuleMock, TokenFMock } from "@ethers-v6";
+import { KYCComplianceMock, KYCIncorrectModuleMock, KYCCorrectModuleMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
 import { AGENT_ROLE, DIAMOND_CUT_ROLE, hasRoleErrorMessage, KYC_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
@@ -16,8 +16,8 @@ describe("KYCCompliance", () => {
   let kycCompliance: KYCComplianceMock;
   let kycComplianceProxy: KYCComplianceMock;
 
-  let kycTrue: KYCTrueModuleMock;
-  let kycFalse: KYCFalseModuleMock;
+  let kycCorrect: KYCCorrectModuleMock;
+  let kycIncorrect: KYCIncorrectModuleMock;
 
   before("setup", async () => {
     [owner, agent] = await ethers.getSigners();
@@ -26,11 +26,11 @@ describe("KYCCompliance", () => {
     const KYCComplianceMock = await ethers.getContractFactory("KYCComplianceMock");
     const RegulatoryComplianceMock = await ethers.getContractFactory("RegulatoryComplianceMock");
 
-    const KYCTrueModuleMock = await ethers.getContractFactory("KYCTrueModuleMock");
-    const KYCFalseModuleMock = await ethers.getContractFactory("KYCFalseModuleMock");
+    const KYCCorrectModuleMock = await ethers.getContractFactory("KYCCorrectModuleMock");
+    const KYCIncorrectModuleMock = await ethers.getContractFactory("KYCIncorrectModuleMock");
 
-    kycTrue = await KYCTrueModuleMock.deploy();
-    kycFalse = await KYCFalseModuleMock.deploy();
+    kycCorrect = await KYCCorrectModuleMock.deploy();
+    kycIncorrect = await KYCIncorrectModuleMock.deploy();
 
     tokenF = await TokenFMock.deploy();
     kycCompliance = await KYCComplianceMock.deploy();
@@ -83,21 +83,22 @@ describe("KYCCompliance", () => {
     it("should not add KYC modules if no role", async () => {
       await kycComplianceProxy.revokeRole(KYC_COMPLIANCE_ROLE, agent);
 
-      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycTrue])).to.be.revertedWith(
+      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect])).to.be.revertedWith(
         await hasRoleErrorMessage(agent, KYC_COMPLIANCE_ROLE),
       );
     });
 
     it("should not add KYC modules if duplicates", async () => {
-      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycTrue, kycTrue])).to.be.revertedWith(
+      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect, kycCorrect])).to.be.revertedWith(
         "SetHelper: element already exists",
       );
     });
 
     it("should add KYC modules if all conditions are met", async () => {
-      await kycComplianceProxy.connect(agent).addKYCModules([kycTrue]);
+      await kycComplianceProxy.connect(agent).addKYCModules([kycCorrect]);
 
-      expect(await kycComplianceProxy.getKYCModules()).to.deep.eq([await kycTrue.getAddress()]);
+      expect(await kycComplianceProxy.getKYCModulesCount()).to.eq(1);
+      expect(await kycComplianceProxy.getKYCModules()).to.deep.eq([await kycCorrect.getAddress()]);
     });
   });
 
@@ -105,28 +106,29 @@ describe("KYCCompliance", () => {
     it("should not remove KYC modules if no role", async () => {
       await kycComplianceProxy.revokeRole(KYC_COMPLIANCE_ROLE, agent);
 
-      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycTrue])).to.be.revertedWith(
+      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect])).to.be.revertedWith(
         await hasRoleErrorMessage(agent, KYC_COMPLIANCE_ROLE),
       );
     });
 
     it("should not remove KYC modules if no module", async () => {
-      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycTrue])).to.be.revertedWith(
+      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect])).to.be.revertedWith(
         "SetHelper: no such element",
       );
     });
 
     it("should remove KYC modules if all conditions are met", async () => {
-      await kycComplianceProxy.connect(agent).addKYCModules([kycTrue]);
-      await kycComplianceProxy.connect(agent).removeKYCModules([kycTrue]);
+      await kycComplianceProxy.connect(agent).addKYCModules([kycCorrect]);
+      await kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect]);
 
+      expect(await kycComplianceProxy.getKYCModulesCount()).to.eq(0);
       expect(await kycComplianceProxy.getKYCModules()).to.deep.eq([]);
     });
   });
 
   describe("isKYCed", () => {
-    it("should not be KYCed if modules return false", async () => {
-      await kycComplianceProxy.connect(agent).addKYCModules([kycTrue, kycFalse]);
+    it("should not be KYCed if modules return Incorrect", async () => {
+      await kycComplianceProxy.connect(agent).addKYCModules([kycCorrect, kycIncorrect]);
 
       expect(
         await kycComplianceProxy.isKYCed({
@@ -140,8 +142,8 @@ describe("KYCCompliance", () => {
       ).to.be.false;
     });
 
-    it("should be KYCed if modules return true", async () => {
-      await kycComplianceProxy.connect(agent).addKYCModules([kycTrue]);
+    it("should be KYCed if modules return Correct", async () => {
+      await kycComplianceProxy.connect(agent).addKYCModules([kycCorrect]);
 
       expect(
         await kycComplianceProxy.isKYCed({
