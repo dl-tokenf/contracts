@@ -50,7 +50,6 @@ describe("AbstractModules", () => {
     const rComplianceProxy = RegulatoryComplianceMock.attach(tokenF) as RegulatoryComplianceMock;
 
     await tokenF.grantRole(AGENT_ROLE, agent);
-    await tokenF.grantRole(MINT_ROLE, agent);
     await tokenF.grantRole(REGULATORY_COMPLIANCE_ROLE, agent);
 
     module = await ModuleMock.deploy();
