@@ -2,19 +2,12 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import {
-  KYCComplianceMock,
-  RarimoModuleMock,
-  RegulatoryComplianceMock,
-  SBTMock,
-  TokenFMock,
-  TransferLimitsModuleMock,
-} from "@ethers-v6";
+import { KYCComplianceMock, RarimoModuleMock, SBTMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
-import { KYC_COMPLIANCE_ROLE, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE, TransferParty } from "@/test/helpers/utils";
+import { KYC_COMPLIANCE_ROLE, MINT_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
-describe.only("Rarimo", () => {
+describe("RarimoModule", () => {
   const reverter = new Reverter();
 
   let owner: SignerWithAddress;
@@ -46,8 +39,8 @@ describe.only("Rarimo", () => {
 
     const kycComplianceProxy = KYCComplianceMock.attach(tokenF) as KYCComplianceMock;
 
-    await kycComplianceProxy.grantRole(MINT_ROLE, agent);
-    await kycComplianceProxy.grantRole(KYC_COMPLIANCE_ROLE, agent);
+    await tokenF.grantRole(MINT_ROLE, agent);
+    await tokenF.grantRole(KYC_COMPLIANCE_ROLE, agent);
 
     sbt = await SBTMock.deploy();
     await sbt.__SBTMock_init();
@@ -66,6 +59,12 @@ describe.only("Rarimo", () => {
     it("should initialize only once", async () => {
       await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWith(
         "Initializable: contract is already initialized",
+      );
+    });
+
+    it("should initialize only by top level contract", async () => {
+      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWith(
+        "Initializable: contract is not initializing",
       );
     });
   });

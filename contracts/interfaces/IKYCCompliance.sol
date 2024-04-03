@@ -56,5 +56,5 @@ interface IKYCCompliance is IKYCComplianceView {
      * @param ctx_ The context of the transaction
      * @return true if the passed context satisfies the checks on all modules
      */
-    function isKYCed(ITokenF.Context calldata ctx_) external view returns (bool);
+    function isKYCed(ITokenF.Context memory ctx_) external view returns (bool);
 }

@@ -6,11 +6,14 @@ import {AbstractRegulatoryModule} from "../../../modules/AbstractRegulatoryModul
 import {IRegulatoryCompliance} from "../../../interfaces/IRegulatoryCompliance.sol";
 
 contract RegulatoryIncorrectModuleMock is AbstractRegulatoryModule {
+    function __RegulatoryIncorrectModuleMock_init(address tokenF_) external initializer {
+        __AbstractModule_init(tokenF_);
+        __AbstractRegulatoryModule_init();
+    }
+
     function _handlerer() internal override {}
 
-    function transferred(TokenF.Context calldata ctx_) public override {}
-
-    function canTransfer(TokenF.Context calldata) public pure override returns (bool) {
+    function canTransfer(TokenF.Context memory) public pure override returns (bool) {
         return false;
     }
 }

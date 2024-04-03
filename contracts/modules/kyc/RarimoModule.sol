@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-
 import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 
 import {TokenF} from "../../core/TokenF.sol";
@@ -13,8 +11,6 @@ import {AbstractKYCModule} from "../AbstractKYCModule.sol";
  * within which the user's SBT token is checked.
  */
 abstract contract RarimoModule is AbstractKYCModule {
-    using Address for address;
-
     bytes32 public constant HAS_SOUL_SENDER_TOPIC = keccak256("HAS_SOUL_SENDER");
     bytes32 public constant HAS_SOUL_RECIPIENT_TOPIC = keccak256("HAS_SOUL_RECIPIENT");
     bytes32 public constant HAS_SOUL_OPERATOR_TOPIC = keccak256("HAS_SOUL_OPERATOR");

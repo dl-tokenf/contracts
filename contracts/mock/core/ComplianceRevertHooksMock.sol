@@ -4,15 +4,15 @@ pragma solidity ^0.8.20;
 import {TokenF} from "../../core/TokenF.sol";
 
 contract ComplianceRevertHooksMock {
-    function transferred(TokenF.Context calldata) external {
+    function transferred(TokenF.Context memory) external pure {
         revert("ComplianceRevertHooksMock: revert");
     }
 
-    function isKYCed(TokenF.Context calldata) external view returns (bool) {
+    function isKYCed(TokenF.Context memory) external pure returns (bool) {
         revert("ComplianceRevertHooksMock: revert");
     }
 
-    function canTransfer(TokenF.Context calldata) external view returns (bool) {
+    function canTransfer(TokenF.Context memory) external pure returns (bool) {
         revert("ComplianceRevertHooksMock: revert");
     }
 }

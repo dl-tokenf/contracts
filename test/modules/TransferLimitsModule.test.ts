@@ -4,10 +4,10 @@ import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
 import { RegulatoryComplianceMock, TokenFMock, TransferLimitsModuleMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
-import { MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
+import { AGENT_ROLE, hasRoleErrorMessage, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
-describe("TransferLimits", () => {
+describe("TransferLimitsModule", () => {
   const reverter = new Reverter();
 
   const MIN_TRANSFER_LIMIT = wei("1");
@@ -40,8 +40,9 @@ describe("TransferLimits", () => {
 
     const rComplianceProxy = RegulatoryComplianceMock.attach(tokenF) as RegulatoryComplianceMock;
 
-    await rComplianceProxy.grantRole(MINT_ROLE, agent);
-    await rComplianceProxy.grantRole(REGULATORY_COMPLIANCE_ROLE, agent);
+    await tokenF.grantRole(AGENT_ROLE, agent);
+    await tokenF.grantRole(MINT_ROLE, agent);
+    await tokenF.grantRole(REGULATORY_COMPLIANCE_ROLE, agent);
 
     transferLimits = await TransferLimitsModuleMock.deploy();
     await transferLimits.__TransferLimitsModuleMock_init(tokenF, MIN_TRANSFER_LIMIT, MAX_TRANSFER_LIMIT);
@@ -59,6 +60,12 @@ describe("TransferLimits", () => {
         "Initializable: contract is already initialized",
       );
     });
+
+    it("should initialize only by top level contract", async () => {
+      await expect(transferLimits.__TransferLimitsDirect_init()).to.be.revertedWith(
+        "Initializable: contract is not initializing",
+      );
+    });
   });
 
   describe("getters", () => {
@@ -68,16 +75,32 @@ describe("TransferLimits", () => {
   });
 
   describe("setMinTransferLimit", () => {
-    it("should set min transfer limit properly", async () => {
-      await transferLimits.setMinTransferLimit(MIN_TRANSFER_LIMIT + 1n);
+    it("should not set min transfer limit if no role", async () => {
+      await tokenF.revokeRole(AGENT_ROLE, agent);
+
+      await expect(transferLimits.connect(agent).setMinTransferLimit(MIN_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
+        await hasRoleErrorMessage(agent, AGENT_ROLE),
+      );
+    });
+
+    it("should set min transfer limit if all conditions are met", async () => {
+      await transferLimits.connect(agent).setMinTransferLimit(MIN_TRANSFER_LIMIT + 1n);
 
       expect(await transferLimits.getTransferLimits()).to.deep.eq([MIN_TRANSFER_LIMIT + 1n, MAX_TRANSFER_LIMIT]);
     });
   });
 
   describe("setMaxTransferLimit", () => {
-    it("should set min transfer limit properly", async () => {
-      await transferLimits.setMaxTransferLimit(MAX_TRANSFER_LIMIT + 1n);
+    it("should not set max transfer limit if no role", async () => {
+      await tokenF.revokeRole(AGENT_ROLE, agent);
+
+      await expect(transferLimits.connect(agent).setMaxTransferLimit(MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
+        await hasRoleErrorMessage(agent, AGENT_ROLE),
+      );
+    });
+
+    it("should set max transfer limit if all conditions are met", async () => {
+      await transferLimits.connect(agent).setMaxTransferLimit(MAX_TRANSFER_LIMIT + 1n);
 
       expect(await transferLimits.getTransferLimits()).to.deep.eq([MIN_TRANSFER_LIMIT, MAX_TRANSFER_LIMIT + 1n]);
     });

@@ -11,25 +11,14 @@ contract RarimoModuleMock is RarimoModule {
         __RarimoModule_init(sbt_);
     }
 
+    function __RarimoModuleDirect_init() external {
+        __RarimoModule_init(address(0));
+    }
+
     function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
         TokenF.Context memory ctx_;
         ctx_.selector = selector_;
 
         return _getClaimTopicKey(ctx_);
-    }
-
-    function _getExtContexts(
-        TokenF.Context calldata ctx_
-    ) internal view override returns (TokenF.Context[] memory) {
-        TokenF.Context[] memory ctxs_ = new TokenF.Context[](1);
-        ctxs_[0] = ctx_;
-
-        return ctxs_;
-    }
-
-    function _getClaimTopicKey(
-        TokenF.Context memory ctx_
-    ) internal view override returns (bytes32) {
-        return keccak256(abi.encodePacked(ctx_.selector));
     }
 }

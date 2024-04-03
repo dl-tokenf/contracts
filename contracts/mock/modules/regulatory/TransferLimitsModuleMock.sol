@@ -15,6 +15,18 @@ contract TransferLimitsModuleMock is TransferLimitsModule {
         __TransferLimitsModule_init(minTransferValue_, maxTransferValue_);
     }
 
+    function __TransferLimitsDirect_init() external {
+        __TransferLimitsModule_init(0, 0);
+    }
+
+    function __AbstractModuleDirect_init() external {
+        __AbstractModule_init(address(0));
+    }
+
+    function __AbstractRegulatoryModuleDirect_init() external {
+        __AbstractRegulatoryModule_init();
+    }
+
     function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
         TokenF.Context memory ctx_;
         ctx_.selector = selector_;

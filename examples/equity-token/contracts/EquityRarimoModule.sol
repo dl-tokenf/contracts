@@ -10,13 +10,9 @@ contract EquityRarimoModule is RarimoModule {
         __RarimoModule_init(sbt_);
     }
 
-    function getClaimTopicKey(
-        bytes4 selector_,
-        TransferParty transferParty_
-    ) external view returns (bytes32) {
+    function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
         TokenF.Context memory ctx_;
         ctx_.selector = selector_;
-        ctx_.data = abi.encode(transferParty_);
 
         return _getClaimTopicKey(ctx_);
     }
