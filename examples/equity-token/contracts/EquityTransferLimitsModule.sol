@@ -6,7 +6,7 @@ import {TransferLimitsModule} from "@tokenf/contracts/modules/regulatory/Transfe
 
 contract EquityTransferLimitsModule is TransferLimitsModule {
     function __EquityTransferLimitsModule_init(address tokenF_) external initializer {
-        __AbstractComplianceModule_init(tokenF_);
+        __AbstractModule_init(tokenF_);
         __TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
     }
 

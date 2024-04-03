@@ -6,7 +6,7 @@ import {RarimoModule} from "@tokenf/contracts/modules/kyc/RarimoModule.sol";
 
 contract EquityRarimoModule is RarimoModule {
     function __EquityRarimoModule_init(address tokenF_, address sbt_) external initializer {
-        __AbstractComplianceModule_init(tokenF_);
+        __AbstractModule_init(tokenF_);
         __RarimoModule_init(sbt_);
     }
 
