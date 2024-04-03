@@ -67,8 +67,7 @@ async function setupRarimoModule(deployer: Deployer, tokenF: EquityToken): Promi
   const rarimoModule = await deployer.deploy(EquityRarimoModule__factory);
   await rarimoModule.__EquityRarimoModule_init(tokenF, rarimoSBT);
 
-  await tokenF.TRANSFER_SELECTOR();
-  const transferClaimTopicKey = await rarimoModule.getClaimTopicKey("0x57f99789");
+  const transferClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
   const transferFromClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
 
   await rarimoModule.addClaimTopics(transferClaimTopicKey, [
