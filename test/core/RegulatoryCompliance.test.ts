@@ -8,7 +8,7 @@ import {
   RegulatoryCorrectModuleMock,
   TokenFMock,
 } from "@ethers-v6";
-import { ZERO_ADDR } from "@/scripts/utils/constants";
+import { ZERO_ADDR, ZERO_SELECTOR } from "@/scripts/utils/constants";
 import {
   AGENT_ROLE,
   DIAMOND_CUT_ROLE,
@@ -41,9 +41,6 @@ describe("RegulatoryCompliance", () => {
     const RegulatoryCorrectModuleMock = await ethers.getContractFactory("RegulatoryCorrectModuleMock");
     const RegulatoryIncorrectModuleMock = await ethers.getContractFactory("RegulatoryIncorrectModuleMock");
 
-    rCorrect = await RegulatoryCorrectModuleMock.deploy();
-    rIncorrect = await RegulatoryIncorrectModuleMock.deploy();
-
     tokenF = await TokenFMock.deploy();
     rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
@@ -58,6 +55,12 @@ describe("RegulatoryCompliance", () => {
     await rComplianceProxy.grantRole(MINT_ROLE, agent);
     await rComplianceProxy.grantRole(DIAMOND_CUT_ROLE, agent);
     await rComplianceProxy.grantRole(REGULATORY_COMPLIANCE_ROLE, agent);
+
+    rCorrect = await RegulatoryCorrectModuleMock.deploy();
+    rIncorrect = await RegulatoryIncorrectModuleMock.deploy();
+
+    await rCorrect.__RegulatoryCorrectModuleMock_init(tokenF);
+    await rIncorrect.__RegulatoryIncorrectModuleMock_init(tokenF);
 
     await reverter.snapshot();
   });
@@ -145,7 +148,7 @@ describe("RegulatoryCompliance", () => {
 
       await expect(
         rComplianceProxy.transferred({
-          selector: "0x00000000",
+          selector: ZERO_SELECTOR,
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,
@@ -168,7 +171,7 @@ describe("RegulatoryCompliance", () => {
 
       expect(
         await rComplianceProxy.canTransfer({
-          selector: "0x00000000",
+          selector: ZERO_SELECTOR,
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,
@@ -183,7 +186,7 @@ describe("RegulatoryCompliance", () => {
 
       expect(
         await rComplianceProxy.canTransfer({
-          selector: "0x00000000",
+          selector: ZERO_SELECTOR,
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,

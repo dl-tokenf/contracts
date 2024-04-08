@@ -17,30 +17,6 @@ import {TokenF} from "../core/TokenF.sol";
  *
  * Each module is capable of matching claim topics to corresponding handlers, with claim topics organized under
  * user-defined claim topic keys.
- *
- * Here are some examples illustrating how modules could be setup.
- *
- * 1. KYC Verification:
- *
- * TransferSender <claimTopicKey> =>
- *   KYCed <claimTopic> => _handleKYCed <handler>
- *   LegalAge <claimTopic> => _handleLegalAge <handler>
- *
- * In this example, whenever a transfer occurs, the compliance module checks if the sender is KYC compliant
- * and of legal age. Corresponding handlers `_handleIsKYCed` and `_handleCountryCheck` are invoked to execute
- * the necessary checks, allowing the transfer to proceed.
- *
- * 2. Mint Amount Verification:
- *
- * Transfer <claimTopicKey> =>
- *   MinTransferLimit <claimTopic> => _handleMinTransferLimit <handler>
- *   MaxTransferLimit <claimTopic> => _handleMaxTransferLimit <handler>
- * TransferFrom <claimTopicKey> =>
- *   MinTransferLimit <claimTopic> => _handleMinTransferLimit <handler>
- *   MaxTransferLimit <claimTopic> => _handleMaxTransferLimit <handler>
- *
- * In this scenario, when a new token is being transferred, the `_handleMinTransferLimit` and `_handleMaxTransferLimit`
- * handlers are triggered to verify if the minted amount falls within predefined transfer limits.
  */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -61,7 +37,7 @@ abstract contract AbstractModule is Initializable {
     mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set claimTopics) private _claimTopics;
     mapping(bytes32 claimTopic => Handler handler) private _handlers;
 
-    function __AbstractComplianceModule_init(address tokenF_) internal onlyInitializing {
+    function __AbstractModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
 
         _handlerer();
@@ -81,7 +57,7 @@ abstract contract AbstractModule is Initializable {
     function addClaimTopics(
         bytes32 claimTopicKey_,
         bytes32[] memory claimTopics_
-    ) public virtual onlyRole(_complianceModuleRole()) {
+    ) public virtual onlyRole(_moduleRole()) {
         _addClaimTopics(claimTopicKey_, claimTopics_);
     }
 
@@ -99,7 +75,7 @@ abstract contract AbstractModule is Initializable {
     function removeClaimTopics(
         bytes32 claimTopicKey_,
         bytes32[] memory claimTopics_
-    ) public virtual onlyRole(_complianceModuleRole()) {
+    ) public virtual onlyRole(_moduleRole()) {
         _removeClaimTopics(claimTopicKey_, claimTopics_);
     }
 
@@ -157,7 +133,7 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function to save a function handler to a storedge by a specific key.
+     * @notice Function to save a function handler to a storage by a specific key.
      * Often this function will be used in pair with the `_handlerer` function.
      *
      * If you need to extend the logic, you can also override this function.
@@ -198,21 +174,17 @@ abstract contract AbstractModule is Initializable {
      * Depending on the future purpose of the module, it will be possible to define the process of creating a claim topic key,
      * which allows the modules to be quite flexible.
      *
-     * An example of a possible implementation, where the claim topic key is a hash of the function selector,
-     * i.e. the module only needs to be able to define different rules for different functions:
-     *
-     * ```solidity
-     *     function _getClaimTopicKey(
-     *         TokenF.Context memory ctx_
-     *     ) internal view virtual override returns (bytes32) {
-     *         return keccak256(abi.encodePacked(ctx_.selector));
-     *     }
-     * ```
+     * By default, the claim topic key is a hash of the function selector, i.e. the module is able to define different
+     * rules for different functions.
      *
      * @param ctx_ The transaction context
      * @return claim topic key
      */
-    function _getClaimTopicKey(TokenF.Context memory ctx_) internal view virtual returns (bytes32);
+    function _getClaimTopicKey(
+        TokenF.Context memory ctx_
+    ) internal view virtual returns (bytes32) {
+        return keccak256(abi.encodePacked(ctx_.selector));
+    }
 
     /**
      * @notice The main function to process the passed transaction context.
@@ -222,22 +194,13 @@ abstract contract AbstractModule is Initializable {
      *
      * @param ctx_ The transaction context
      */
-    function _handle(TokenF.Context calldata ctx_) internal view virtual returns (bool) {
-        TokenF.Context[] memory ctxs_ = _getExtContexts(ctx_);
+    function _handle(TokenF.Context memory ctx_) internal view virtual returns (bool) {
+        bytes32 claimTopicKey_ = _getClaimTopicKey(ctx_);
+        bytes32[] memory claimTopics_ = getClaimTopics(claimTopicKey_);
 
-        for (uint256 i = 0; i < ctxs_.length; ++i) {
-            bytes32 claimTopicKey_ = _getClaimTopicKey(ctxs_[i]);
-            bytes32[] memory claimTopics_ = getClaimTopics(claimTopicKey_);
-
-            for (uint256 j = 0; j < claimTopics_.length; ++j) {
-                /*
-                 * TODO: This handler cannot be called externally with `ctxs_[i]` passed as `TokenF.Context calldata`.
-                 * Furthermore, `ctx_` is taken as `TokenF.Context calldata` to explicitly avoid reference issues while copying
-                 * `ctx_` in `_getExtContexts`. The temporary solution is to simply pass `ctxs_[i]` as `TokenF.Context memory` here.
-                 */
-                if (!_getHandler(claimTopics_[j])(ctxs_[i])) {
-                    return false;
-                }
+        for (uint256 j = 0; j < claimTopics_.length; ++j) {
+            if (!_getHandler(claimTopics_[j])(ctx_)) {
+                return false;
             }
         }
 
@@ -268,41 +231,7 @@ abstract contract AbstractModule is Initializable {
         return _handler.handler;
     }
 
-    /**
-     * @notice The function is required to extend the main context of the transaction.
-     *
-     * In case when it is necessary to make several checks for different parts of the transaction,
-     * it is necessary to have corresponding contexts for each check. This is what this function is for.
-     *
-     * For example in the case of KYC checks it may be necessary to have different checks for different transferParties (from, to or operator).
-     * In this way it is possible to extend the contexts and add transferParty information to the data field:
-     *
-     * ```solidity
-     *     function _getExtContexts(
-     *         TokenF.Context calldata ctx_
-     *     ) internal view virtual override returns (TokenF.Context[] memory) {
-     *         TokenF.Context[] memory ctxs_ = new TokenF.Context[](3);
-     *         ctxs_[0] = _getExtContext(ctx_, TransferParty.Sender);
-     *         ctxs_[1] = _getExtContext(ctx_, TransferParty.Recipient);
-     *         ctxs_[2] = _getExtContext(ctx_, TransferParty.Operator);
-     *
-     *         return ctxs_;
-     *     }
-     * ```
-     *
-     * @param ctx_ The initial transaction context
-     * @return array of extended contexts
-     */
-    function _getExtContexts(
-        TokenF.Context calldata ctx_
-    ) internal view virtual returns (TokenF.Context[] memory) {
-        TokenF.Context[] memory ctxs_ = new TokenF.Context[](1);
-        ctxs_[0] = ctx_;
-
-        return ctxs_;
-    }
-
-    function _complianceModuleRole() internal view virtual returns (bytes32) {
+    function _moduleRole() internal view virtual returns (bytes32) {
         return IAgentAccessControl(_tokenF).AGENT_ROLE();
     }
 

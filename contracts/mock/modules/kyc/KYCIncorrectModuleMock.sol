@@ -7,7 +7,7 @@ import {AbstractKYCModule} from "../../../modules/AbstractKYCModule.sol";
 contract KYCIncorrectModuleMock is AbstractKYCModule {
     function _handlerer() internal override {}
 
-    function isKYCed(TokenF.Context calldata) public pure override returns (bool) {
+    function isKYCed(TokenF.Context memory) public pure override returns (bool) {
         return false;
     }
 }

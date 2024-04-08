@@ -18,6 +18,12 @@ export enum FacetAction {
   Remove,
 }
 
+export enum TransferParty {
+  Sender,
+  Recipient,
+  Operator,
+}
+
 export async function hasRoleErrorMessage(account: SignerWithAddress, role: string) {
   return `AccessControl: account ${(await account.getAddress()).toLowerCase()} is missing role ${role}`;
 }

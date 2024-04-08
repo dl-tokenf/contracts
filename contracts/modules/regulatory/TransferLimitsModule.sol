@@ -28,13 +28,13 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
 
     function setMinTransferLimit(
         uint256 minTransferLimit_
-    ) public virtual onlyRole(_complianceModuleRole()) {
+    ) public virtual onlyRole(_moduleRole()) {
         _minTransferLimit = minTransferLimit_;
     }
 
     function setMaxTransferLimit(
         uint256 maxTransferLimit_
-    ) public virtual onlyRole(_complianceModuleRole()) {
+    ) public virtual onlyRole(_moduleRole()) {
         _maxTransferLimit = maxTransferLimit_;
     }
 
@@ -42,8 +42,6 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         _setHandler(MIN_TRANSFER_LIMIT_TOPIC, _handleMinTransferLimitTopic);
         _setHandler(MAX_TRANSFER_LIMIT_TOPIC, _handleMaxTransferLimitTopic);
     }
-
-    function transferred(TokenF.Context calldata ctx_) public virtual override {}
 
     function getTransferLimits()
         public

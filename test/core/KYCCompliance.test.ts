@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
 import { KYCComplianceMock, KYCIncorrectModuleMock, KYCCorrectModuleMock, TokenFMock } from "@ethers-v6";
-import { ZERO_ADDR } from "@/scripts/utils/constants";
+import { ZERO_ADDR, ZERO_SELECTOR } from "@/scripts/utils/constants";
 import { AGENT_ROLE, DIAMOND_CUT_ROLE, hasRoleErrorMessage, KYC_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
 describe("KYCCompliance", () => {
@@ -132,7 +132,7 @@ describe("KYCCompliance", () => {
 
       expect(
         await kycComplianceProxy.isKYCed({
-          selector: "0x00000000",
+          selector: ZERO_SELECTOR,
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,
@@ -147,7 +147,7 @@ describe("KYCCompliance", () => {
 
       expect(
         await kycComplianceProxy.isKYCed({
-          selector: "0x00000000",
+          selector: ZERO_SELECTOR,
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,

@@ -56,7 +56,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      *
      * @param ctx_ The context of transaction
      */
-    function transferred(ITokenF.Context calldata ctx_) external;
+    function transferred(ITokenF.Context memory ctx_) external;
 
     /**
      * @notice Function that is used to verify that all necessary regulatory rules that have been added to `RegulatoryCompliance` have been met.
@@ -66,5 +66,5 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * @param ctx_ The context of transaction
      * @return true if the passed context satisfies the rules in all installed regulatory modules.
      */
-    function canTransfer(ITokenF.Context calldata ctx_) external view returns (bool);
+    function canTransfer(ITokenF.Context memory ctx_) external view returns (bool);
 }

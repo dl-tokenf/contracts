@@ -1,57 +1,101 @@
 import { Deployer, Reporter } from "@solarity/hardhat-migrate";
 
 import {
+  EquityKYCCompliance,
   EquityKYCCompliance__factory,
+  EquityRarimoModule,
   EquityRarimoModule__factory,
+  EquityRegulatoryCompliance,
   EquityRegulatoryCompliance__factory,
+  EquityToken,
   EquityToken__factory,
+  EquityTransferLimitsModule,
   EquityTransferLimitsModule__factory,
-  KYCCompliance,
-  KYCCompliance__factory,
+  RarimoSBT,
   RarimoSBT__factory,
-  RegulatoryCompliance,
-  RegulatoryCompliance__factory,
-} from "../generated-types/ethers";
+} from "@ethers-v6";
 
-import { ethers } from "hardhat";
+async function setupCoreContracts(
+  deployer: Deployer,
+): Promise<[EquityToken, EquityKYCCompliance, EquityRegulatoryCompliance]> {
+  const tokenF = await deployer.deploy(EquityToken__factory);
+  const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
+  const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
 
-export = async (deployer: Deployer) => {
-  const [_, ...agents] = await ethers.getSigners();
+  const regulatoryComplianceInitData = regulatoryCompliance.interface.encodeFunctionData(
+    "__EquityRegulatoryCompliance_init",
+  );
+  const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init");
 
-  const equityToken = await deployer.deploy(EquityToken__factory);
-  const equityKYCCompliance = await deployer.deploy(EquityKYCCompliance__factory);
-  const equityRegulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
-
-  await equityToken.__EquityToken_init(
-    await equityRegulatoryCompliance.getAddress(),
-    await equityKYCCompliance.getAddress(),
-    equityRegulatoryCompliance.interface.encodeFunctionData("__EquityRegulatoryCompliance_init"),
-    equityKYCCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init"),
+  await tokenF.__EquityToken_init(
+    regulatoryCompliance,
+    kycCompliance,
+    regulatoryComplianceInitData,
+    kycComplianceInitData,
   );
 
-  await equityToken.grantRole(await equityToken.AGENT_ROLE(), agents[0]);
+  return [
+    tokenF,
+    kycCompliance.attach(tokenF) as EquityKYCCompliance,
+    regulatoryCompliance.attach(tokenF) as EquityRegulatoryCompliance,
+  ];
+}
 
-  const equityTransferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
+async function setupTransferLimitsModule(deployer: Deployer, tokenF: EquityToken): Promise<EquityTransferLimitsModule> {
+  const transferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
+  await transferLimitsModule.__EquityTransferLimitsModule_init(tokenF);
 
-  const equityRarimoModule = await deployer.deploy(EquityRarimoModule__factory);
+  const transferClaimTopicKey = await transferLimitsModule.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
+  const transferFromClaimTopicKey = await transferLimitsModule.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+
+  await transferLimitsModule.addClaimTopics(transferClaimTopicKey, [
+    await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
+    await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
+  ]);
+  await transferLimitsModule.addClaimTopics(transferFromClaimTopicKey, [
+    await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
+    await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
+  ]);
+
+  return transferLimitsModule;
+}
+
+async function setupRarimoModule(deployer: Deployer, tokenF: EquityToken): Promise<[EquityRarimoModule, RarimoSBT]> {
   const rarimoSBT = await deployer.deploy(RarimoSBT__factory);
-
-  await equityTransferLimitsModule.__EquityTransferLimitsModule_init(await equityToken.getAddress());
-
   await rarimoSBT.__RarimoSBT_init();
-  await equityRarimoModule.__EquityRarimoModule_init(await equityToken.getAddress(), await rarimoSBT.getAddress());
 
-  await (equityKYCCompliance.attach(equityToken) as KYCCompliance)
-    .connect(agents[0])
-    .addKYCModules([await equityRarimoModule.getAddress()]);
-  await (equityRegulatoryCompliance.attach(equityToken) as RegulatoryCompliance)
-    .connect(agents[0])
-    .addRegulatoryModules([await equityTransferLimitsModule.getAddress()]);
+  const rarimoModule = await deployer.deploy(EquityRarimoModule__factory);
+  await rarimoModule.__EquityRarimoModule_init(tokenF, rarimoSBT);
+
+  const transferClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
+  const transferFromClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+
+  await rarimoModule.addClaimTopics(transferClaimTopicKey, [
+    await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
+    await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
+  ]);
+  await rarimoModule.addClaimTopics(transferFromClaimTopicKey, [
+    await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
+    await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
+    await rarimoModule.HAS_SOUL_OPERATOR_TOPIC(),
+  ]);
+
+  return [rarimoModule, rarimoSBT];
+}
+
+export = async (deployer: Deployer) => {
+  const [tokenF, kycCompliance, regulatoryCompliance] = await setupCoreContracts(deployer);
+
+  const [rarimoModule, rarimoSBT] = await setupRarimoModule(deployer, tokenF);
+  const transferLimitsModule = await setupTransferLimitsModule(deployer, tokenF);
+
+  await kycCompliance.addKYCModules([rarimoModule]);
+  await regulatoryCompliance.addRegulatoryModules([transferLimitsModule]);
 
   Reporter.reportContracts(
-    ["EquityToken", await equityToken.getAddress()],
-    ["TransferLimitsModule", await equityTransferLimitsModule.getAddress()],
-    ["RarimoSBT", await equityRarimoModule.getAddress()],
-    ["RarimoModule", await equityRarimoModule.getAddress()],
+    ["EquityToken", await tokenF.getAddress()],
+    ["TransferLimitsModule", await transferLimitsModule.getAddress()],
+    ["RarimoModule", await rarimoModule.getAddress()],
+    ["RarimoSBT", await rarimoSBT.getAddress()],
   );
 };
