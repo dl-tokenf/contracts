@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondAccessControl} from "@solarity/solidity-lib/diamond/access/access-control/DiamondAccessControl.sol";
+import {ADiamondAccessControl} from "@solarity/solidity-lib/diamond/access/access-control/ADiamondAccessControl.sol";
 
 import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
 
@@ -16,7 +16,7 @@ import {AgentAccessControlStorage} from "./storages/AgentAccessControlStorage.so
 abstract contract AgentAccessControl is
     IAgentAccessControl,
     AgentAccessControlStorage,
-    DiamondAccessControl
+    ADiamondAccessControl
 {
     /// @inheritdoc IAgentAccessControl
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");

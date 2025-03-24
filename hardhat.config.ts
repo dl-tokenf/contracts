@@ -1,7 +1,5 @@
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
-import "@solarity/hardhat-migrate";
-import "@solarity/hardhat-gobind";
 import "@solarity/hardhat-markup";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
@@ -76,7 +74,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.20",
+    version: "0.8.28",
     settings: {
       optimizer: {
         enabled: true,
@@ -84,22 +82,6 @@ const config: HardhatUserConfig = {
       },
       evmVersion: "paris",
     },
-  },
-  etherscan: {
-    apiKey: {
-      goerli: `${process.env.ETHERSCAN_KEY}`,
-      sepolia: `${process.env.ETHERSCAN_KEY}`,
-      mainnet: `${process.env.ETHERSCAN_KEY}`,
-      bscTestnet: `${process.env.BSCSCAN_KEY}`,
-      bsc: `${process.env.BSCSCAN_KEY}`,
-      polygonMumbai: `${process.env.POLYGONSCAN_KEY}`,
-      polygon: `${process.env.POLYGONSCAN_KEY}`,
-      avalancheFujiTestnet: `${process.env.AVALANCHE_KEY}`,
-      avalanche: `${process.env.AVALANCHE_KEY}`,
-    },
-  },
-  migrate: {
-    pathToMigrations: "./deploy/",
   },
   mocha: {
     timeout: 1000000,

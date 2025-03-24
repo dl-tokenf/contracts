@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {SBT} from "@solarity/solidity-lib/tokens/SBT.sol";
+import {ASBT} from "@solarity/solidity-lib/tokens/ASBT.sol";
 
-contract SBTMock is SBT {
+contract SBTMock is ASBT {
     function __SBTMock_init() external initializer {
-        __SBT_init("MockSBT", "MockSBT");
+        __ASBT_init("MockSBT", "MockSBT");
     }
 
     function mint(address to_, uint256 tokenId_) external {
