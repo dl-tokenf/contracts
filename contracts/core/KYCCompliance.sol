@@ -23,7 +23,7 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
     using EnumerableSet for EnumerableSet.AddressSet;
     using SetHelper for EnumerableSet.AddressSet;
 
-    function __KYCCompliance_init() internal onlyInitializing(KYC_COMPLIANCE_STORAGE_SLOT) {}
+    function __KYCCompliance_init() internal onlyInitializing {}
 
     /// @inheritdoc IKYCCompliance
     function addKYCModules(

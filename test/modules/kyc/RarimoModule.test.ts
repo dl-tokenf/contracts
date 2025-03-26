@@ -32,8 +32,8 @@ describe("RarimoModule", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -57,15 +57,14 @@ describe("RarimoModule", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWith(
-        "Initializable: contract is already initialized",
+      await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWithCustomError(
+        rarimo,
+        "InvalidInitialization",
       );
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
+      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWithCustomError(rarimo, "NotInitializing");
     });
   });
 

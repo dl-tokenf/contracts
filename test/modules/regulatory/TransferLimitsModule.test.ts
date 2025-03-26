@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
 import { RegulatoryComplianceMock, TokenFMock, TransferLimitsModuleMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
-import { AGENT_ROLE, hasRoleErrorMessage, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
+import { AGENT_ROLE, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
 describe("TransferLimitsModule", () => {
@@ -33,8 +33,8 @@ describe("TransferLimitsModule", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -56,14 +56,16 @@ describe("TransferLimitsModule", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(transferLimits.__TransferLimitsModuleMock_init(ZERO_ADDR, 0, 0)).to.be.revertedWith(
-        "Initializable: contract is already initialized",
+      await expect(transferLimits.__TransferLimitsModuleMock_init(ZERO_ADDR, 0, 0)).to.be.revertedWithCustomError(
+        transferLimits,
+        "InvalidInitialization",
       );
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(transferLimits.__TransferLimitsDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
+      await expect(transferLimits.__TransferLimitsDirect_init()).to.be.revertedWithCustomError(
+        transferLimits,
+        "NotInitializing",
       );
     });
   });
@@ -78,9 +80,9 @@ describe("TransferLimitsModule", () => {
     it("should not set min transfer limit if no role", async () => {
       await tokenF.revokeRole(AGENT_ROLE, agent);
 
-      await expect(transferLimits.connect(agent).setMinTransferLimit(MIN_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, AGENT_ROLE),
-      );
+      await expect(transferLimits.connect(agent).setMinTransferLimit(MIN_TRANSFER_LIMIT + 1n))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, AGENT_ROLE);
     });
 
     it("should set min transfer limit if all conditions are met", async () => {
@@ -94,9 +96,9 @@ describe("TransferLimitsModule", () => {
     it("should not set max transfer limit if no role", async () => {
       await tokenF.revokeRole(AGENT_ROLE, agent);
 
-      await expect(transferLimits.connect(agent).setMaxTransferLimit(MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, AGENT_ROLE),
-      );
+      await expect(transferLimits.connect(agent).setMaxTransferLimit(MAX_TRANSFER_LIMIT + 1n))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, AGENT_ROLE);
     });
 
     it("should set max transfer limit if all conditions are met", async () => {

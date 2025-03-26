@@ -32,10 +32,7 @@ abstract contract RegulatoryCompliance is
         _;
     }
 
-    function __RegulatoryCompliance_init()
-        internal
-        onlyInitializing(REGULATORY_COMPLIANCE_STORAGE_SLOT)
-    {}
+    function __RegulatoryCompliance_init() internal onlyInitializing {}
 
     /// @inheritdoc IRegulatoryCompliance
     function addRegulatoryModules(

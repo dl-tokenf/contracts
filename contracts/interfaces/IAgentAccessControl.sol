@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IAccessControl} from "@solarity/solidity-lib/diamond/access/access-control/ADiamondAccessControl.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 
 /**
  * @notice The `AgentAccessControl` contract is an add-on to Solarity's `DiamondAccessControl` and adds one basic role, `AGENT_ROLE`, to its implementation.

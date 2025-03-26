@@ -4,10 +4,7 @@ pragma solidity ^0.8.20;
 import {AgentAccessControl} from "../../core/AgentAccessControl.sol";
 
 contract AgentAccessControlMock is AgentAccessControl {
-    function __AgentAccessControlMock_init()
-        external
-        initializer(AGENT_ACCESS_CONTROL_STORAGE_SLOT)
-    {
+    function __AgentAccessControlMock_init() external initializer {
         __AgentAccessControl_init();
     }
 

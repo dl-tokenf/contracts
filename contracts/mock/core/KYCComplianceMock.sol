@@ -6,7 +6,7 @@ import {KYCCompliance} from "../../core/KYCCompliance.sol";
 contract KYCComplianceMock is KYCCompliance {
     bytes32 public constant KYC_COMPLIANCE_ROLE = keccak256("KYC_COMPLIANCE_ROLE");
 
-    function __KYCComplianceMock_init() external initializer(KYC_COMPLIANCE_STORAGE_SLOT) {
+    function __KYCComplianceMock_init() external initializer {
         __KYCCompliance_init();
     }
 

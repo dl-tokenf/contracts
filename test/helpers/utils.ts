@@ -1,4 +1,3 @@
-import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers } from "hardhat";
 import { ZERO_BYTES32 } from "@/scripts/utils/constants";
 
@@ -22,8 +21,4 @@ export enum TransferParty {
   Sender,
   Recipient,
   Operator,
-}
-
-export async function hasRoleErrorMessage(account: SignerWithAddress, role: string) {
-  return `AccessControl: account ${(await account.getAddress()).toLowerCase()} is missing role ${role}`;
 }

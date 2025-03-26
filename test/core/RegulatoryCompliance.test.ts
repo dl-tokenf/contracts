@@ -9,13 +9,7 @@ import {
   TokenFMock,
 } from "@ethers-v6";
 import { ZERO_ADDR, ZERO_SELECTOR } from "@/scripts/utils/constants";
-import {
-  AGENT_ROLE,
-  DIAMOND_CUT_ROLE,
-  hasRoleErrorMessage,
-  MINT_ROLE,
-  REGULATORY_COMPLIANCE_ROLE,
-} from "@/test/helpers/utils";
+import { AGENT_ROLE, DIAMOND_CUT_ROLE, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
 describe("RegulatoryCompliance", () => {
@@ -45,8 +39,8 @@ describe("RegulatoryCompliance", () => {
     rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -75,7 +69,7 @@ describe("RegulatoryCompliance", () => {
           [
             "diamondCut((address,uint8,bytes4[])[],address,bytes)"
           ]([], rCompliance, rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init")),
-      ).to.be.revertedWith("Initializable: contract is already initialized");
+      ).to.be.revertedWithCustomError(rCompliance, "InvalidInitialization");
     });
 
     it("should initialize only by top level contract", async () => {
@@ -85,7 +79,7 @@ describe("RegulatoryCompliance", () => {
           [
             "diamondCut((address,uint8,bytes4[])[],address,bytes)"
           ]([], rCompliance, rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init")),
-      ).to.be.revertedWith("Initializable: contract is not initializing");
+      ).to.be.revertedWithCustomError(rCompliance, "NotInitializing");
     });
   });
 
@@ -99,15 +93,15 @@ describe("RegulatoryCompliance", () => {
     it("should not add regulatory modules if no role", async () => {
       await rComplianceProxy.revokeRole(REGULATORY_COMPLIANCE_ROLE, agent);
 
-      await expect(rComplianceProxy.connect(agent).addRegulatoryModules([rCorrect])).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, REGULATORY_COMPLIANCE_ROLE),
-      );
+      await expect(rComplianceProxy.connect(agent).addRegulatoryModules([rCorrect]))
+        .to.be.revertedWithCustomError(rComplianceProxy, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, REGULATORY_COMPLIANCE_ROLE);
     });
 
     it("should not add regulatory modules if duplicates", async () => {
-      await expect(rComplianceProxy.connect(agent).addRegulatoryModules([rCorrect, rCorrect])).to.be.revertedWith(
-        "SetHelper: element already exists",
-      );
+      await expect(rComplianceProxy.connect(agent).addRegulatoryModules([rCorrect, rCorrect]))
+        .to.be.revertedWithCustomError(rComplianceProxy, "ElementAlreadyExistsAddress")
+        .withArgs(rCorrect);
     });
 
     it("should add regulatory modules if all conditions are met", async () => {
@@ -122,15 +116,15 @@ describe("RegulatoryCompliance", () => {
     it("should not remove regulatory modules if no role", async () => {
       await rComplianceProxy.revokeRole(REGULATORY_COMPLIANCE_ROLE, agent);
 
-      await expect(rComplianceProxy.connect(agent).removeRegulatoryModules([rCorrect])).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, REGULATORY_COMPLIANCE_ROLE),
-      );
+      await expect(rComplianceProxy.connect(agent).removeRegulatoryModules([rCorrect]))
+        .to.be.revertedWithCustomError(rComplianceProxy, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, REGULATORY_COMPLIANCE_ROLE);
     });
 
     it("should not remove regulatory modules if no module", async () => {
-      await expect(rComplianceProxy.connect(agent).removeRegulatoryModules([rCorrect])).to.be.revertedWith(
-        "SetHelper: no such element",
-      );
+      await expect(rComplianceProxy.connect(agent).removeRegulatoryModules([rCorrect]))
+        .to.be.revertedWithCustomError(rComplianceProxy, "NoSuchAddress")
+        .withArgs(rCorrect);
     });
 
     it("should remove regulatory modules if all conditions are met", async () => {

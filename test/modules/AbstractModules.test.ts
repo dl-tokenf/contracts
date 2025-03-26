@@ -2,24 +2,9 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import {
-  KYCComplianceMock,
-  ModuleMock,
-  RarimoModuleMock,
-  RegulatoryComplianceMock,
-  SBTMock,
-  TokenFMock,
-} from "@ethers-v6";
+import { ModuleMock, RegulatoryComplianceMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR, ZERO_BYTES32, ZERO_SELECTOR } from "@/scripts/utils/constants";
-import {
-  AGENT_ROLE,
-  hasRoleErrorMessage,
-  KYC_COMPLIANCE_ROLE,
-  MINT_ROLE,
-  REGULATORY_COMPLIANCE_ROLE,
-} from "@/test/helpers/utils";
-import { wei } from "@/scripts/utils/utils";
-import { token } from "@/generated-types/ethers/@openzeppelin/contracts";
+import { AGENT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
 describe("AbstractModules", () => {
   const reverter = new Reverter();
@@ -42,8 +27,8 @@ describe("AbstractModules", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -64,21 +49,18 @@ describe("AbstractModules", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(module.__ModuleMock_init(ZERO_ADDR)).to.be.revertedWith(
-        "Initializable: contract is already initialized",
-      );
+      await expect(module.__ModuleMock_init(ZERO_ADDR)).to.be.revertedWithCustomError(module, "InvalidInitialization");
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(module.__AbstractModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
+      await expect(module.__AbstractModuleDirect_init()).to.be.revertedWithCustomError(module, "NotInitializing");
+
+      await expect(module.__AbstractRegulatoryModuleDirect_init()).to.be.revertedWithCustomError(
+        module,
+        "NotInitializing",
       );
-      await expect(module.__AbstractRegulatoryModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
-      await expect(module.__AbstractKYCModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
+
+      await expect(module.__AbstractKYCModuleDirect_init()).to.be.revertedWithCustomError(module, "NotInitializing");
     });
   });
 
@@ -131,15 +113,15 @@ describe("AbstractModules", () => {
       it("should not add claim topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          await hasRoleErrorMessage(agent, AGENT_ROLE),
-        );
+        await expect(module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+          .withArgs(agent, AGENT_ROLE);
       });
 
       it("should not add claim topics if duplicates", async () => {
-        await expect(
-          module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]),
-        ).to.be.revertedWith("SetHelper: element already exists");
+        await expect(module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(module, "ElementAlreadyExistsBytes32")
+          .withArgs(ZERO_BYTES32);
       });
 
       it("should add claim topics if all conditions are met", async () => {
@@ -153,15 +135,15 @@ describe("AbstractModules", () => {
       it("should not remove claim topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          await hasRoleErrorMessage(agent, AGENT_ROLE),
-        );
+        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+          .withArgs(agent, AGENT_ROLE);
       });
 
       it("should not remove claim topics if no claim topic", async () => {
-        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          "SetHelper: no such element",
-        );
+        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(module, "NoSuchBytes32")
+          .withArgs(ZERO_BYTES32);
       });
 
       it("should remove claim topics if all conditions are met", async () => {

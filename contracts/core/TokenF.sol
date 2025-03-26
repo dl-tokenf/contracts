@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
-import {DiamondERC20} from "@solarity/solidity-lib/diamond/tokens/ERC20/DiamondERC20.sol";
 
 import {ITokenF} from "../interfaces/ITokenF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
@@ -15,7 +15,7 @@ import {TokenFStorage} from "./storages/TokenFStorage.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
 import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
 
-abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, AgentAccessControl {
+abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
@@ -28,7 +28,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, Agent
         address kycCompliance_,
         bytes memory initRegulatory_,
         bytes memory initKYC_
-    ) internal virtual onlyInitializing(TOKEN_F_STORAGE_SLOT) {
+    ) internal virtual onlyInitializing {
         bytes4[] memory rComplianceSelectors_ = new bytes4[](6);
         rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
         rComplianceSelectors_[1] = IRegulatoryCompliance.removeRegulatoryModules.selector;
@@ -57,7 +57,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, Agent
     function transfer(
         address to_,
         uint256 amount_
-    ) public virtual override(DiamondERC20, IERC20) returns (bool) {
+    ) public virtual override(ERC20Upgradeable, IERC20) returns (bool) {
         _canTransfer(msg.sender, to_, amount_, address(0));
         _isKYCed(msg.sender, to_, amount_, address(0));
 
@@ -73,7 +73,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, DiamondERC20, Agent
         address from_,
         address to_,
         uint256 amount_
-    ) public virtual override(DiamondERC20, IERC20) returns (bool) {
+    ) public virtual override(ERC20Upgradeable, IERC20) returns (bool) {
         _canTransfer(from_, to_, amount_, msg.sender);
         _isKYCed(from_, to_, amount_, msg.sender);
 

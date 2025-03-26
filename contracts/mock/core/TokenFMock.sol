@@ -17,15 +17,9 @@ contract TokenFMock is TokenF {
         address kycCompliance_,
         bytes memory initRegulatory_,
         bytes memory initKYC_
-    )
-        external
-        initializer(DIAMOND_ERC20_STORAGE_SLOT)
-        initializer(DIAMOND_ACCESS_CONTROL_STORAGE_SLOT)
-        initializer(AGENT_ACCESS_CONTROL_STORAGE_SLOT)
-        initializer(TOKEN_F_STORAGE_SLOT)
-    {
-        __ADiamondAccessControl_init();
-        __DiamondERC20_init(name_, symbol_);
+    ) external initializer {
+        __AccessControl_init();
+        __ERC20_init(name_, symbol_);
         __AgentAccessControl_init();
         __TokenF_init(rCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }

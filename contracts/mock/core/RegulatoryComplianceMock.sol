@@ -6,10 +6,7 @@ import {RegulatoryCompliance} from "../../core/RegulatoryCompliance.sol";
 contract RegulatoryComplianceMock is RegulatoryCompliance {
     bytes32 public constant REGULATORY_COMPLIANCE_ROLE = keccak256("REGULATORY_COMPLIANCE_ROLE");
 
-    function __RegulatoryComplianceMock_init()
-        external
-        initializer(REGULATORY_COMPLIANCE_STORAGE_SLOT)
-    {
+    function __RegulatoryComplianceMock_init() external initializer {
         __RegulatoryCompliance_init();
     }
 
