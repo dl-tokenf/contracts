@@ -150,7 +150,7 @@ describe("RegulatoryCompliance", () => {
           data: "0x",
         }),
       )
-        .to.be.revertedWithCustomError(rComplianceProxy, "NotThis")
+        .to.be.revertedWithCustomError(rComplianceProxy, "SenderIsNotThisContract")
         .withArgs(owner);
     });
 

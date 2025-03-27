@@ -27,8 +27,8 @@ abstract contract RegulatoryCompliance is
     using EnumerableSet for EnumerableSet.AddressSet;
     using SetHelper for EnumerableSet.AddressSet;
 
-    modifier onlyThis() {
-        require(msg.sender == address(this), NotThis(msg.sender));
+    modifier onlyThisContract() {
+        require(msg.sender == address(this), SenderIsNotThisContract(msg.sender));
         _;
     }
 
@@ -49,7 +49,7 @@ abstract contract RegulatoryCompliance is
     }
 
     /// @inheritdoc IRegulatoryCompliance
-    function transferred(TokenF.Context memory ctx_) public virtual onlyThis {
+    function transferred(TokenF.Context memory ctx_) public virtual onlyThisContract {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
