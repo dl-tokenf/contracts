@@ -37,6 +37,8 @@ abstract contract AbstractModule is Initializable {
     mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set claimTopics) private _claimTopics;
     mapping(bytes32 claimTopic => Handler handler) private _handlers;
 
+    error HandlerNotSet();
+
     function __AbstractModule_init(address tokenF_) internal onlyInitializing {
         _tokenF = tokenF_;
 
@@ -226,7 +228,7 @@ abstract contract AbstractModule is Initializable {
     {
         Handler storage _handler = _handlers[claimTopic_];
 
-        require(_handler.isHandlerSet, "AModule: handler is not set");
+        require(_handler.isHandlerSet, HandlerNotSet());
 
         return _handler.handler;
     }

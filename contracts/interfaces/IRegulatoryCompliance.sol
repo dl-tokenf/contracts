@@ -18,6 +18,8 @@ import {IRegulatoryComplianceView} from "./IRegulatoryComplianceView.sol";
  * Also this contract is used as a facet in the `TokenF` contract.
  */
 interface IRegulatoryCompliance is IRegulatoryComplianceView {
+    error NotThis(address sender);
+
     /**
      * @notice Function is required to add new regulatory modules to the `RegulatoryCompliance` contract.
      *

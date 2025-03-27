@@ -28,7 +28,7 @@ abstract contract RegulatoryCompliance is
     using SetHelper for EnumerableSet.AddressSet;
 
     modifier onlyThis() {
-        require(msg.sender == address(this), "RCompliance: not this");
+        require(msg.sender == address(this), NotThis(msg.sender));
         _;
     }
 

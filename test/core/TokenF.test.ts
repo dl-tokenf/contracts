@@ -281,7 +281,7 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(tokenF, "NotKYCed");
       });
 
       it("should revert if revert hook", async () => {
@@ -295,7 +295,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: isKYCed reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "IsKYCedReverted",
+        );
       });
     });
 
@@ -311,7 +314,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: cannot transfer");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "CannotTransfer",
+        );
       });
 
       it("should revert if revert hook", async () => {
@@ -325,7 +331,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: canTransfer reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "CanTransferReverted",
+        );
       });
     });
 
@@ -341,7 +350,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: transferred reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "TransferredReverted",
+        );
       });
     });
   });

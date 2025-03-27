@@ -149,7 +149,9 @@ describe("RegulatoryCompliance", () => {
           operator: ZERO_ADDR,
           data: "0x",
         }),
-      ).to.be.revertedWith("RCompliance: not this");
+      )
+        .to.be.revertedWithCustomError(rComplianceProxy, "NotThis")
+        .withArgs(owner);
     });
 
     it("should transfer if all conditions are met", async () => {

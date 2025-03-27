@@ -14,6 +14,8 @@ abstract contract AbstractRegulatoryModule is AbstractModule {
         _;
     }
 
+    error SenderNotTokenF(address sender);
+
     function __AbstractRegulatoryModule_init() internal onlyInitializing {}
 
     function transferred(TokenF.Context memory ctx_) public virtual onlyTokenF {}
@@ -23,7 +25,7 @@ abstract contract AbstractRegulatoryModule is AbstractModule {
     }
 
     function _onlyTokenF() internal view {
-        require(msg.sender == getTokenF(), "ARModule: not TokenF");
+        require(msg.sender == getTokenF(), SenderNotTokenF(msg.sender));
     }
 
     uint256[50] private _gap;

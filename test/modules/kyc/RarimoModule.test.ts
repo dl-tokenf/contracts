@@ -118,11 +118,13 @@ describe("RarimoModule", () => {
 
       await tokenF.connect(agent).mint(alice, wei("1"));
 
-      await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
-
+      await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.be.revertedWithCustomError(tokenF, "NotKYCed");
       await tokenF.connect(agent).approve(alice, wei("1"));
 
-      await expect(tokenF.connect(alice).transferFrom(agent, bob, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
+      await expect(tokenF.connect(alice).transferFrom(agent, bob, wei("1"))).to.be.revertedWithCustomError(
+        tokenF,
+        "NotKYCed",
+      );
     });
 
     it("should transfer if sbt tokens are minted", async () => {

@@ -153,22 +153,26 @@ describe("TransferLimitsModule", () => {
 
       await tokenF.connect(agent).mint(alice, MAX_TRANSFER_LIMIT + 1n);
 
-      await expect(tokenF.connect(alice).transfer(bob, MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
-        "TokenF: cannot transfer",
+      await expect(tokenF.connect(alice).transfer(bob, MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWithCustomError(
+        tokenF,
+        "CannotTransfer",
       );
 
-      await expect(tokenF.connect(alice).transfer(bob, MIN_TRANSFER_LIMIT - 1n)).to.be.revertedWith(
-        "TokenF: cannot transfer",
+      await expect(tokenF.connect(alice).transfer(bob, MIN_TRANSFER_LIMIT - 1n)).to.be.revertedWithCustomError(
+        tokenF,
+        "CannotTransfer",
       );
 
       await tokenF.connect(alice).approve(bob, MAX_TRANSFER_LIMIT + 1n);
 
-      await expect(tokenF.connect(bob).transferFrom(alice, bob, MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWith(
-        "TokenF: cannot transfer",
+      await expect(tokenF.connect(bob).transferFrom(alice, bob, MAX_TRANSFER_LIMIT + 1n)).to.be.revertedWithCustomError(
+        tokenF,
+        "CannotTransfer",
       );
 
-      await expect(tokenF.connect(bob).transferFrom(alice, bob, MIN_TRANSFER_LIMIT - 1n)).to.be.revertedWith(
-        "TokenF: cannot transfer",
+      await expect(tokenF.connect(bob).transferFrom(alice, bob, MIN_TRANSFER_LIMIT - 1n)).to.be.revertedWithCustomError(
+        tokenF,
+        "CannotTransfer",
       );
     });
   });

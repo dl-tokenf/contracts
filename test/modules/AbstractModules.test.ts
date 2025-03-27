@@ -86,7 +86,7 @@ describe("AbstractModules", () => {
             operator: ZERO_ADDR,
             data: "0x",
           }),
-        ).to.be.revertedWith("AModule: handler is not set");
+        ).to.be.revertedWithCustomError(module, "HandlerNotSet");
       });
 
       it("should handle if all conditions are met", async () => {
@@ -167,7 +167,9 @@ describe("AbstractModules", () => {
             operator: ZERO_ADDR,
             data: "0x",
           }),
-        ).to.be.revertedWith("ARModule: not TokenF");
+        )
+          .to.be.revertedWithCustomError(module, "SenderNotTokenF")
+          .withArgs(owner);
       });
     });
   });

@@ -29,6 +29,12 @@ interface ITokenF is IERC20Metadata {
         bytes data;
     }
 
+    error CannotTransfer();
+    error CanTransferReverted();
+    error NotKYCed();
+    error IsKYCedReverted();
+    error TransferredReverted();
+
     /**
      * @notice Function to create new `TokenF` contract tokens.
      *

@@ -174,7 +174,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
                 Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         {} catch {
-            revert("TokenF: transferred reverted");
+            revert TransferredReverted();
         }
     }
 
@@ -189,9 +189,9 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
                 Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         returns (bool canTransfer_) {
-            require(canTransfer_, "TokenF: cannot transfer");
+            require(canTransfer_, CannotTransfer());
         } catch {
-            revert("TokenF: canTransfer reverted");
+            revert CanTransferReverted();
         }
     }
 
@@ -206,9 +206,9 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
                 Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
             )
         returns (bool isKYCed_) {
-            require(isKYCed_, "TokenF: not KYCed");
+            require(isKYCed_, NotKYCed());
         } catch {
-            revert("TokenF: isKYCed reverted");
+            revert IsKYCedReverted();
         }
     }
 
