@@ -39,7 +39,7 @@ contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
         return _getClaimTopicKey(ctx_);
     }
 
-    function _handleMockTopic(TokenF.Context memory ctx_) internal view virtual returns (bool) {
+    function _handleMockTopic(TokenF.Context memory) internal view virtual returns (bool) {
         return true;
     }
 }

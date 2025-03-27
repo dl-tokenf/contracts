@@ -125,7 +125,7 @@ abstract contract AbstractModule is Initializable {
      * you can override this function and make any necessary changes.
      *
      * @param claimTopicKey_ The claim topic key
-     * @param claimTopics_ The array of claim topicsto be removed
+     * @param claimTopics_ The array of claim topics to be removed
      */
     function _removeClaimTopics(
         bytes32 claimTopicKey_,
@@ -213,7 +213,7 @@ abstract contract AbstractModule is Initializable {
      * @notice Function to retrieve a previously saved handler function by claim topic.
      *
      * In case no function handler has been set for the passed claim topic,
-     * transaction will fail with the error - `AModule: handler is not set`.
+     * transaction will fail with the error - `HandlerNotSet()`.
      *
      * @param claimTopic_ The claim topic for which a handler function is to be retrieved
      * @return pointer to the previously saved handler function
