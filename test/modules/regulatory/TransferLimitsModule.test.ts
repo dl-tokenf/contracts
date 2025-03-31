@@ -112,23 +112,23 @@ describe("TransferLimitsModule", () => {
     let transferKey: string;
     let transferFromKey: string;
 
-    const setupClaimTopics = async () => {
-      await transferLimits.addClaimTopics(transferKey, [
+    const setupHandleTopics = async () => {
+      await transferLimits.addHandleTopics(transferKey, [
         await transferLimits.MIN_TRANSFER_LIMIT_TOPIC(),
         await transferLimits.MAX_TRANSFER_LIMIT_TOPIC(),
       ]);
-      await transferLimits.addClaimTopics(transferFromKey, [
+      await transferLimits.addHandleTopics(transferFromKey, [
         await transferLimits.MIN_TRANSFER_LIMIT_TOPIC(),
         await transferLimits.MAX_TRANSFER_LIMIT_TOPIC(),
       ]);
     };
 
     beforeEach(async () => {
-      transferKey = await transferLimits.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await transferLimits.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await transferLimits.getContextKey(await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await transferLimits.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
-    it("should not apply transfer limits if claim topic keys are not set", async () => {
+    it("should not apply transfer limits if context keys are not set", async () => {
       const amount = MAX_TRANSFER_LIMIT + 1n;
 
       await tokenF.connect(agent).mint(alice, amount);
@@ -148,8 +148,8 @@ describe("TransferLimitsModule", () => {
       );
     });
 
-    it("should apply transfer limits if claim topic keys are set", async () => {
-      await setupClaimTopics();
+    it("should apply transfer limits if context keys are set", async () => {
+      await setupHandleTopics();
 
       await tokenF.connect(agent).mint(alice, MAX_TRANSFER_LIMIT + 1n);
 

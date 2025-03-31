@@ -78,12 +78,12 @@ describe("RarimoModule", () => {
     let transferKey: string;
     let transferFromKey: string;
 
-    const setupClaimTopics = async () => {
-      await rarimo.addClaimTopics(transferKey, [
+    const setupHandleTopics = async () => {
+      await rarimo.addHandleTopics(transferKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
       ]);
-      await rarimo.addClaimTopics(transferFromKey, [
+      await rarimo.addHandleTopics(transferFromKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
         await rarimo.HAS_SOUL_OPERATOR_TOPIC(),
@@ -91,11 +91,11 @@ describe("RarimoModule", () => {
     };
 
     beforeEach(async () => {
-      transferKey = await rarimo.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await rarimo.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await rarimo.getContextKey(await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await rarimo.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
-    it("should not apply kyc limits if claim topic keys are not set", async () => {
+    it("should not apply kyc limits if context keys are not set", async () => {
       await tokenF.connect(agent).mint(alice, wei("1"));
 
       await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.changeTokenBalances(
@@ -113,8 +113,8 @@ describe("RarimoModule", () => {
       );
     });
 
-    it("should apply kyc limits if claim topic keys are set", async () => {
-      await setupClaimTopics();
+    it("should apply kyc limits if context keys are set", async () => {
+      await setupHandleTopics();
 
       await tokenF.connect(agent).mint(alice, wei("1"));
 
@@ -128,7 +128,7 @@ describe("RarimoModule", () => {
     });
 
     it("should transfer if sbt tokens are minted", async () => {
-      await setupClaimTopics();
+      await setupHandleTopics();
 
       await sbt.mint(agent, 1);
       await sbt.mint(alice, 2);

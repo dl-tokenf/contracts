@@ -45,14 +45,14 @@ async function setupTransferLimitsModule(deployer: Deployer, tokenF: EquityToken
   const transferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
   await transferLimitsModule.__EquityTransferLimitsModule_init(tokenF);
 
-  const transferClaimTopicKey = await transferLimitsModule.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
-  const transferFromClaimTopicKey = await transferLimitsModule.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
 
-  await transferLimitsModule.addClaimTopics(transferClaimTopicKey, [
+  await transferLimitsModule.addHandleTopics(transferContextKey, [
     await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
     await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
   ]);
-  await transferLimitsModule.addClaimTopics(transferFromClaimTopicKey, [
+  await transferLimitsModule.addHandleTopics(transferFromContextKey, [
     await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
     await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
   ]);
@@ -67,14 +67,14 @@ async function setupRarimoModule(deployer: Deployer, tokenF: EquityToken): Promi
   const rarimoModule = await deployer.deploy(EquityRarimoModule__factory);
   await rarimoModule.__EquityRarimoModule_init(tokenF, rarimoSBT);
 
-  const transferClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
-  const transferFromClaimTopicKey = await rarimoModule.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await rarimoModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await rarimoModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
 
-  await rarimoModule.addClaimTopics(transferClaimTopicKey, [
+  await rarimoModule.addHandleTopics(transferContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
   ]);
-  await rarimoModule.addClaimTopics(transferFromClaimTopicKey, [
+  await rarimoModule.addHandleTopics(transferFromContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
     await rarimoModule.HAS_SOUL_OPERATOR_TOPIC(),

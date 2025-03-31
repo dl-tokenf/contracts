@@ -10,10 +10,10 @@ contract EquityRarimoModule is RarimoModule {
         __RarimoModule_init(sbt_);
     }
 
-    function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKey(bytes4 selector_) external view returns (bytes32) {
         TokenF.Context memory ctx_;
         ctx_.selector = selector_;
 
-        return _getClaimTopicKey(ctx_);
+        return _getContextKey(ctx_);
     }
 }
