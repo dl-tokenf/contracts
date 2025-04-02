@@ -10,8 +10,8 @@ contract EquityToken is TokenF {
         bytes memory initRegulatory_,
         bytes memory initKYC_
     ) external initializer {
-        __DiamondAccessControl_init();
-        __DiamondERC20_init("Equity Token", "ET");
+        __AccessControl_init();
+        __ERC20_init("Equity Token", "ET");
         __AgentAccessControl_init();
         __TokenF_init(regulatoryCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }
