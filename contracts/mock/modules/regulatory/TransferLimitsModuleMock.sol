@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TokenF} from "../../../core/TokenF.sol";
+import {Context} from "../../../core/Globals.sol";
 import {TransferLimitsModule} from "../../../modules/regulatory/TransferLimitsModule.sol";
 
 contract TransferLimitsModuleMock is TransferLimitsModule {
@@ -28,7 +28,7 @@ contract TransferLimitsModuleMock is TransferLimitsModule {
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {
-        TokenF.Context memory ctx_;
+        Context memory ctx_;
         ctx_.selector = selector_;
 
         return _getContextKey(ctx_);

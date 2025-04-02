@@ -10,6 +10,9 @@ import {ITokenF} from "../interfaces/ITokenF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
+// solhint-disable-next-line no-global-import
+import "./Globals.sol";
+
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {TokenFStorage} from "./storages/TokenFStorage.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
@@ -171,7 +174,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     ) internal virtual {
         try
             IRegulatoryCompliance(address(this)).transferred(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
             )
         {} catch {
             revert TransferredReverted();
@@ -186,7 +189,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     ) internal view virtual {
         try
             IRegulatoryCompliance(address(this)).canTransfer(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
             )
         returns (bool canTransfer_) {
             require(canTransfer_, CannotTransfer());
@@ -203,7 +206,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     ) internal view virtual {
         try
             IKYCCompliance(address(this)).isKYCed(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
             )
         returns (bool isKYCed_) {
             require(isKYCed_, NotKYCed());

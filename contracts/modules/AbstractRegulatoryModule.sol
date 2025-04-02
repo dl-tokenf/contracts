@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TokenF} from "../core/TokenF.sol";
+import {Context} from "../core/Globals.sol";
 
 import {AbstractModule} from "./AbstractModule.sol";
 
@@ -18,9 +18,9 @@ abstract contract AbstractRegulatoryModule is AbstractModule {
 
     function __AbstractRegulatoryModule_init() internal onlyInitializing {}
 
-    function transferred(TokenF.Context memory ctx_) public virtual onlyTokenF {}
+    function transferred(Context memory ctx_) public virtual onlyTokenF {}
 
-    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(Context memory ctx_) public view virtual returns (bool) {
         return _handle(ctx_);
     }
 

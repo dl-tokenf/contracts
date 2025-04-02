@@ -8,7 +8,7 @@ import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
 import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
 
-import {TokenF} from "../core/TokenF.sol";
+import {Context} from "../core/Globals.sol";
 
 /**
  * @notice The `AbstractModule` contract
@@ -24,7 +24,7 @@ abstract contract AbstractModule is Initializable {
 
     struct Handler {
         bool isHandlerSet;
-        function(TokenF.Context memory) internal view returns (bool) handler;
+        function(Context memory) internal view returns (bool) handler;
     }
 
     modifier onlyRole(bytes32 role_) {
@@ -143,7 +143,7 @@ abstract contract AbstractModule is Initializable {
      */
     function _setHandler(
         bytes32 handleTopic_,
-        function(TokenF.Context memory) internal view returns (bool) handler_
+        function(Context memory) internal view returns (bool) handler_
     ) internal virtual {
         Handler storage _handler = _handlers[handleTopic_];
 
@@ -180,7 +180,7 @@ abstract contract AbstractModule is Initializable {
      * @param ctx_ The transaction context
      * @return context key
      */
-    function _getContextKey(TokenF.Context memory ctx_) internal view virtual returns (bytes32) {
+    function _getContextKey(Context memory ctx_) internal view virtual returns (bytes32) {
         return keccak256(abi.encodePacked(ctx_.selector));
     }
 
@@ -192,7 +192,7 @@ abstract contract AbstractModule is Initializable {
      *
      * @param ctx_ The transaction context
      */
-    function _handle(TokenF.Context memory ctx_) internal view virtual returns (bool) {
+    function _handle(Context memory ctx_) internal view virtual returns (bool) {
         bytes32 contextKey_ = _getContextKey(ctx_);
         bytes32[] memory handleTopics_ = getHandleTopics(contextKey_);
 
@@ -216,12 +216,7 @@ abstract contract AbstractModule is Initializable {
      */
     function _getHandler(
         bytes32 handleTopic_
-    )
-        internal
-        view
-        virtual
-        returns (function(TokenF.Context memory) internal view returns (bool))
-    {
+    ) internal view virtual returns (function(Context memory) internal view returns (bool)) {
         Handler storage _handler = _handlers[handleTopic_];
 
         require(_handler.isHandlerSet, HandlerNotSet());
