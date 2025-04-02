@@ -16,25 +16,10 @@ import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
  * Transfer methods forward the entire transfer context to compliance modules, ensuring adherence to specific requirements,
  * such as regulatory standards or KYC protocols.
  *
- * `TokenF` is also inherited from `AgentAccessControl`, which is built on Solarity's `DiamondAccessControl`.
+ * `TokenF` is also inherited from `AgentAccessControl`, which is built on OpenZeppelin's `AccessControlUpgradeable`.
  * This inheritance allows to realise a rather flexible system of roles for controlling privileged functions in the whole system.
  */
 interface ITokenF is IERC20Metadata {
-    struct Context {
-        bytes4 selector;
-        address from;
-        address to;
-        uint256 amount;
-        address operator;
-        bytes data;
-    }
-
-    error CannotTransfer();
-    error CanTransferReverted();
-    error NotKYCed();
-    error IsKYCedReverted();
-    error TransferredReverted();
-
     /**
      * @notice Function to create new `TokenF` contract tokens.
      *

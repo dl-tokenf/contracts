@@ -130,7 +130,7 @@ describe("TokenF", () => {
         .withArgs(agent, BURN_ROLE);
     });
 
-    it("should mint if all conditions are met", async () => {
+    it("should burn if all conditions are met", async () => {
       await tokenF.connect(agent).mint(bob, wei("1"));
 
       await expect(tokenF.connect(agent).burn(bob, wei("1"))).to.changeTokenBalance(tokenF, bob, -wei("1"));

@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 
 /**
- * @notice The `AgentAccessControl` contract is an add-on to Solarity's `DiamondAccessControl` and adds one basic role, `AGENT_ROLE`, to its implementation.
+ * @notice The `AgentAccessControl` contract is an add-on to OpenZeppelin's `AccessControlUpgradeable` and adds one basic role, `AGENT_ROLE`, to its implementation.
  * This role is used in the base version of the `TokenF` framework for all privileged functions such as `mint`, `burn`, `addKYCModules`, etc.
  */
 interface IAgentAccessControl is IAccessControl {
