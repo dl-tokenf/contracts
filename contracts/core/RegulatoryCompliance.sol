@@ -18,7 +18,7 @@ import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol"
  * @notice The RegulatoryCompliance contract
  *
  * The RegulatoryCompliance is a core contract that serves as a repository for regulatory modules.
- * It tracks every transfer made within the TokenF contract and disseminates its context to registered regulatory modules.
+ * It tracks every transfer made within the TokenF and NFTF contracts and disseminates its context to registered regulatory modules.
  */
 abstract contract RegulatoryCompliance is
     IRegulatoryCompliance,

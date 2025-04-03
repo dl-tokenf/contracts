@@ -8,8 +8,8 @@ import {AbstractKYCModule} from "../../modules/AbstractKYCModule.sol";
 contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
     bytes32 public constant MOCK_TOPIC = keccak256("MOCK");
 
-    function __ModuleMock_init(address tokenF_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __ModuleMock_init(address assetF_) external initializer {
+        __AbstractModule_init(assetF_);
         __AbstractRegulatoryModule_init();
         __AbstractKYCModule_init();
     }

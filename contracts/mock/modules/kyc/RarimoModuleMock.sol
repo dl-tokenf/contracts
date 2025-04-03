@@ -5,8 +5,8 @@ import {Context} from "../../../core/Globals.sol";
 import {RarimoModule} from "../../../modules/kyc/RarimoModule.sol";
 
 contract RarimoModuleMock is RarimoModule {
-    function __RarimoModuleMock_init(address tokenF_, address sbt_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __RarimoModuleMock_init(address assetF_, address sbt_) external initializer {
+        __AbstractModule_init(assetF_);
         __AbstractKYCModule_init();
         __RarimoModule_init(sbt_);
     }

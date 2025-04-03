@@ -13,7 +13,7 @@ interface IAgentAccessControl is IAccessControl {
      *
      * All addresses that own this role are privileged and can call various functions to manage parts of the token.
      *
-     * In a basic implementation of `TokenF`, a user with the Agent role can call absolutely all the privileged functions, such as `mint`, `burn` and etc.
+     * In basic implementations of `TokenF` and `NFTF`, a user with the Agent role can call absolutely all the privileged functions, such as `mint`, `burn` and etc.
      *
      * The Agent role key itself is created as follows - `keccak256("AGENT_ROLE")`
      *

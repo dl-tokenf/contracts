@@ -63,7 +63,7 @@ describe("NFT F", () => {
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(nftF.__NftFDirect_init()).to.be.revertedWithCustomError(nftF, "NotInitializing");
+      await expect(nftF.__NFTFDirect_init()).to.be.revertedWithCustomError(nftF, "NotInitializing");
     });
   });
 

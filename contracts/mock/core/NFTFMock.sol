@@ -24,7 +24,7 @@ contract NFTFMock is NFTF {
         __NFTF_init(rCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }
 
-    function __NftFDirect_init() external {
+    function __NFTFDirect_init() external {
         __NFTF_init(address(0), address(0), "", "");
     }
 

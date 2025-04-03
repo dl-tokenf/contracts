@@ -66,7 +66,7 @@ describe("AbstractModules", () => {
 
   describe("getters", () => {
     it("should return base data", async () => {
-      expect(await module.getTokenF()).to.eq(tokenF);
+      expect(await module.getAssetF()).to.eq(tokenF);
     });
   });
 
@@ -171,7 +171,7 @@ describe("AbstractModules", () => {
             data: "0x",
           }),
         )
-          .to.be.revertedWithCustomError(module, "SenderNotTokenF")
+          .to.be.revertedWithCustomError(module, "SenderNotAssetF")
           .withArgs(owner);
       });
     });

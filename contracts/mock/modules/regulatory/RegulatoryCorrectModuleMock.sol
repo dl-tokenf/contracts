@@ -5,8 +5,8 @@ import {Context} from "../../../core/Globals.sol";
 import {AbstractRegulatoryModule} from "../../../modules/AbstractRegulatoryModule.sol";
 
 contract RegulatoryCorrectModuleMock is AbstractRegulatoryModule {
-    function __RegulatoryCorrectModuleMock_init(address tokenF_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __RegulatoryCorrectModuleMock_init(address assetF_) external initializer {
+        __AbstractModule_init(assetF_);
         __AbstractRegulatoryModule_init();
     }
 

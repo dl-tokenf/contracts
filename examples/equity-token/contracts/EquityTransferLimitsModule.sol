@@ -5,8 +5,8 @@ import {Context} from "@tokenf/contracts/core/Globals.sol";
 import {TransferLimitsModule} from "@tokenf/contracts/modules/regulatory/TransferLimitsModule.sol";
 
 contract EquityTransferLimitsModule is TransferLimitsModule {
-    function __EquityTransferLimitsModule_init(address tokenF_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __EquityTransferLimitsModule_init(address assetF_) external initializer {
+        __AbstractModule_init(assetF_);
         __TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
     }
 

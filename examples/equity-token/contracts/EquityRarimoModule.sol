@@ -5,8 +5,8 @@ import {Context} from "@tokenf/contracts/core/Globals.sol";
 import {RarimoModule} from "@tokenf/contracts/modules/kyc/RarimoModule.sol";
 
 contract EquityRarimoModule is RarimoModule {
-    function __EquityRarimoModule_init(address tokenF_, address sbt_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __EquityRarimoModule_init(address assetF_, address sbt_) external initializer {
+        __AbstractModule_init(assetF_);
         __RarimoModule_init(sbt_);
     }
 

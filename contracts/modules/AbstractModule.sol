@@ -32,15 +32,15 @@ abstract contract AbstractModule is Initializable {
         _;
     }
 
-    address private _tokenF;
+    address private _assetF;
 
     mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handleTopics) private _handleTopics;
     mapping(bytes32 handleTopic => Handler handler) private _handlers;
 
     error HandlerNotSet();
 
-    function __AbstractModule_init(address tokenF_) internal onlyInitializing {
-        _tokenF = tokenF_;
+    function __AbstractModule_init(address assetF_) internal onlyInitializing {
+        _assetF = assetF_;
 
         _handlerer();
     }
@@ -48,7 +48,7 @@ abstract contract AbstractModule is Initializable {
     /**
      * @notice Function for adding an array of handle topics for the corresponding context key.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
@@ -66,7 +66,7 @@ abstract contract AbstractModule is Initializable {
     /**
      * @notice Function for removing an array of handle topics from the list of the corresponding context key.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in basic `TokenF` and `NFTF` implementation can only be called by users who have the Agent role.
      *
      * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
@@ -92,12 +92,12 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function to get the `TokenF` address of the contract to which this module contract is bound.
+     * @notice Function to retrieve the address of the corresponding `TokenF` or `NFTF` contract to which this module contract is bound.
      *
-     * @return address of `TokenF` contract
+     * @return address of `TokenF` or `NFTF` contract
      */
-    function getTokenF() public view virtual returns (address) {
-        return _tokenF;
+    function getAssetF() public view virtual returns (address) {
+        return _assetF;
     }
 
     /**
@@ -225,11 +225,11 @@ abstract contract AbstractModule is Initializable {
     }
 
     function _moduleRole() internal view virtual returns (bytes32) {
-        return IAgentAccessControl(_tokenF).AGENT_ROLE();
+        return IAgentAccessControl(_assetF).AGENT_ROLE();
     }
 
     function _onlyRole(bytes32 role_) internal view virtual {
-        IAgentAccessControl(_tokenF).checkRole(role_, msg.sender);
+        IAgentAccessControl(_assetF).checkRole(role_, msg.sender);
     }
 
     uint256[47] private _gap;

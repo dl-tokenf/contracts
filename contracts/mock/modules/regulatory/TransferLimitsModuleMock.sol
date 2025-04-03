@@ -6,11 +6,11 @@ import {TransferLimitsModule} from "../../../modules/regulatory/TransferLimitsMo
 
 contract TransferLimitsModuleMock is TransferLimitsModule {
     function __TransferLimitsModuleMock_init(
-        address tokenF_,
+        address assetF_,
         uint256 minTransferValue_,
         uint256 maxTransferValue_
     ) external initializer {
-        __AbstractModule_init(tokenF_);
+        __AbstractModule_init(assetF_);
         __AbstractRegulatoryModule_init();
         __TransferLimitsModule_init(minTransferValue_, maxTransferValue_);
     }
