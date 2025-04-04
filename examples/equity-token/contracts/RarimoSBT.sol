@@ -3,12 +3,12 @@ pragma solidity ^0.8.20;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import {SBT} from "@solarity/solidity-lib/tokens/SBT.sol";
+import {ASBT} from "@solarity/solidity-lib/tokens/ASBT.sol";
 
-contract RarimoSBT is SBT, OwnableUpgradeable {
+contract RarimoSBT is ASBT, OwnableUpgradeable {
     function __RarimoSBT_init() external initializer {
-        __SBT_init("RarimoSBT", "RarimoSBT");
-        __Ownable_init();
+        __ASBT_init("RarimoSBT", "RarimoSBT");
+        __Ownable_init(msg.sender);
     }
 
     function mint(address to_, uint256 tokenId_) external virtual onlyOwner {

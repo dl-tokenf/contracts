@@ -5,24 +5,30 @@
   "author": "Distributed Lab",
   "scripts": {
     "compile": "npx hardhat compile --force",
-    "deploy-localhost": "npx hardhat migrate --network localhost"
+    "deploy-localhost": "npx hardhat migrate --network localhost",
+    "lint-fix": "npm run lint-sol-fix && npm run lint-ts-fix && npm run lint-json-fix",
+    "lint-json-fix": "prettier --write \"./**/*.json\"",
+    "lint-ts-fix": "prettier --write \"./**/*.ts\"",
+    "lint-sol-fix": "prettier --write \"./**/*.sol\""
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.5",
-    "@openzeppelin/contracts-upgradeable": "4.9.5",
-    "@solarity/solidity-lib": "2.7.2",
+    "@openzeppelin/contracts": "5.2.0",
+    "@openzeppelin/contracts-upgradeable": "5.2.0",
+    "@solarity/solidity-lib": "3.0.1",
     "@tokenf/contracts": "0.2.0"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-ethers": "^3.0.5",
-    "@solarity/hardhat-migrate": "^2.1.5",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@solarity/hardhat-migrate": "^3.0.2",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
-    "@types/node": "^18.16.0",
-    "hardhat": "2.20.1",
-    "typechain": "^8.3.2",
+    "@types/node": "^22.14.0",
+    "hardhat": "2.22.19",
+    "prettier": "^3.5.3",
+    "prettier-plugin-solidity": "^1.4.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.3.3"
+    "typechain": "^8.3.2",
+    "typescript": "^5.8.2"
   }
 }
