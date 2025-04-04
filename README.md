@@ -11,7 +11,7 @@ Built with [Solarity](https://github.com/dl-solarity), [Openzeppelin](https://gi
 
 ## Application
 
-TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
+TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible and ERC-721-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
 
 TokenF is built with certain levels of abstraction in mind: 
 
@@ -46,6 +46,18 @@ pragma solidity ^0.8.20;
 import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
 
 contract EquityToken is TokenF {
+    . . .
+}
+```
+
+or NFTF:
+
+```solidity
+pragma solidity ^0.8.20;
+
+import {NFTF} from "@tokenf/contracts/core/NFTF.sol";
+
+contract EquityNft is NFTF {
     . . .
 }
 ```
