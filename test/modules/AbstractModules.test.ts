@@ -112,7 +112,7 @@ describe("AbstractModules", () => {
     });
 
     describe("addHandlerTopics", () => {
-      it("should not add handle topics if no role", async () => {
+      it("should not add handler topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
         await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
@@ -120,13 +120,13 @@ describe("AbstractModules", () => {
           .withArgs(agent, AGENT_ROLE);
       });
 
-      it("should not add handle topics if duplicates", async () => {
+      it("should not add handler topics if duplicates", async () => {
         await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
           .to.be.revertedWithCustomError(module, "ElementAlreadyExistsBytes32")
           .withArgs(ZERO_BYTES32);
       });
 
-      it("should add handle topics if all conditions are met", async () => {
+      it("should add handler topics if all conditions are met", async () => {
         await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 
         expect(await module.getHandlerTopics(ZERO_BYTES32)).to.deep.eq([ZERO_BYTES32]);
@@ -134,7 +134,7 @@ describe("AbstractModules", () => {
     });
 
     describe("removeHandlerTopics", () => {
-      it("should not remove handle topics if no role", async () => {
+      it("should not remove handler topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
         await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
@@ -142,13 +142,13 @@ describe("AbstractModules", () => {
           .withArgs(agent, AGENT_ROLE);
       });
 
-      it("should not remove handle topics if no handle topic", async () => {
+      it("should not remove handler topics if no handler topic", async () => {
         await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
           .to.be.revertedWithCustomError(module, "NoSuchBytes32")
           .withArgs(ZERO_BYTES32);
       });
 
-      it("should remove handle topics if all conditions are met", async () => {
+      it("should remove handler topics if all conditions are met", async () => {
         await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
         await module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 

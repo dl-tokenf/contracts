@@ -15,8 +15,8 @@ import {Context} from "../core/Globals.sol";
  *
  * The `AbstractModule` contract provides a framework for implementing compliance modules.
  *
- * Each module is capable of matching handle topics to corresponding handlers, with handle topics organized under
- * user-defined handle topic keys.
+ * Each module is capable of matching handler topics to corresponding handlers, with handler topics organized under
+ * user-defined context keys.
  */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -46,15 +46,15 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function for adding an array of handle topics for the corresponding context key.
+     * @notice Function for adding an array of handler topics for the corresponding context key.
      *
      * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
      *
-     * @param contextKey_ The key of the handle topics
-     * @param handlerTopics_ Array of handle topics to add
+     * @param contextKey_ The key of the handler topics
+     * @param handlerTopics_ Array of handler topics to add
      */
     function addHandlerTopics(
         bytes32 contextKey_,
@@ -64,15 +64,15 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function for removing an array of handle topics from the list of the corresponding context key.
+     * @notice Function for removing an array of handler topics from the list of the corresponding context key.
      *
      * This function in basic `TokenF` and `NFTF` implementation can only be called by users who have the Agent role.
      *
      * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
      *
-     * @param contextKey_ The key of the handle topics
-     * @param handlerTopics_ Array of handle topics to be removed
+     * @param contextKey_ The key of the handler topics
+     * @param handlerTopics_ Array of handler topics to be removed
      */
     function removeHandlerTopics(
         bytes32 contextKey_,
@@ -82,10 +82,10 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function to retrieve all stored handle topics by the passed context key.
+     * @notice Function to retrieve all stored handler topics by the passed context key.
      *
-     * @param contextKey_ The key of the handle topics for which the array should be obtained
-     * @return handle topics array
+     * @param contextKey_ The key of the handler topics for which the array should be obtained
+     * @return handler topics array
      */
     function getHandlerTopics(bytes32 contextKey_) public view virtual returns (bytes32[] memory) {
         return _handlerTopics[contextKey_].values();
@@ -101,13 +101,13 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Internal function to add an array of handle topics for the passed context key.
+     * @notice Internal function to add an array of handler topics for the passed context key.
      *
-     * In case it is necessary to change or extend the logic of adding handle topics,
+     * In case it is necessary to change or extend the logic of adding handler topics,
      * you can override this function and make any necessary changes.
      *
      * @param contextKey_ The context key
-     * @param handlerTopics_ The array of handle topics to add
+     * @param handlerTopics_ The array of handler topics to add
      */
     function _addHandlerTopics(
         bytes32 contextKey_,
@@ -117,13 +117,13 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Internal function to remove the handle topics array for the passed context key.
+     * @notice Internal function to remove the handler topics array for the passed context key.
      *
-     * In case you want to change or extend the logic of deleting handle topics,
+     * In case you want to change or extend the logic of deleting handler topics,
      * you can override this function and make any necessary changes.
      *
      * @param contextKey_ The context key
-     * @param handlerTopics_ The array of handle topics to be removed
+     * @param handlerTopics_ The array of handler topics to be removed
      */
     function _removeHandlerTopics(
         bytes32 contextKey_,
@@ -161,7 +161,7 @@ abstract contract AbstractModule is Initializable {
      *
      * ```solidity
      *     function _handlerer() internal virtual override {
-     *         _setHandler(<YOUR_HANDLE_TOPIC>, _yourHandlerFunc);
+     *         _setHandler(<YOUR_HANDLER_TOPIC>, _yourHandlerFunc);
      *     }
      * ```
      */
@@ -187,8 +187,8 @@ abstract contract AbstractModule is Initializable {
     /**
      * @notice The main function to process the passed transaction context.
      *
-     * Within it, all the set of handle topics are retrieved by the context key.
-     * Then for each handle topic a handler function is obtained, which processes the passed context.
+     * Within it, all the set of handler topics are retrieved by the context key.
+     * Then for each handler topic a handler function is obtained, which processes the passed context.
      *
      * @param ctx_ The transaction context
      */
@@ -206,12 +206,12 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function to retrieve a previously saved handler function by handle topic.
+     * @notice Function to retrieve a previously saved handler function by handler topic.
      *
-     * In case no function handler has been set for the passed handle topic,
+     * In case no function handler has been set for the passed handler topic,
      * transaction will fail with the error - `HandlerNotSet()`.
      *
-     * @param handlerTopic_ The handle topic for which a handler function is to be retrieved
+     * @param handlerTopic_ The handler topic for which a handler function is to be retrieved
      * @return pointer to the previously saved handler function
      */
     function _getHandler(
