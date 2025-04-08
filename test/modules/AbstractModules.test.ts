@@ -75,7 +75,7 @@ describe("AbstractModules", () => {
       it("should not handle if handler is not set", async () => {
         await module
           .connect(agent)
-          .addHandleTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
 
         await expect(
           module.canTransfer({
@@ -93,7 +93,7 @@ describe("AbstractModules", () => {
       it("should handle if all conditions are met", async () => {
         await module
           .connect(agent)
-          .addHandleTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
 
         await module.handlerer();
 
@@ -111,48 +111,48 @@ describe("AbstractModules", () => {
       });
     });
 
-    describe("addHandleTopics", () => {
+    describe("addHandlerTopics", () => {
       it("should not add handle topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).addHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+        await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
           .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
           .withArgs(agent, AGENT_ROLE);
       });
 
       it("should not add handle topics if duplicates", async () => {
-        await expect(module.connect(agent).addHandleTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
+        await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
           .to.be.revertedWithCustomError(module, "ElementAlreadyExistsBytes32")
           .withArgs(ZERO_BYTES32);
       });
 
       it("should add handle topics if all conditions are met", async () => {
-        await module.connect(agent).addHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+        await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 
-        expect(await module.getHandleTopics(ZERO_BYTES32)).to.deep.eq([ZERO_BYTES32]);
+        expect(await module.getHandlerTopics(ZERO_BYTES32)).to.deep.eq([ZERO_BYTES32]);
       });
     });
 
-    describe("removeHandleTopics", () => {
+    describe("removeHandlerTopics", () => {
       it("should not remove handle topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).removeHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+        await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
           .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
           .withArgs(agent, AGENT_ROLE);
       });
 
       it("should not remove handle topics if no handle topic", async () => {
-        await expect(module.connect(agent).removeHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+        await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
           .to.be.revertedWithCustomError(module, "NoSuchBytes32")
           .withArgs(ZERO_BYTES32);
       });
 
       it("should remove handle topics if all conditions are met", async () => {
-        await module.connect(agent).addHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]);
-        await module.connect(agent).removeHandleTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+        await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+        await module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 
-        expect(await module.getHandleTopics(ZERO_BYTES32)).to.deep.eq([]);
+        expect(await module.getHandlerTopics(ZERO_BYTES32)).to.deep.eq([]);
       });
     });
   });

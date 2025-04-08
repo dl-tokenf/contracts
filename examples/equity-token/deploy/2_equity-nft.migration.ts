@@ -37,11 +37,11 @@ async function setupRarimoModule(deployer: Deployer, nftF: EquityNFT): Promise<[
   const transferContextKey = await rarimoModule.getContextKey(await nftF.TRANSFER_SELECTOR());
   const transferFromContextKey = await rarimoModule.getContextKey(await nftF.TRANSFER_FROM_SELECTOR());
 
-  await rarimoModule.addHandleTopics(transferContextKey, [
+  await rarimoModule.addHandlerTopics(transferContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
   ]);
-  await rarimoModule.addHandleTopics(transferFromContextKey, [
+  await rarimoModule.addHandlerTopics(transferFromContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
     await rarimoModule.HAS_SOUL_OPERATOR_TOPIC(),

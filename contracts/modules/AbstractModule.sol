@@ -34,8 +34,8 @@ abstract contract AbstractModule is Initializable {
 
     address private _assetF;
 
-    mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handleTopics) private _handleTopics;
-    mapping(bytes32 handleTopic => Handler handler) private _handlers;
+    mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handlerTopics) private _handlerTopics;
+    mapping(bytes32 handlerTopic => Handler handler) private _handlers;
 
     error HandlerNotSet();
 
@@ -54,13 +54,13 @@ abstract contract AbstractModule is Initializable {
      * which can be overridden if you want to use a role other than Agent.
      *
      * @param contextKey_ The key of the handle topics
-     * @param handleTopics_ Array of handle topics to add
+     * @param handlerTopics_ Array of handle topics to add
      */
-    function addHandleTopics(
+    function addHandlerTopics(
         bytes32 contextKey_,
-        bytes32[] memory handleTopics_
+        bytes32[] memory handlerTopics_
     ) public virtual onlyRole(_moduleRole()) {
-        _addHandleTopics(contextKey_, handleTopics_);
+        _addHandlerTopics(contextKey_, handlerTopics_);
     }
 
     /**
@@ -72,13 +72,13 @@ abstract contract AbstractModule is Initializable {
      * which can be overridden if you want to use a role other than Agent.
      *
      * @param contextKey_ The key of the handle topics
-     * @param handleTopics_ Array of handle topics to be removed
+     * @param handlerTopics_ Array of handle topics to be removed
      */
-    function removeHandleTopics(
+    function removeHandlerTopics(
         bytes32 contextKey_,
-        bytes32[] memory handleTopics_
+        bytes32[] memory handlerTopics_
     ) public virtual onlyRole(_moduleRole()) {
-        _removeHandleTopics(contextKey_, handleTopics_);
+        _removeHandlerTopics(contextKey_, handlerTopics_);
     }
 
     /**
@@ -87,8 +87,8 @@ abstract contract AbstractModule is Initializable {
      * @param contextKey_ The key of the handle topics for which the array should be obtained
      * @return handle topics array
      */
-    function getHandleTopics(bytes32 contextKey_) public view virtual returns (bytes32[] memory) {
-        return _handleTopics[contextKey_].values();
+    function getHandlerTopics(bytes32 contextKey_) public view virtual returns (bytes32[] memory) {
+        return _handlerTopics[contextKey_].values();
     }
 
     /**
@@ -107,13 +107,13 @@ abstract contract AbstractModule is Initializable {
      * you can override this function and make any necessary changes.
      *
      * @param contextKey_ The context key
-     * @param handleTopics_ The array of handle topics to add
+     * @param handlerTopics_ The array of handle topics to add
      */
-    function _addHandleTopics(
+    function _addHandlerTopics(
         bytes32 contextKey_,
-        bytes32[] memory handleTopics_
+        bytes32[] memory handlerTopics_
     ) internal virtual {
-        _handleTopics[contextKey_].strictAdd(handleTopics_);
+        _handlerTopics[contextKey_].strictAdd(handlerTopics_);
     }
 
     /**
@@ -123,13 +123,13 @@ abstract contract AbstractModule is Initializable {
      * you can override this function and make any necessary changes.
      *
      * @param contextKey_ The context key
-     * @param handleTopics_ The array of handle topics to be removed
+     * @param handlerTopics_ The array of handle topics to be removed
      */
-    function _removeHandleTopics(
+    function _removeHandlerTopics(
         bytes32 contextKey_,
-        bytes32[] memory handleTopics_
+        bytes32[] memory handlerTopics_
     ) internal virtual {
-        _handleTopics[contextKey_].strictRemove(handleTopics_);
+        _handlerTopics[contextKey_].strictRemove(handlerTopics_);
     }
 
     /**
@@ -138,14 +138,14 @@ abstract contract AbstractModule is Initializable {
      *
      * If you need to extend the logic, you can also override this function.
      *
-     * @param handleTopic_ The label of the topic for which the handler is to be set
+     * @param handlerTopic_ The label of the topic for which the handler is to be set
      * @param handler_ Pointer to the handler function
      */
     function _setHandler(
-        bytes32 handleTopic_,
+        bytes32 handlerTopic_,
         function(Context memory) internal view returns (bool) handler_
     ) internal virtual {
-        Handler storage _handler = _handlers[handleTopic_];
+        Handler storage _handler = _handlers[handlerTopic_];
 
         _handler.isHandlerSet = true;
         _handler.handler = handler_;
@@ -194,10 +194,10 @@ abstract contract AbstractModule is Initializable {
      */
     function _handle(Context memory ctx_) internal view virtual returns (bool) {
         bytes32 contextKey_ = _getContextKey(ctx_);
-        bytes32[] memory handleTopics_ = getHandleTopics(contextKey_);
+        bytes32[] memory handlerTopics_ = getHandlerTopics(contextKey_);
 
-        for (uint256 j = 0; j < handleTopics_.length; ++j) {
-            if (!_getHandler(handleTopics_[j])(ctx_)) {
+        for (uint256 j = 0; j < handlerTopics_.length; ++j) {
+            if (!_getHandler(handlerTopics_[j])(ctx_)) {
                 return false;
             }
         }
@@ -211,13 +211,13 @@ abstract contract AbstractModule is Initializable {
      * In case no function handler has been set for the passed handle topic,
      * transaction will fail with the error - `HandlerNotSet()`.
      *
-     * @param handleTopic_ The handle topic for which a handler function is to be retrieved
+     * @param handlerTopic_ The handle topic for which a handler function is to be retrieved
      * @return pointer to the previously saved handler function
      */
     function _getHandler(
-        bytes32 handleTopic_
+        bytes32 handlerTopic_
     ) internal view virtual returns (function(Context memory) internal view returns (bool)) {
-        Handler storage _handler = _handlers[handleTopic_];
+        Handler storage _handler = _handlers[handlerTopic_];
 
         require(_handler.isHandlerSet, HandlerNotSet());
 

@@ -78,12 +78,12 @@ describe("RarimoModule", () => {
     let transferKey: string;
     let transferFromKey: string;
 
-    const setupHandleTopics = async () => {
-      await rarimo.addHandleTopics(transferKey, [
+    const setupHandlerTopics = async () => {
+      await rarimo.addHandlerTopics(transferKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
       ]);
-      await rarimo.addHandleTopics(transferFromKey, [
+      await rarimo.addHandlerTopics(transferFromKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
         await rarimo.HAS_SOUL_OPERATOR_TOPIC(),
@@ -114,7 +114,7 @@ describe("RarimoModule", () => {
     });
 
     it("should apply kyc limits if context keys are set", async () => {
-      await setupHandleTopics();
+      await setupHandlerTopics();
 
       await tokenF.connect(agent).mint(alice, wei("1"));
 
@@ -128,7 +128,7 @@ describe("RarimoModule", () => {
     });
 
     it("should transfer if sbt tokens are minted", async () => {
-      await setupHandleTopics();
+      await setupHandlerTopics();
 
       await sbt.mint(agent, 1);
       await sbt.mint(alice, 2);
