@@ -67,7 +67,7 @@
     "@types/node": "^22.14.0",
     "chai": "^4.5.0",
     "dotenv": "^16.4.7",
-    "hardhat": "2.22.19",
+    "hardhat": "^2.22.19",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-gas-reporter": "^2.2.2",
     "husky": "^9.1.7",

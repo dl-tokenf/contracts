@@ -169,9 +169,7 @@ abstract contract NFTF is
         override(AccessControlUpgradeable, ERC721EnumerableUpgradeable, IERC165)
         returns (bool)
     {
-        return
-            ERC721EnumerableUpgradeable.supportsInterface(interfaceId_) ||
-            AccessControlUpgradeable.supportsInterface(interfaceId_);
+        return super.supportsInterface(interfaceId_);
     }
 
     function _transferred(

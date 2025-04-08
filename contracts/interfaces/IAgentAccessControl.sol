@@ -24,8 +24,8 @@ interface IAgentAccessControl is IAccessControl {
     /**
      * @notice Function that is required to check whether a particular user has the required role for the contract logic.
      *
-     * If the user does not have the required role, the transaction will fail with the error
-     * `AccessControl: account *<user-address>* is missing role *<role-key>*`.
+     * If the user does not have the required role, the transaction will fail with the custom error
+     * `AccessControlUnauthorizedAccount(*<user-address>*, *<role-key>*)`.
      *
      * @param role_ The role key to check
      * @param account_ The account for role verification
