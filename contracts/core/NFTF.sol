@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
+import {ERC721EnumerableUpgradeable, ERC721Upgradeable, IERC165} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
-import {ITokenF} from "../interfaces/ITokenF.sol";
+import {INFTF} from "../interfaces/INFTF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
 // solhint-disable-next-line no-global-import
 import "./Globals.sol";
 
-import {AgentAccessControl} from "./AgentAccessControl.sol";
-import {TokenFStorage} from "./storages/TokenFStorage.sol";
+import {AgentAccessControl, AccessControlUpgradeable} from "./AgentAccessControl.sol";
+import {NFTFStorage} from "./storages/NFTFStorage.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
 import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
 
-abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, AgentAccessControl {
+abstract contract NFTF is
+    INFTF,
+    NFTFStorage,
+    Diamond,
+    ERC721EnumerableUpgradeable,
+    AgentAccessControl
+{
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
@@ -26,7 +32,7 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
     bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
 
-    function __TokenF_init(
+    function __NFTF_init(
         address regulatoryCompliance_,
         address kycCompliance_,
         bytes memory initRegulatory_,
@@ -56,108 +62,96 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
         _diamondCut(new Facet[](0), kycCompliance_, initKYC_);
     }
 
-    /// @inheritdoc IERC20
-    function transfer(
-        address to_,
-        uint256 amount_
-    ) public virtual override(ERC20Upgradeable, IERC20) returns (bool) {
-        _canTransfer(msg.sender, to_, amount_, address(0));
-        _isKYCed(msg.sender, to_, amount_, address(0));
+    /// @inheritdoc INFTF
+    function transfer(address to_, uint256 tokenId_) public virtual override {
+        _canTransfer(msg.sender, to_, tokenId_, address(0));
+        _isKYCed(msg.sender, to_, tokenId_, address(0));
 
-        super.transfer(to_, amount_);
+        super._transfer(msg.sender, to_, tokenId_);
 
-        _transferred(msg.sender, to_, amount_, address(0));
-
-        return true;
+        _transferred(msg.sender, to_, tokenId_, address(0));
     }
 
-    /// @inheritdoc IERC20
+    /// @inheritdoc IERC721
     function transferFrom(
         address from_,
         address to_,
-        uint256 amount_
-    ) public virtual override(ERC20Upgradeable, IERC20) returns (bool) {
-        _canTransfer(from_, to_, amount_, msg.sender);
-        _isKYCed(from_, to_, amount_, msg.sender);
+        uint256 tokenId_
+    ) public virtual override(ERC721Upgradeable, IERC721) {
+        _canTransfer(from_, to_, tokenId_, msg.sender);
+        _isKYCed(from_, to_, tokenId_, msg.sender);
 
-        super.transferFrom(from_, to_, amount_);
+        super.transferFrom(from_, to_, tokenId_);
 
-        _transferred(from_, to_, amount_, msg.sender);
-
-        return true;
+        _transferred(from_, to_, tokenId_, msg.sender);
     }
 
-    /// @inheritdoc ITokenF
+    /// @inheritdoc INFTF
     function mint(
         address account_,
-        uint256 amount_
-    ) public virtual override onlyRole(_mintRole()) returns (bool) {
-        _canTransfer(address(0), account_, amount_, msg.sender);
-        _isKYCed(address(0), account_, amount_, msg.sender);
+        uint256 tokenId_
+    ) public virtual override onlyRole(_mintRole()) {
+        _canTransfer(address(0), account_, tokenId_, msg.sender);
+        _isKYCed(address(0), account_, tokenId_, msg.sender);
 
-        super._mint(account_, amount_);
+        super._mint(account_, tokenId_);
 
-        _transferred(address(0), account_, amount_, msg.sender);
-
-        return true;
+        _transferred(address(0), account_, tokenId_, msg.sender);
     }
 
-    /// @inheritdoc ITokenF
-    function burn(
-        address account_,
-        uint256 amount_
-    ) public virtual override onlyRole(_burnRole()) returns (bool) {
-        _canTransfer(account_, address(0), amount_, msg.sender);
-        _isKYCed(account_, address(0), amount_, msg.sender);
+    /// @inheritdoc INFTF
+    function burn(uint256 tokenId_) public virtual override onlyRole(_burnRole()) {
+        address account_ = _ownerOf(tokenId_);
 
-        super._burn(account_, amount_);
+        _canTransfer(account_, address(0), tokenId_, msg.sender);
+        _isKYCed(account_, address(0), tokenId_, msg.sender);
 
-        _transferred(account_, address(0), amount_, msg.sender);
+        super._burn(tokenId_);
 
-        return true;
+        _transferred(account_, address(0), tokenId_, msg.sender);
     }
 
-    /// @inheritdoc ITokenF
+    /// @inheritdoc INFTF
     function forcedTransfer(
         address from_,
         address to_,
-        uint256 amount_
-    ) public virtual override onlyRole(_forcedTransferRole()) returns (bool) {
-        _canTransfer(from_, to_, amount_, msg.sender);
-        _isKYCed(from_, to_, amount_, msg.sender);
+        uint256 tokenId_
+    ) public virtual override onlyRole(_forcedTransferRole()) {
+        _canTransfer(from_, to_, tokenId_, msg.sender);
+        _isKYCed(from_, to_, tokenId_, msg.sender);
 
-        super._transfer(from_, to_, amount_);
+        super._transfer(from_, to_, tokenId_);
 
-        _transferred(from_, to_, amount_, msg.sender);
-
-        return true;
+        _transferred(from_, to_, tokenId_, msg.sender);
     }
 
-    /// @inheritdoc ITokenF
+    /// @inheritdoc INFTF
     function recovery(
         address oldAccount_,
         address newAccount_
-    ) public virtual override onlyRole(_recoveryRole()) returns (bool) {
+    ) public virtual override onlyRole(_recoveryRole()) {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
-        _canTransfer(oldAccount_, newAccount_, oldBalance_, msg.sender);
-        _isKYCed(oldAccount_, newAccount_, oldBalance_, msg.sender);
+        for (uint256 i = oldBalance_; i > 0; --i) {
+            uint256 tokenId_ = tokenOfOwnerByIndex(oldAccount_, i - 1);
 
-        super._transfer(oldAccount_, newAccount_, oldBalance_);
+            _canTransfer(oldAccount_, newAccount_, tokenId_, msg.sender);
+            _isKYCed(oldAccount_, newAccount_, tokenId_, msg.sender);
 
-        _transferred(oldAccount_, newAccount_, oldBalance_, msg.sender);
+            super._transfer(oldAccount_, newAccount_, tokenId_);
 
-        return true;
+            _transferred(oldAccount_, newAccount_, tokenId_, msg.sender);
+        }
     }
 
-    /// @inheritdoc ITokenF
+    /// @inheritdoc INFTF
     function diamondCut(
         Facet[] memory modules_
     ) public virtual override onlyRole(_diamondCutRole()) {
         diamondCut(modules_, address(0), "");
     }
 
-    /// @inheritdoc ITokenF
+    /// @inheritdoc INFTF
     function diamondCut(
         Facet[] memory modules_,
         address initModule_,
@@ -166,15 +160,27 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
         _diamondCut(modules_, initModule_, initData_);
     }
 
+    /// @inheritdoc IERC165
+    function supportsInterface(
+        bytes4 interfaceId_
+    )
+        public
+        view
+        override(AccessControlUpgradeable, ERC721EnumerableUpgradeable, IERC165)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId_);
+    }
+
     function _transferred(
         address from_,
         address to_,
-        uint256 amount_,
+        uint256 tokenId_,
         address operator_
     ) internal virtual {
         try
             IRegulatoryCompliance(address(this)).transferred(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, 0, tokenId_, operator_, "")
             )
         {} catch {
             revert TransferredReverted();
@@ -184,12 +190,12 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     function _canTransfer(
         address from_,
         address to_,
-        uint256 amount_,
+        uint256 tokenId_,
         address operator_
     ) internal view virtual {
         try
             IRegulatoryCompliance(address(this)).canTransfer(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, 0, tokenId_, operator_, "")
             )
         returns (bool canTransfer_) {
             require(canTransfer_, CannotTransfer());
@@ -201,12 +207,12 @@ abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, A
     function _isKYCed(
         address from_,
         address to_,
-        uint256 amount_,
+        uint256 tokenId_,
         address operator_
     ) internal view virtual {
         try
             IKYCCompliance(address(this)).isKYCed(
-                Context(bytes4(bytes(msg.data[:4])), from_, to_, amount_, 0, operator_, "")
+                Context(bytes4(bytes(msg.data[:4])), from_, to_, 0, tokenId_, operator_, "")
             )
         returns (bool isKYCed_) {
             require(isKYCed_, NotKYCed());

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TokenF} from "../../core/TokenF.sol";
+import {Context} from "../../core/Globals.sol";
 import {AbstractRegulatoryModule} from "../../modules/AbstractRegulatoryModule.sol";
 import {AbstractKYCModule} from "../../modules/AbstractKYCModule.sol";
 
 contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
     bytes32 public constant MOCK_TOPIC = keccak256("MOCK");
 
-    function __ModuleMock_init(address tokenF_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __ModuleMock_init(address assetF_) external initializer {
+        __AbstractModule_init(assetF_);
         __AbstractRegulatoryModule_init();
         __AbstractKYCModule_init();
     }
@@ -33,13 +33,13 @@ contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {
-        TokenF.Context memory ctx_;
+        Context memory ctx_;
         ctx_.selector = selector_;
 
         return _getContextKey(ctx_);
     }
 
-    function _handleMockTopic(TokenF.Context memory) internal view virtual returns (bool) {
+    function _handleMockTopic(Context memory) internal view virtual returns (bool) {
         return true;
     }
 }

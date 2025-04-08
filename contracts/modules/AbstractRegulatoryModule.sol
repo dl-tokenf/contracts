@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TokenF} from "../core/TokenF.sol";
+import {Context} from "../core/Globals.sol";
 
 import {AbstractModule} from "./AbstractModule.sol";
 
@@ -9,23 +9,23 @@ import {AbstractModule} from "./AbstractModule.sol";
  * @notice `AbstractRegulatoryModule` contract is the standard base implementation for regulatory modules.
  */
 abstract contract AbstractRegulatoryModule is AbstractModule {
-    modifier onlyTokenF() {
-        _onlyTokenF();
+    modifier onlyAssetF() {
+        _onlyAssetF();
         _;
     }
 
-    error SenderNotTokenF(address sender);
+    error SenderNotAssetF(address sender);
 
     function __AbstractRegulatoryModule_init() internal onlyInitializing {}
 
-    function transferred(TokenF.Context memory ctx_) public virtual onlyTokenF {}
+    function transferred(Context memory ctx_) public virtual onlyAssetF {}
 
-    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(Context memory ctx_) public view virtual returns (bool) {
         return _handle(ctx_);
     }
 
-    function _onlyTokenF() internal view {
-        require(msg.sender == getTokenF(), SenderNotTokenF(msg.sender));
+    function _onlyAssetF() internal view {
+        require(msg.sender == getAssetF(), SenderNotAssetF(msg.sender));
     }
 
     uint256[50] private _gap;

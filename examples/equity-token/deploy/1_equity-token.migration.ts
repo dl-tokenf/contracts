@@ -48,11 +48,11 @@ async function setupTransferLimitsModule(deployer: Deployer, tokenF: EquityToken
   const transferContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
   const transferFromContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
 
-  await transferLimitsModule.addHandleTopics(transferContextKey, [
+  await transferLimitsModule.addHandlerTopics(transferContextKey, [
     await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
     await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
   ]);
-  await transferLimitsModule.addHandleTopics(transferFromContextKey, [
+  await transferLimitsModule.addHandlerTopics(transferFromContextKey, [
     await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
     await transferLimitsModule.MAX_TRANSFER_LIMIT_TOPIC(),
   ]);
@@ -70,11 +70,11 @@ async function setupRarimoModule(deployer: Deployer, tokenF: EquityToken): Promi
   const transferContextKey = await rarimoModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
   const transferFromContextKey = await rarimoModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
 
-  await rarimoModule.addHandleTopics(transferContextKey, [
+  await rarimoModule.addHandlerTopics(transferContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
   ]);
-  await rarimoModule.addHandleTopics(transferFromContextKey, [
+  await rarimoModule.addHandlerTopics(transferFromContextKey, [
     await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
     await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
     await rarimoModule.HAS_SOUL_OPERATOR_TOPIC(),

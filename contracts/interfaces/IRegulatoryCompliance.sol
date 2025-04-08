@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ITokenF} from "./ITokenF.sol";
+import {Context} from "../core/Globals.sol";
 import {IRegulatoryComplianceView} from "./IRegulatoryComplianceView.sol";
 
 /**
  * @notice `RegulatoryCompliance` contract is used to manage Regulatory Compliance modules.
  * It manages the storage, addition of new and deletion of existing Regulatory Compliance modules.
  *
- * It also implements the `canTransfer` and `transferred` hooks, which in turn are called by the `TokenF` contract.
+ * It also implements the `canTransfer` and `transferred` hooks, which in turn are called by the `TokenF` or `NFTF` contracts.
  *
  * All actions for module management can only be done by users who have a special role.
- * In the basic version of `TokenF` this role is the Agent role.
+ * In the basic version of `TokenF` and `NFTF` this role is the Agent role.
  *
  * It is possible to override the role that is required to configure the module list.
  *
- * Also this contract is used as a facet in the `TokenF` contract.
+ * Also this contract is used as a facet in the `TokenF` and `NFTF` contracts.
  */
 interface IRegulatoryCompliance is IRegulatoryComplianceView {
     error SenderIsNotThisContract(address sender);
@@ -26,7 +26,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * If you try to add a module that already exists in the list of regulatory modules,
      * the transaction will fail with an error - `SetHelper: element already exists`.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_regulatoryComplianceRole` is used to retrieve the role that is used during validation,
      * which can be overridden if you want to use a role other than Agent.
@@ -41,7 +41,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * If you try to delete a module that is not in the list of regulatory modules,
      * the transaction will crash with an error - `SetHelper: no such element`.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_regulatoryComplianceRole` is used to retrieve the role that is used during validation,
      * which can be overridden if you want to use a role other than Agent
@@ -58,7 +58,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      *
      * @param ctx_ The context of transaction
      */
-    function transferred(ITokenF.Context memory ctx_) external;
+    function transferred(Context memory ctx_) external;
 
     /**
      * @notice Function that is used to verify that all necessary regulatory rules that have been added to `RegulatoryCompliance` have been met.
@@ -68,5 +68,5 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * @param ctx_ The context of transaction
      * @return true if the passed context satisfies the rules in all installed regulatory modules.
      */
-    function canTransfer(ITokenF.Context memory ctx_) external view returns (bool);
+    function canTransfer(Context memory ctx_) external view returns (bool);
 }

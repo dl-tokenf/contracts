@@ -112,12 +112,12 @@ describe("TransferLimitsModule", () => {
     let transferKey: string;
     let transferFromKey: string;
 
-    const setupHandleTopics = async () => {
-      await transferLimits.addHandleTopics(transferKey, [
+    const setupHandlerTopics = async () => {
+      await transferLimits.addHandlerTopics(transferKey, [
         await transferLimits.MIN_TRANSFER_LIMIT_TOPIC(),
         await transferLimits.MAX_TRANSFER_LIMIT_TOPIC(),
       ]);
-      await transferLimits.addHandleTopics(transferFromKey, [
+      await transferLimits.addHandlerTopics(transferFromKey, [
         await transferLimits.MIN_TRANSFER_LIMIT_TOPIC(),
         await transferLimits.MAX_TRANSFER_LIMIT_TOPIC(),
       ]);
@@ -149,7 +149,7 @@ describe("TransferLimitsModule", () => {
     });
 
     it("should apply transfer limits if context keys are set", async () => {
-      await setupHandleTopics();
+      await setupHandlerTopics();
 
       await tokenF.connect(agent).mint(alice, MAX_TRANSFER_LIMIT + 1n);
 

@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 
-import {TokenF} from "../../core/TokenF.sol";
+import {Context} from "../../core/Globals.sol";
 import {AbstractKYCModule} from "../AbstractKYCModule.sol";
 
 /**
@@ -31,20 +31,18 @@ abstract contract RarimoModule is AbstractKYCModule {
         _setHandler(HAS_SOUL_OPERATOR_TOPIC, _handleHasSoulOperatorTopic);
     }
 
-    function _handleHasSoulSenderTopic(
-        TokenF.Context memory ctx_
-    ) internal view virtual returns (bool) {
+    function _handleHasSoulSenderTopic(Context memory ctx_) internal view virtual returns (bool) {
         return ISBT(_sbt).balanceOf(ctx_.from) > 0;
     }
 
     function _handleHasSoulRecipientTopic(
-        TokenF.Context memory ctx_
+        Context memory ctx_
     ) internal view virtual returns (bool) {
         return ISBT(_sbt).balanceOf(ctx_.to) > 0;
     }
 
     function _handleHasSoulOperatorTopic(
-        TokenF.Context memory ctx_
+        Context memory ctx_
     ) internal view virtual returns (bool) {
         return ISBT(_sbt).balanceOf(ctx_.operator) > 0;
     }

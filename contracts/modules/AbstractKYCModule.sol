@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TokenF} from "../core/TokenF.sol";
+import {Context} from "../core/Globals.sol";
 
 import {AbstractModule} from "./AbstractModule.sol";
 
@@ -11,7 +11,7 @@ import {AbstractModule} from "./AbstractModule.sol";
 abstract contract AbstractKYCModule is AbstractModule {
     function __AbstractKYCModule_init() internal onlyInitializing {}
 
-    function isKYCed(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function isKYCed(Context memory ctx_) public view virtual returns (bool) {
         return _handle(ctx_);
     }
 
