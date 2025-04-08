@@ -10,9 +10,6 @@ import {ITokenF} from "../interfaces/ITokenF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
-// solhint-disable-next-line no-global-import
-import "./Globals.sol";
-
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {TokenFStorage} from "./storages/TokenFStorage.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "../../core/Globals.sol";
+import {IAssetF} from "../../interfaces/IAssetF.sol";
 import {AbstractRegulatoryModule} from "../../modules/AbstractRegulatoryModule.sol";
 import {AbstractKYCModule} from "../../modules/AbstractKYCModule.sol";
 
@@ -33,13 +33,13 @@ contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {
-        Context memory ctx_;
+        IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
         return _getContextKey(ctx_);
     }
 
-    function _handleMockTopic(Context memory) internal view virtual returns (bool) {
+    function _handleMockTopic(IAssetF.Context memory) internal view virtual returns (bool) {
         return true;
     }
 }

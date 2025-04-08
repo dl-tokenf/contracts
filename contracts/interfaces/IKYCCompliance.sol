@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "../core/Globals.sol";
+import {IAssetF} from "./IAssetF.sol";
 import {IKYCComplianceView} from "./IKYCComplianceView.sol";
 
 /**
@@ -56,5 +56,5 @@ interface IKYCCompliance is IKYCComplianceView {
      * @param ctx_ The context of the transaction
      * @return true if the passed context satisfies the checks on all modules
      */
-    function isKYCed(Context memory ctx_) external view returns (bool);
+    function isKYCed(IAssetF.Context memory ctx_) external view returns (bool);
 }

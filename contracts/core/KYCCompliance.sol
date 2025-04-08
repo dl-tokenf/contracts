@@ -7,7 +7,7 @@ import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 
-import {Context} from "./Globals.sol";
+import {IAssetF} from "../interfaces/IAssetF.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
@@ -41,7 +41,7 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
     }
 
     /// @inheritdoc IKYCCompliance
-    function isKYCed(Context memory ctx_) public view virtual returns (bool) {
+    function isKYCed(IAssetF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

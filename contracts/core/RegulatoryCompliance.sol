@@ -7,7 +7,7 @@ import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
-import {Context} from "./Globals.sol";
+import {IAssetF} from "../interfaces/IAssetF.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
@@ -50,7 +50,7 @@ abstract contract RegulatoryCompliance is
     }
 
     /// @inheritdoc IRegulatoryCompliance
-    function transferred(Context memory ctx_) public virtual onlyThisContract {
+    function transferred(IAssetF.Context memory ctx_) public virtual onlyThisContract {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
@@ -59,7 +59,7 @@ abstract contract RegulatoryCompliance is
     }
 
     /// @inheritdoc IRegulatoryCompliance
-    function canTransfer(Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(IAssetF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

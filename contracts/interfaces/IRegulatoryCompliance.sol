@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "../core/Globals.sol";
+import {IAssetF} from "./IAssetF.sol";
 import {IRegulatoryComplianceView} from "./IRegulatoryComplianceView.sol";
 
 /**
@@ -58,7 +58,7 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      *
      * @param ctx_ The context of transaction
      */
-    function transferred(Context memory ctx_) external;
+    function transferred(IAssetF.Context memory ctx_) external;
 
     /**
      * @notice Function that is used to verify that all necessary regulatory rules that have been added to `RegulatoryCompliance` have been met.
@@ -68,5 +68,5 @@ interface IRegulatoryCompliance is IRegulatoryComplianceView {
      * @param ctx_ The context of transaction
      * @return true if the passed context satisfies the rules in all installed regulatory modules.
      */
-    function canTransfer(Context memory ctx_) external view returns (bool);
+    function canTransfer(IAssetF.Context memory ctx_) external view returns (bool);
 }

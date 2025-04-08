@@ -5,6 +5,8 @@ import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/I
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
+import {IAssetF} from "./IAssetF.sol";
+
 /**
  * @notice The `NFTF` contract
  *
@@ -21,7 +23,7 @@ import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
  *
  * Inheritance from `ERC721EnumerableUpgradeable` allows checking all tokens owned by a specific address.
  */
-interface INFTF is IERC721Metadata {
+interface INFTF is IAssetF, IERC721Metadata {
     /**
      * @notice Function for transfering `NFTF` token from the message sender to another address.
      *

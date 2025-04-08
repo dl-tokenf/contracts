@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "../../core/Globals.sol";
+import {IAssetF} from "../../interfaces/IAssetF.sol";
 
 import {AbstractRegulatoryModule} from "../AbstractRegulatoryModule.sol";
 
@@ -53,13 +53,13 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
     }
 
     function _handleMinTransferLimitTopic(
-        Context memory ctx_
+        IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
         return ctx_.amount >= _minTransferLimit;
     }
 
     function _handleMaxTransferLimitTopic(
-        Context memory ctx_
+        IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
         return ctx_.amount <= _maxTransferLimit;
     }

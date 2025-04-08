@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "../../../core/Globals.sol";
+import {IAssetF} from "../../../interfaces/IAssetF.sol";
 import {AbstractRegulatoryModule} from "../../../modules/AbstractRegulatoryModule.sol";
 
 contract RegulatoryIncorrectModuleMock is AbstractRegulatoryModule {
@@ -12,7 +12,7 @@ contract RegulatoryIncorrectModuleMock is AbstractRegulatoryModule {
 
     function _handlerer() internal override {}
 
-    function canTransfer(Context memory) public pure override returns (bool) {
+    function canTransfer(IAssetF.Context memory) public pure override returns (bool) {
         return false;
     }
 }

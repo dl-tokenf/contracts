@@ -5,6 +5,8 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
+import {IAssetF} from "./IAssetF.sol";
+
 /**
  * @notice The `TokenF` contract
  *
@@ -19,7 +21,7 @@ import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
  * `TokenF` is also inherited from `AgentAccessControl`, which is built on OpenZeppelin's `AccessControlUpgradeable`.
  * This inheritance allows to realise a rather flexible system of roles for controlling privileged functions in the whole system.
  */
-interface ITokenF is IERC20Metadata {
+interface ITokenF is IAssetF, IERC20Metadata {
     /**
      * @notice Function to create new `TokenF` contract tokens.
      *

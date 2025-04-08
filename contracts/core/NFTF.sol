@@ -10,9 +10,6 @@ import {INFTF} from "../interfaces/INFTF.sol";
 import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
 
-// solhint-disable-next-line no-global-import
-import "./Globals.sol";
-
 import {AgentAccessControl, AccessControlUpgradeable} from "./AgentAccessControl.sol";
 import {NFTFStorage} from "./storages/NFTFStorage.sol";
 import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";

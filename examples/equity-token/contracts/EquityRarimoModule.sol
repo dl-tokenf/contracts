@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Context} from "@tokenf/contracts/core/Globals.sol";
+import {IAssetF} from "@tokenf/contracts/interfaces/IAssetF.sol";
 import {RarimoModule} from "@tokenf/contracts/modules/kyc/RarimoModule.sol";
 
 contract EquityRarimoModule is RarimoModule {
@@ -11,7 +11,7 @@ contract EquityRarimoModule is RarimoModule {
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {
-        Context memory ctx_;
+        IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
         return _getContextKey(ctx_);
