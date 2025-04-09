@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {ISBT} from "@solarity/solidity-lib/interfaces/tokens/ISBT.sol";
 

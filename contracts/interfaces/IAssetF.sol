@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 /**
  * @notice `IAssetF` is a shared interface for both TokenF and NFTF contracts

@@ -41,7 +41,7 @@ npm install @tokenf/contracts
 You will then be able to start using TokenF:
 
 ```solidity
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
 
@@ -53,7 +53,7 @@ contract EquityToken is TokenF {
 or NFTF:
 
 ```solidity
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {NFTF} from "@tokenf/contracts/core/NFTF.sol";
 
