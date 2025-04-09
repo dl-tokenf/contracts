@@ -15,7 +15,7 @@
     "@openzeppelin/contracts": "5.2.0",
     "@openzeppelin/contracts-upgradeable": "5.2.0",
     "@solarity/solidity-lib": "3.0.1",
-    "@tokenf/contracts": "0.2.0"
+    "@tokenf/contracts": "0.3.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
