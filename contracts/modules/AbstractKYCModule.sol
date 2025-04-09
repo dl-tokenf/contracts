@@ -14,6 +14,4 @@ abstract contract AbstractKYCModule is AbstractModule {
     function isKYCed(IAssetF.Context memory ctx_) public view virtual returns (bool) {
         return _handle(ctx_);
     }
-
-    uint256[50] private _gap;
 }

@@ -15,27 +15,39 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
 
     uint256 public constant MAX_TRANSFER_LIMIT = type(uint256).max;
 
-    uint256 private _minTransferLimit;
-    uint256 private _maxTransferLimit;
+    // keccak256("tokenf.standard.transfer.limits.module.storage")
+    bytes32 private constant TRANSFER_LIMIT_MODULE_STORAGE =
+        0x82b479944bd9cd9d0ec7327a8e71ac032b254d7dc2d3bf169455e0079540dee7;
+
+    struct TransferLimitsModuleStorage {
+        uint256 minTransferLimit;
+        uint256 maxTransferLimit;
+    }
 
     function __TransferLimitsModule_init(
         uint256 minTransferValue_,
         uint256 maxTransferValue_
     ) internal onlyInitializing {
-        _minTransferLimit = minTransferValue_;
-        _maxTransferLimit = maxTransferValue_;
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        $.minTransferLimit = minTransferValue_;
+        $.maxTransferLimit = maxTransferValue_;
     }
 
     function setMinTransferLimit(
         uint256 minTransferLimit_
     ) public virtual onlyRole(_moduleRole()) {
-        _minTransferLimit = minTransferLimit_;
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        $.minTransferLimit = minTransferLimit_;
     }
 
     function setMaxTransferLimit(
         uint256 maxTransferLimit_
     ) public virtual onlyRole(_moduleRole()) {
-        _maxTransferLimit = maxTransferLimit_;
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        $.maxTransferLimit = maxTransferLimit_;
     }
 
     function _handlerer() internal virtual override {
@@ -43,26 +55,38 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         _setHandler(MAX_TRANSFER_LIMIT_TOPIC, _handleMaxTransferLimitTopic);
     }
 
-    function getTransferLimits()
-        public
-        view
-        virtual
-        returns (uint256 minTransferLimit_, uint256 maxTransferLimit_)
-    {
-        return (_minTransferLimit, _maxTransferLimit);
+    function getTransferLimits() public view virtual returns (uint256, uint256) {
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        return ($.minTransferLimit, $.maxTransferLimit);
     }
 
     function _handleMinTransferLimitTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        return ctx_.amount >= _minTransferLimit;
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        return ctx_.amount >= $.minTransferLimit;
     }
 
     function _handleMaxTransferLimitTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        return ctx_.amount <= _maxTransferLimit;
+        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+
+        return ctx_.amount <= $.maxTransferLimit;
     }
 
-    uint256[48] private _gap;
+    /**
+     * @dev Returns a pointer to the storage namespace
+     */
+    function _getTransferLimitsModuleStorage()
+        private
+        pure
+        returns (TransferLimitsModuleStorage storage $)
+    {
+        assembly {
+            $.slot := TRANSFER_LIMIT_MODULE_STORAGE
+        }
+    }
 }

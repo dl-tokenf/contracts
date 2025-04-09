@@ -27,6 +27,4 @@ abstract contract AbstractRegulatoryModule is AbstractModule {
     function _onlyAssetF() internal view {
         require(msg.sender == getAssetF(), SenderNotAssetF(msg.sender));
     }
-
-    uint256[50] private _gap;
 }

@@ -32,15 +32,22 @@ abstract contract AbstractModule is Initializable {
         _;
     }
 
-    address private _assetF;
+    // keccak256("tokenf.standard.abstract.module.storage")
+    bytes32 private constant ABSTRACT_MODULE_STORAGE =
+        0x73478beeb98dbbe8aeb575ee0a6a3e8cf588ce66ddf6854e72e7413d32c854e2;
 
-    mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handlerTopics) private _handlerTopics;
-    mapping(bytes32 handlerTopic => Handler handler) private _handlers;
+    struct AbstractModuleStorage {
+        address assetF;
+        mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handlerTopics) handlerTopics;
+        mapping(bytes32 handlerTopic => Handler handler) handlers;
+    }
 
     error HandlerNotSet();
 
     function __AbstractModule_init(address assetF_) internal onlyInitializing {
-        _assetF = assetF_;
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        $.assetF = assetF_;
 
         _handlerer();
     }
@@ -88,7 +95,9 @@ abstract contract AbstractModule is Initializable {
      * @return handler topics array
      */
     function getHandlerTopics(bytes32 contextKey_) public view virtual returns (bytes32[] memory) {
-        return _handlerTopics[contextKey_].values();
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return $.handlerTopics[contextKey_].values();
     }
 
     /**
@@ -97,7 +106,9 @@ abstract contract AbstractModule is Initializable {
      * @return address of `TokenF` or `NFTF` contract
      */
     function getAssetF() public view virtual returns (address) {
-        return _assetF;
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return $.assetF;
     }
 
     /**
@@ -113,7 +124,9 @@ abstract contract AbstractModule is Initializable {
         bytes32 contextKey_,
         bytes32[] memory handlerTopics_
     ) internal virtual {
-        _handlerTopics[contextKey_].strictAdd(handlerTopics_);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        $.handlerTopics[contextKey_].strictAdd(handlerTopics_);
     }
 
     /**
@@ -129,7 +142,9 @@ abstract contract AbstractModule is Initializable {
         bytes32 contextKey_,
         bytes32[] memory handlerTopics_
     ) internal virtual {
-        _handlerTopics[contextKey_].strictRemove(handlerTopics_);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        $.handlerTopics[contextKey_].strictRemove(handlerTopics_);
     }
 
     /**
@@ -145,7 +160,8 @@ abstract contract AbstractModule is Initializable {
         bytes32 handlerTopic_,
         function(IAssetF.Context memory) internal view returns (bool) handler_
     ) internal virtual {
-        Handler storage _handler = _handlers[handlerTopic_];
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+        Handler storage _handler = $.handlers[handlerTopic_];
 
         _handler.isHandlerSet = true;
         _handler.handler = handler_;
@@ -222,7 +238,8 @@ abstract contract AbstractModule is Initializable {
         virtual
         returns (function(IAssetF.Context memory) internal view returns (bool))
     {
-        Handler storage _handler = _handlers[handlerTopic_];
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+        Handler storage _handler = $.handlers[handlerTopic_];
 
         require(_handler.isHandlerSet, HandlerNotSet());
 
@@ -230,12 +247,23 @@ abstract contract AbstractModule is Initializable {
     }
 
     function _moduleRole() internal view virtual returns (bytes32) {
-        return IAgentAccessControl(_assetF).AGENT_ROLE();
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return IAgentAccessControl($.assetF).AGENT_ROLE();
     }
 
     function _onlyRole(bytes32 role_) internal view virtual {
-        IAgentAccessControl(_assetF).checkRole(role_, msg.sender);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        IAgentAccessControl($.assetF).checkRole(role_, msg.sender);
     }
 
-    uint256[47] private _gap;
+    /**
+     * @dev Returns a pointer to the storage namespace
+     */
+    function _getAbstractModuleStorage() private pure returns (AbstractModuleStorage storage $) {
+        assembly {
+            $.slot := ABSTRACT_MODULE_STORAGE
+        }
+    }
 }
