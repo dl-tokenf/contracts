@@ -8,6 +8,7 @@ import {
   ADMIN_ROLE,
   AGENT_ROLE,
   BURN_ROLE,
+  URI_ROLE,
   DIAMOND_CUT_ROLE,
   FacetAction,
   FORCED_TRANSFER_ROLE,
@@ -26,6 +27,7 @@ describe("NFT F", () => {
   let nftF: NFTFMock;
 
   const tokenId = 1;
+  const tokenUri = "specificTokenURI";
 
   before("setup", async () => {
     [owner, agent, bob, alice] = await ethers.getSigners();
@@ -47,6 +49,7 @@ describe("NFT F", () => {
     await nftF.grantRole(BURN_ROLE, agent);
     await nftF.grantRole(FORCED_TRANSFER_ROLE, agent);
     await nftF.grantRole(RECOVERY_ROLE, agent);
+    await nftF.grantRole(URI_ROLE, agent);
     await nftF.grantRole(DIAMOND_CUT_ROLE, agent);
 
     await reverter.snapshot();
@@ -77,6 +80,7 @@ describe("NFT F", () => {
       expect(await nftF.defaultBurnRole(), AGENT_ROLE);
       expect(await nftF.defaultForcedTransferRole(), AGENT_ROLE);
       expect(await nftF.defaultRecoveryRole(), AGENT_ROLE);
+      expect(await nftF.defaultUriRole(), AGENT_ROLE);
       expect(await nftF.defaultDiamondCutRole(), AGENT_ROLE);
       expect(await nftF.hasRole(await nftF.DEFAULT_ADMIN_ROLE(), owner)).to.be.true;
       expect(await nftF.hasRole(await nftF.AGENT_ROLE(), owner)).to.be.true;
@@ -85,7 +89,7 @@ describe("NFT F", () => {
 
   describe("transfer", () => {
     it("should transfer if all conditions are met", async () => {
-      await nftF.connect(agent).mint(bob, tokenId);
+      await nftF.connect(agent).mint(bob, tokenId, "");
 
       await expect(nftF.connect(bob).transfer(alice, tokenId)).to.changeTokenBalances(nftF, [bob, alice], [-1, 1]);
 
@@ -95,7 +99,7 @@ describe("NFT F", () => {
 
   describe("transferFrom", () => {
     it("should transfer if all conditions are met", async () => {
-      await nftF.connect(agent).mint(bob, tokenId);
+      await nftF.connect(agent).mint(bob, tokenId, "");
 
       await nftF.connect(bob).approve(alice, tokenId);
 
@@ -113,15 +117,16 @@ describe("NFT F", () => {
     it("should not mint if no role", async () => {
       await nftF.revokeRole(MINT_ROLE, agent);
 
-      await expect(nftF.connect(agent).mint(bob, tokenId))
+      await expect(nftF.connect(agent).mint(bob, tokenId, ""))
         .to.be.revertedWithCustomError(nftF, "AccessControlUnauthorizedAccount")
         .withArgs(agent, MINT_ROLE);
     });
 
     it("should mint if all conditions are met", async () => {
-      await expect(nftF.connect(agent).mint(bob, tokenId)).to.changeTokenBalance(nftF, bob, 1);
+      await expect(nftF.connect(agent).mint(bob, tokenId, tokenUri)).to.changeTokenBalance(nftF, bob, 1);
 
       expect(await nftF.ownerOf(tokenId)).to.eq(bob);
+      expect(await nftF.tokenURI(tokenId)).to.eq(tokenUri);
     });
   });
 
@@ -135,7 +140,7 @@ describe("NFT F", () => {
     });
 
     it("should burn if all conditions are met", async () => {
-      await nftF.connect(agent).mint(bob, tokenId);
+      await nftF.connect(agent).mint(bob, tokenId, "");
 
       await expect(nftF.connect(agent).burn(tokenId)).to.changeTokenBalance(nftF, bob, -1);
     });
@@ -151,7 +156,7 @@ describe("NFT F", () => {
     });
 
     it("should forced transfer if all conditions are met", async () => {
-      await nftF.connect(agent).mint(bob, tokenId);
+      await nftF.connect(agent).mint(bob, tokenId, "");
 
       await expect(nftF.connect(agent).forcedTransfer(bob, alice, tokenId)).to.changeTokenBalances(
         nftF,
@@ -173,15 +178,70 @@ describe("NFT F", () => {
     it("should recover if all conditions are met", async () => {
       const bobTokens = [0, 1, 3];
 
-      await nftF.connect(agent).mint(bob, bobTokens[0]);
-      await nftF.connect(agent).mint(bob, bobTokens[1]);
-      await nftF.connect(agent).mint(bob, bobTokens[2]);
+      await nftF.connect(agent).mint(bob, bobTokens[0], "");
+      await nftF.connect(agent).mint(bob, bobTokens[1], "");
+      await nftF.connect(agent).mint(bob, bobTokens[2], "");
 
       await expect(nftF.connect(agent).recovery(bob, alice)).to.changeTokenBalances(nftF, [bob, alice], [-3, 3]);
 
       for (const tokenId of bobTokens) {
         expect(await nftF.ownerOf(tokenId)).to.eq(alice.address);
       }
+    });
+  });
+
+  describe("token uri", () => {
+    const newUri = "base uri";
+
+    beforeEach(async () => {
+      await nftF.connect(agent).mint(bob, tokenId, tokenUri);
+    });
+
+    it("should not set base uri if no role", async () => {
+      await nftF.revokeRole(URI_ROLE, agent);
+
+      await expect(nftF.connect(agent).setBaseURI(newUri))
+        .to.be.revertedWithCustomError(nftF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, URI_ROLE);
+    });
+
+    it("should set base uri if all conditions are met", async () => {
+      await expect(nftF.connect(agent).setBaseURI(newUri)).to.not.be.reverted;
+    });
+
+    it("should not set token uri if no role", async () => {
+      await nftF.revokeRole(URI_ROLE, agent);
+
+      await expect(nftF.connect(agent).setTokenURI(tokenId, newUri))
+        .to.be.revertedWithCustomError(nftF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, URI_ROLE);
+    });
+
+    it("should set token uri if all conditions are met", async () => {
+      expect(await nftF.tokenURI(tokenId)).to.eq(tokenUri);
+
+      await nftF.connect(agent).setTokenURI(tokenId, newUri);
+
+      expect(await nftF.tokenURI(tokenId)).to.eq(newUri);
+    });
+
+    it("should return token uri correctly", async () => {
+      const newTokenId = 2;
+      const emptryUri = "";
+
+      expect(await nftF.tokenURI(newTokenId)).to.eq(emptryUri);
+
+      await nftF.connect(agent).mint(bob, newTokenId, emptryUri);
+
+      expect(await nftF.tokenURI(newTokenId)).to.eq(emptryUri);
+
+      await nftF.connect(agent).setBaseURI(newUri);
+
+      expect(await nftF.tokenURI(newTokenId)).to.eq(newUri + newTokenId.toString());
+
+      await nftF.connect(agent).setTokenURI(newTokenId, tokenUri);
+
+      expect(await nftF.tokenURI(newTokenId)).to.eq(tokenUri);
     });
   });
 
@@ -285,7 +345,7 @@ describe("NFT F", () => {
     });
 
     it("should not revert if all conditions are met", async () => {
-      await expect(nftF.connect(agent).mint(alice, tokenId)).to.not.be.reverted;
+      await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.not.be.reverted;
     });
 
     describe("isKYCed", () => {
@@ -300,7 +360,7 @@ describe("NFT F", () => {
 
         await nftF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(nftF.connect(agent).mint(alice, tokenId)).to.be.revertedWithCustomError(nftF, "NotKYCed");
+        await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.be.revertedWithCustomError(nftF, "NotKYCed");
       });
 
       it("should revert if revert hook", async () => {
@@ -314,7 +374,10 @@ describe("NFT F", () => {
 
         await nftF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(nftF.connect(agent).mint(alice, tokenId)).to.be.revertedWithCustomError(nftF, "IsKYCedReverted");
+        await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.be.revertedWithCustomError(
+          nftF,
+          "IsKYCedReverted",
+        );
       });
     });
 
@@ -330,7 +393,10 @@ describe("NFT F", () => {
 
         await nftF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(nftF.connect(agent).mint(alice, tokenId)).to.be.revertedWithCustomError(nftF, "CannotTransfer");
+        await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.be.revertedWithCustomError(
+          nftF,
+          "CannotTransfer",
+        );
       });
 
       it("should revert if revert hook", async () => {
@@ -344,7 +410,7 @@ describe("NFT F", () => {
 
         await nftF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(nftF.connect(agent).mint(alice, tokenId)).to.be.revertedWithCustomError(
+        await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.be.revertedWithCustomError(
           nftF,
           "CanTransferReverted",
         );
@@ -363,7 +429,7 @@ describe("NFT F", () => {
 
         await nftF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(nftF.connect(agent).mint(alice, tokenId)).to.be.revertedWithCustomError(
+        await expect(nftF.connect(agent).mint(alice, tokenId, "")).to.be.revertedWithCustomError(
           nftF,
           "TransferredReverted",
         );

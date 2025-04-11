@@ -2,6 +2,7 @@
 pragma solidity ^0.8.21;
 
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
+import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import {ERC721EnumerableUpgradeable, ERC721Upgradeable, IERC165} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
@@ -86,12 +87,14 @@ abstract contract NFTF is
     /// @inheritdoc INFTF
     function mint(
         address account_,
-        uint256 tokenId_
+        uint256 tokenId_,
+        string calldata tokenURI_
     ) public virtual override onlyRole(_mintRole()) {
         _canTransfer(address(0), account_, tokenId_, msg.sender);
         _isKYCed(address(0), account_, tokenId_, msg.sender);
 
         super._mint(account_, tokenId_);
+        _setTokenURI(tokenId_, tokenURI_);
 
         _transferred(address(0), account_, tokenId_, msg.sender);
     }
@@ -157,6 +160,49 @@ abstract contract NFTF is
         _diamondCut(modules_, initModule_, initData_);
     }
 
+    /// @inheritdoc INFTF
+    function setBaseURI(string calldata baseURI_) public virtual override onlyRole(_uriRole()) {
+        _getNftFStorage().baseURI = baseURI_;
+    }
+
+    /// @inheritdoc INFTF
+    function setTokenURI(
+        uint256 tokenId_,
+        string calldata tokenURI_
+    ) public virtual override onlyRole(_uriRole()) {
+        _requireOwned(tokenId_);
+
+        _setTokenURI(tokenId_, tokenURI_);
+    }
+
+    /**
+     * @inheritdoc IERC721Metadata
+     *
+     * @dev
+     * If the token does not exist, an empty string is returned.
+     * If a tokenURI is set for the token, it will be returned.
+     * If a base URI is set, the concatenation of the base URI and tokenId is returned.
+     * Otherwise, an empty string is returned.
+     */
+    function tokenURI(
+        uint256 tokenId_
+    ) public view virtual override(IERC721Metadata, ERC721Upgradeable) returns (string memory) {
+        address owner_ = _ownerOf(tokenId_);
+
+        if (owner_ == address(0)) {
+            return "";
+        }
+
+        NftFStorage storage $ = _getNftFStorage();
+        string memory tokenURI_ = $.tokenURIs[tokenId_];
+
+        if (bytes(tokenURI_).length > 0) {
+            return tokenURI_;
+        }
+
+        return super.tokenURI(tokenId_);
+    }
+
     /// @inheritdoc IERC165
     function supportsInterface(
         bytes4 interfaceId_
@@ -167,6 +213,13 @@ abstract contract NFTF is
         returns (bool)
     {
         return super.supportsInterface(interfaceId_);
+    }
+
+    function _setTokenURI(uint256 tokenId_, string memory tokenURI_) internal virtual {
+        NftFStorage storage $ = _getNftFStorage();
+        $.tokenURIs[tokenId_] = tokenURI_;
+
+        emit MetadataUpdate(tokenId_);
     }
 
     function _transferred(
@@ -218,6 +271,10 @@ abstract contract NFTF is
         }
     }
 
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _getNftFStorage().baseURI;
+    }
+
     function _mintRole() internal view virtual returns (bytes32) {
         return AGENT_ROLE;
     }
@@ -235,6 +292,10 @@ abstract contract NFTF is
     }
 
     function _diamondCutRole() internal view virtual returns (bytes32) {
+        return AGENT_ROLE;
+    }
+
+    function _uriRole() internal view virtual returns (bytes32) {
         return AGENT_ROLE;
     }
 }

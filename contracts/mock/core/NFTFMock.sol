@@ -8,6 +8,7 @@ contract NFTFMock is NFTF {
     bytes32 public constant BURN_ROLE = keccak256("BURN_ROLE");
     bytes32 public constant FORCED_TRANSFER_ROLE = keccak256("FORCED_TRANSFER_ROLE");
     bytes32 public constant RECOVERY_ROLE = keccak256("RECOVERY_ROLE");
+    bytes32 public constant URI_ROLE = keccak256("URI_ROLE");
     bytes32 public constant DIAMOND_CUT_ROLE = keccak256("DIAMOND_CUT_ROLE");
 
     function __NFTFMock_init(
@@ -44,6 +45,10 @@ contract NFTFMock is NFTF {
         return super._recoveryRole();
     }
 
+    function defaultUriRole() external view returns (bytes32) {
+        return super._uriRole();
+    }
+
     function defaultDiamondCutRole() external view returns (bytes32) {
         return super._diamondCutRole();
     }
@@ -62,6 +67,10 @@ contract NFTFMock is NFTF {
 
     function _recoveryRole() internal pure override returns (bytes32) {
         return RECOVERY_ROLE;
+    }
+
+    function _uriRole() internal pure override returns (bytes32) {
+        return URI_ROLE;
     }
 
     function _diamondCutRole() internal pure override returns (bytes32) {

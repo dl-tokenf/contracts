@@ -2,6 +2,7 @@
 pragma solidity ^0.8.21;
 
 import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import {IERC4906} from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
@@ -23,7 +24,7 @@ import {IAssetF} from "./IAssetF.sol";
  *
  * Inheritance from `ERC721EnumerableUpgradeable` allows checking all tokens owned by a specific address.
  */
-interface INFTF is IAssetF, IERC721Metadata {
+interface INFTF is IAssetF, IERC721Metadata, IERC4906 {
     /**
      * @notice Function for transfering `NFTF` token from the message sender to another address.
      *
@@ -33,7 +34,7 @@ interface INFTF is IAssetF, IERC721Metadata {
      *
      *
      * @param to_ The user address to whom token will be transferred
-     * @param tokenId_ The id of the token to be transferred
+     * @param tokenId_ The ID of the token to be transferred
      */
     function transfer(address to_, uint256 tokenId_) external;
 
@@ -51,9 +52,10 @@ interface INFTF is IAssetF, IERC721Metadata {
      * you need to override `_mintRole` according to the requirements of your business task.
      *
      * @param account_ The address to which tokens should be minted
-     * @param tokenId_ The id of the token to be minted
+     * @param tokenId_ The ID of the token to be minted
+     * @param tokenURI_ The token URI of the token to be minted
      */
-    function mint(address account_, uint256 tokenId_) external;
+    function mint(address account_, uint256 tokenId_, string calldata tokenURI_) external;
 
     /**
      * @notice Function to burn existing `NFTF` contract token.
@@ -68,7 +70,7 @@ interface INFTF is IAssetF, IERC721Metadata {
      * To change the role used for access verification,
      * you must override `_burnRole` according to the requirements of your business task.
      *
-     * @param tokenId_ The id of the token to be burned
+     * @param tokenId_ The ID of the token to be burned
      */
     function burn(uint256 tokenId_) external;
 
@@ -90,7 +92,7 @@ interface INFTF is IAssetF, IERC721Metadata {
      *
      * @param from_ The user address where the token will be transferred from
      * @param to_ The user address to whom token will be transferred
-     * @param tokenId_ The id of the token to be transferred
+     * @param tokenId_ The ID of the token to be transferred
      */
     function forcedTransfer(address from_, address to_, uint256 tokenId_) external;
 
@@ -149,4 +151,17 @@ interface INFTF is IAssetF, IERC721Metadata {
         address initModule_,
         bytes memory initData_
     ) external;
+
+    /**
+     * @notice Function to set the base URI for the token metadata.
+     * @param baseURI_ The new base URI for the token metadata
+     */
+    function setBaseURI(string calldata baseURI_) external;
+
+    /**
+     * @notice Function to set the token URI for an existing token.
+     * @param tokenId_ The ID of the token to update
+     * @param tokenURI_ The new URI for the token metadata
+     */
+    function setTokenURI(uint256 tokenId_, string calldata tokenURI_) external;
 }
