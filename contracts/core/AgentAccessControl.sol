@@ -3,9 +3,9 @@ pragma solidity ^0.8.21;
 
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
+import {IAgentAccessControl} from "../interfaces/core/IAgentAccessControl.sol";
 
-import {AgentAccessControlStorage} from "./storages/AgentAccessControlStorage.sol";
+import {AgentAccessControlStorage} from "../storages/core/AgentAccessControlStorage.sol";
 
 /**
  * @notice The AgentAccessControl contract

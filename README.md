@@ -47,8 +47,8 @@ You will then be able to start using TokenF:
 ```solidity
 pragma solidity ^0.8.21;
 
-import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
-import {NFTF} from "@tokenf/contracts/core/NFTF.sol";
+import {TokenF} from "@tokenf/contracts/TokenF.sol";
+import {NFTF} from "@tokenf/contracts/NFTF.sol";
 
 contract EquityToken is TokenF {
     . . .

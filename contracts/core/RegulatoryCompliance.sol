@@ -5,12 +5,12 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
-import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
+import {IRegulatoryCompliance} from "../interfaces/core/IRegulatoryCompliance.sol";
 
 import {IAssetF} from "../interfaces/IAssetF.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
-import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
+import {RegulatoryComplianceStorage} from "../storages/core/RegulatoryComplianceStorage.sol";
 
 import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol";
 

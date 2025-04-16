@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {TokenF} from "../../core/TokenF.sol";
+import {TokenF} from "../TokenF.sol";
 
 contract TokenFMock is TokenF {
     bytes32 public constant MINT_ROLE = keccak256("MINT_ROLE");

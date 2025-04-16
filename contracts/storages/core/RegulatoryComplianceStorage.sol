@@ -3,7 +3,7 @@ pragma solidity ^0.8.21;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {IRegulatoryComplianceView} from "../../interfaces/IRegulatoryComplianceView.sol";
+import {IRegulatoryComplianceView} from "../../interfaces/core/IRegulatoryComplianceView.sol";
 
 abstract contract RegulatoryComplianceStorage is IRegulatoryComplianceView {
     using EnumerableSet for EnumerableSet.AddressSet;

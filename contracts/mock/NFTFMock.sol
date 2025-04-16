@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {NFTF} from "../../core/NFTF.sol";
+import {NFTF} from "../NFTF.sol";
 
 contract NFTFMock is NFTF {
     bytes32 public constant MINT_ROLE = keccak256("MINT_ROLE");

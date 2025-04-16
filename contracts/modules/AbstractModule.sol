@@ -6,7 +6,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
-import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
+import {IAgentAccessControl} from "../interfaces/core/IAgentAccessControl.sol";
 
 import {IAssetF} from "../interfaces/IAssetF.sol";
 

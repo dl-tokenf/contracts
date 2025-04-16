@@ -7,14 +7,14 @@ import {ERC721EnumerableUpgradeable, ERC721Upgradeable, IERC165} from "@openzepp
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
-import {INFTF} from "../interfaces/INFTF.sol";
-import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
-import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
+import {INFTF} from "./interfaces/INFTF.sol";
+import {IKYCCompliance} from "./interfaces/core/IKYCCompliance.sol";
+import {IRegulatoryCompliance} from "./interfaces/core/IRegulatoryCompliance.sol";
 
-import {AgentAccessControl, AccessControlUpgradeable} from "./AgentAccessControl.sol";
+import {AgentAccessControl, AccessControlUpgradeable} from "./core/AgentAccessControl.sol";
 import {NFTFStorage} from "./storages/NFTFStorage.sol";
-import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
-import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
+import {RegulatoryComplianceStorage} from "./storages/core/RegulatoryComplianceStorage.sol";
+import {KYCComplianceStorage} from "./storages/core/KYCComplianceStorage.sol";
 
 abstract contract NFTF is
     INFTF,

@@ -6,14 +6,14 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 
 import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
 
-import {ITokenF} from "../interfaces/ITokenF.sol";
-import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
-import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
+import {ITokenF} from "./interfaces/ITokenF.sol";
+import {IKYCCompliance} from "./interfaces/core/IKYCCompliance.sol";
+import {IRegulatoryCompliance} from "./interfaces/core/IRegulatoryCompliance.sol";
 
-import {AgentAccessControl} from "./AgentAccessControl.sol";
+import {AgentAccessControl} from "./core/AgentAccessControl.sol";
 import {TokenFStorage} from "./storages/TokenFStorage.sol";
-import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
-import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
+import {RegulatoryComplianceStorage} from "./storages/core/RegulatoryComplianceStorage.sol";
+import {KYCComplianceStorage} from "./storages/core/KYCComplianceStorage.sol";
 
 abstract contract TokenF is ITokenF, TokenFStorage, Diamond, ERC20Upgradeable, AgentAccessControl {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
