@@ -3,8 +3,8 @@ import { Deployer, Reporter } from "@solarity/hardhat-migrate";
 import {
   EquityKYCCompliance,
   EquityKYCCompliance__factory,
-  EquityNFT,
-  EquityNFT__factory,
+  LandNFT,
+  LandNFT__factory,
   EquityRarimoModule,
   EquityRarimoModule__factory,
   EquityRegulatoryCompliance__factory,
@@ -12,8 +12,8 @@ import {
   RarimoSBT__factory,
 } from "@ethers-v6";
 
-async function setupCoreContracts(deployer: Deployer): Promise<[EquityNFT, EquityKYCCompliance]> {
-  const nftF = await deployer.deploy(EquityNFT__factory);
+async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityKYCCompliance]> {
+  const nftF = await deployer.deploy(LandNFT__factory);
   const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
   const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
 
@@ -22,12 +22,12 @@ async function setupCoreContracts(deployer: Deployer): Promise<[EquityNFT, Equit
   );
   const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init");
 
-  await nftF.__EquityNFT_init(regulatoryCompliance, kycCompliance, regulatoryComplianceInitData, kycComplianceInitData);
+  await nftF.__LandNFT_init(regulatoryCompliance, kycCompliance, regulatoryComplianceInitData, kycComplianceInitData);
 
   return [nftF, kycCompliance.attach(nftF) as EquityKYCCompliance];
 }
 
-async function setupRarimoModule(deployer: Deployer, nftF: EquityNFT): Promise<[EquityRarimoModule, RarimoSBT]> {
+async function setupRarimoModule(deployer: Deployer, nftF: LandNFT): Promise<[EquityRarimoModule, RarimoSBT]> {
   const rarimoSBT = await deployer.deploy(RarimoSBT__factory);
   await rarimoSBT.__RarimoSBT_init();
 
@@ -58,7 +58,7 @@ export = async (deployer: Deployer) => {
   await kycCompliance.addKYCModules([rarimoModule]);
 
   Reporter.reportContracts(
-    ["EquityNFT", await nftF.getAddress()],
+    ["LandNFT", await nftF.getAddress()],
     ["RarimoModule", await rarimoModule.getAddress()],
     ["RarimoSBT", await rarimoSBT.getAddress()],
   );
