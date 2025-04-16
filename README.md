@@ -9,23 +9,25 @@ TokenF and NFTF architecture:
 
 !["AssetF Architecture"](https://github.com/user-attachments/assets/7f473eb3-8df6-4401-bdda-fdb615e26348)
 
-Built with [Solarity](https://github.com/dl-solarity), [Openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts), and aspiration to perfection.
+Built with [Solarity](https://github.com/dl-solarity), [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts), and aspiration to perfection.
+
 
 ## Application
 
 TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible and ERC-721-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.
 
-TokenF is built with certain levels of abstraction in mind: 
+TokenF is built with certain levels of abstraction in mind:
 
 - ERC-2535 Diamond beating heart that allows extensibility and upgradeability.
 - Support of custom compliance modules to be plugged in the TokenF core.
 - Rich configuration of check/hooks/behavior with imagination being the only limit.
 
-| **What TokenF Is ✅**                        | **What TokenF Is Not ❌**        |
-| :-----------------------------------------:  | :------------------------------: |
-| On-chain tokenization framework              | Fullstack tokenization framework |
-| Smart contracts to configure RWA behavior    | RWA launchpad/RWA consulting set |
-| Reimagined and enhanced ERC-3643 alternative | Yet another ERC-3643 copy        |
+| **What TokenF Is ✅**                        | **What TokenF Is Not ❌**           |
+| :-----------------------------------------:  | :---------------------------------: |
+| On-chain tokenization framework              | Fullstack tokenization framework    |
+| Smart contracts to configure RWA behavior    | RWA launchpad/RWA consulting set    |
+| Built from scratch ERC-3643 alternative      | Yet another ERC-3643 copy           |
+| Support of both ERC-20 and ERC-721 standards | Currently does not support ERC-1155 |
 
 > [!NOTE]
 > TokenF is at the early stage of development, many breaking changes are foreseen.
@@ -46,20 +48,15 @@ You will then be able to start using TokenF:
 pragma solidity ^0.8.21;
 
 import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
+import {NFTF} from "@tokenf/contracts/core/NFTF.sol";
 
 contract EquityToken is TokenF {
     . . .
 }
-```
 
-or NFTF:
+// or
 
-```solidity
-pragma solidity ^0.8.21;
-
-import {NFTF} from "@tokenf/contracts/core/NFTF.sol";
-
-contract EquityNft is NFTF {
+contract LandNft is NFTF {
     . . .
 }
 ```
