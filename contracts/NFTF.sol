@@ -88,7 +88,7 @@ abstract contract NFTF is
     function mint(
         address account_,
         uint256 tokenId_,
-        string calldata tokenURI_
+        string memory tokenURI_
     ) public virtual override onlyRole(_mintRole()) {
         _canTransfer(address(0), account_, tokenId_, msg.sender);
         _isKYCed(address(0), account_, tokenId_, msg.sender);
@@ -161,14 +161,14 @@ abstract contract NFTF is
     }
 
     /// @inheritdoc INFTF
-    function setBaseURI(string calldata baseURI_) public virtual override onlyRole(_uriRole()) {
+    function setBaseURI(string memory baseURI_) public virtual override onlyRole(_uriRole()) {
         _getNftFStorage().baseURI = baseURI_;
     }
 
     /// @inheritdoc INFTF
     function setTokenURI(
         uint256 tokenId_,
-        string calldata tokenURI_
+        string memory tokenURI_
     ) public virtual override onlyRole(_uriRole()) {
         _requireOwned(tokenId_);
 

@@ -55,7 +55,7 @@ interface INFTF is IAssetF, IERC721Metadata, IERC4906 {
      * @param tokenId_ The ID of the token to be minted
      * @param tokenURI_ The token URI of the token to be minted
      */
-    function mint(address account_, uint256 tokenId_, string calldata tokenURI_) external;
+    function mint(address account_, uint256 tokenId_, string memory tokenURI_) external;
 
     /**
      * @notice Function to burn existing `NFTF` contract token.
@@ -156,12 +156,12 @@ interface INFTF is IAssetF, IERC721Metadata, IERC4906 {
      * @notice Function to set the base URI for the token metadata.
      * @param baseURI_ The new base URI for the token metadata
      */
-    function setBaseURI(string calldata baseURI_) external;
+    function setBaseURI(string memory baseURI_) external;
 
     /**
      * @notice Function to set the token URI for an existing token.
      * @param tokenId_ The ID of the token to update
      * @param tokenURI_ The new URI for the token metadata
      */
-    function setTokenURI(uint256 tokenId_, string calldata tokenURI_) external;
+    function setTokenURI(uint256 tokenId_, string memory tokenURI_) external;
 }
