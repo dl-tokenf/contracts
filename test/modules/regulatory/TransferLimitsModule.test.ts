@@ -2,12 +2,12 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import { RegulatoryComplianceMock, TokenFMock, TransferLimitsModuleMock } from "@ethers-v6";
+import { RegulatoryComplianceMock, TokenFMock, ERC20TransferLimitsModuleMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
 import { AGENT_ROLE, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
-describe("TransferLimitsModule", () => {
+describe("ERC20TransferLimitsModule", () => {
   const reverter = new Reverter();
 
   const MIN_TRANSFER_LIMIT = wei("1");
@@ -19,7 +19,7 @@ describe("TransferLimitsModule", () => {
   let bob: SignerWithAddress;
 
   let tokenF: TokenFMock;
-  let transferLimits: TransferLimitsModuleMock;
+  let transferLimits: ERC20TransferLimitsModuleMock;
 
   before("setup", async () => {
     [owner, agent, alice, bob] = await ethers.getSigners();
@@ -27,7 +27,7 @@ describe("TransferLimitsModule", () => {
     const TokenFMock = await ethers.getContractFactory("TokenFMock");
     const KYCComplianceMock = await ethers.getContractFactory("KYCComplianceMock");
     const RegulatoryComplianceMock = await ethers.getContractFactory("RegulatoryComplianceMock");
-    const TransferLimitsModuleMock = await ethers.getContractFactory("TransferLimitsModuleMock");
+    const ERC20TransferLimitsModuleMock = await ethers.getContractFactory("ERC20TransferLimitsModuleMock");
 
     tokenF = await TokenFMock.deploy();
     const rCompliance = await RegulatoryComplianceMock.deploy();
@@ -44,8 +44,8 @@ describe("TransferLimitsModule", () => {
     await tokenF.grantRole(MINT_ROLE, agent);
     await tokenF.grantRole(REGULATORY_COMPLIANCE_ROLE, agent);
 
-    transferLimits = await TransferLimitsModuleMock.deploy();
-    await transferLimits.__TransferLimitsModuleMock_init(tokenF, MIN_TRANSFER_LIMIT, MAX_TRANSFER_LIMIT);
+    transferLimits = await ERC20TransferLimitsModuleMock.deploy();
+    await transferLimits.__ERC20TransferLimitsModuleMock_init(tokenF, MIN_TRANSFER_LIMIT, MAX_TRANSFER_LIMIT);
 
     await rComplianceProxy.connect(agent).addRegulatoryModules([transferLimits]);
 
@@ -56,7 +56,7 @@ describe("TransferLimitsModule", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(transferLimits.__TransferLimitsModuleMock_init(ZERO_ADDR, 0, 0)).to.be.revertedWithCustomError(
+      await expect(transferLimits.__ERC20TransferLimitsModuleMock_init(ZERO_ADDR, 0, 0)).to.be.revertedWithCustomError(
         transferLimits,
         "InvalidInitialization",
       );

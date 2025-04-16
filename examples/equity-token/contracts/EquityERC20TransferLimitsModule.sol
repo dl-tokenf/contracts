@@ -2,12 +2,12 @@
 pragma solidity ^0.8.21;
 
 import {IAssetF} from "@tokenf/contracts/interfaces/IAssetF.sol";
-import {TransferLimitsModule} from "@tokenf/contracts/modules/regulatory/TransferLimitsModule.sol";
+import {ERC20TransferLimitsModule} from "@tokenf/contracts/modules/regulatory/ERC20TransferLimitsModule.sol";
 
-contract EquityTransferLimitsModule is TransferLimitsModule {
-    function __EquityTransferLimitsModule_init(address tokenF_) external initializer {
+contract EquityERC20TransferLimitsModule is ERC20TransferLimitsModule {
+    function __EquityERC20TransferLimitsModule_init(address tokenF_) external initializer {
         __AbstractModule_init(tokenF_);
-        __TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
+        __ERC20TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {

@@ -9,8 +9,8 @@ import {
   EquityRegulatoryCompliance__factory,
   EquityToken,
   EquityToken__factory,
-  EquityTransferLimitsModule,
-  EquityTransferLimitsModule__factory,
+  EquityERC20TransferLimitsModule,
+  EquityERC20TransferLimitsModule__factory,
   RarimoSBT,
   RarimoSBT__factory,
 } from "@ethers-v6";
@@ -41,9 +41,12 @@ async function setupCoreContracts(
   ];
 }
 
-async function setupTransferLimitsModule(deployer: Deployer, tokenF: EquityToken): Promise<EquityTransferLimitsModule> {
-  const transferLimitsModule = await deployer.deploy(EquityTransferLimitsModule__factory);
-  await transferLimitsModule.__EquityTransferLimitsModule_init(tokenF);
+async function setupTransferLimitsModule(
+  deployer: Deployer,
+  tokenF: EquityToken,
+): Promise<EquityERC20TransferLimitsModule> {
+  const transferLimitsModule = await deployer.deploy(EquityERC20TransferLimitsModule__factory);
+  await transferLimitsModule.__EquityERC20TransferLimitsModule_init(tokenF);
 
   const transferContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
   const transferFromContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
@@ -94,7 +97,7 @@ export = async (deployer: Deployer) => {
 
   Reporter.reportContracts(
     ["EquityToken", await tokenF.getAddress()],
-    ["TransferLimitsModule", await transferLimitsModule.getAddress()],
+    ["ERC20TransferLimitsModule", await transferLimitsModule.getAddress()],
     ["RarimoModule", await rarimoModule.getAddress()],
     ["RarimoSBT", await rarimoSBT.getAddress()],
   );

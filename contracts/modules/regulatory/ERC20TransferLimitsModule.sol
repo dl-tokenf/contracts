@@ -6,10 +6,10 @@ import {IAssetF} from "../../interfaces/IAssetF.sol";
 import {AbstractRegulatoryModule} from "../AbstractRegulatoryModule.sol";
 
 /**
- * @notice `TransferLimitsModule` is an example of a possible implementation of a regulatory module,
+ * @notice `ERC20TransferLimitsModule` is an example of a possible implementation of a regulatory module,
  * which adds rules for minimum and maximum amount for transfers.
  */
-abstract contract TransferLimitsModule is AbstractRegulatoryModule {
+abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     bytes32 public constant MIN_TRANSFER_LIMIT_TOPIC = keccak256("MIN_TRANSFER_LIMIT");
     bytes32 public constant MAX_TRANSFER_LIMIT_TOPIC = keccak256("MAX_TRANSFER_LIMIT");
 
@@ -24,7 +24,7 @@ abstract contract TransferLimitsModule is AbstractRegulatoryModule {
         uint256 maxTransferLimit;
     }
 
-    function __TransferLimitsModule_init(
+    function __ERC20TransferLimitsModule_init(
         uint256 minTransferValue_,
         uint256 maxTransferValue_
     ) internal onlyInitializing {
