@@ -10,9 +10,12 @@ import {
   EquityRegulatoryCompliance__factory,
   RarimoSBT,
   RarimoSBT__factory,
+  EquityRegulatoryCompliance,
+  LandERC721TransferLimitsModule,
+  LandERC721TransferLimitsModule__factory,
 } from "@ethers-v6";
 
-async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityKYCCompliance]> {
+async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityKYCCompliance, EquityRegulatoryCompliance]> {
   const nftF = await deployer.deploy(LandNFT__factory);
   const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
   const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
@@ -24,7 +27,27 @@ async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityK
 
   await nftF.__LandNFT_init(regulatoryCompliance, kycCompliance, regulatoryComplianceInitData, kycComplianceInitData);
 
-  return [nftF, kycCompliance.attach(nftF) as EquityKYCCompliance];
+  return [nftF, kycCompliance.attach(nftF) as EquityKYCCompliance, regulatoryCompliance.attach(nftF) as EquityRegulatoryCompliance];
+}
+
+async function setupTransferLimitsModule(
+  deployer: Deployer,
+  nftF: LandNFT,
+): Promise<LandERC721TransferLimitsModule> {
+  const transferLimitsModule = await deployer.deploy(LandERC721TransferLimitsModule__factory);
+  await transferLimitsModule.__LandERC721TransferLimitsModule_init(nftF);
+
+  const transferContextKey = await transferLimitsModule.getContextKey(await nftF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await transferLimitsModule.getContextKey(await nftF.TRANSFER_FROM_SELECTOR());
+
+  await transferLimitsModule.addHandlerTopics(transferContextKey, [
+    await transferLimitsModule.MAX_TRANSFERS_PER_PERIOD_TOPIC(),
+  ]);
+  await transferLimitsModule.addHandlerTopics(transferFromContextKey, [
+    await transferLimitsModule.MAX_TRANSFERS_PER_PERIOD_TOPIC(),
+  ]);
+
+  return transferLimitsModule;
 }
 
 async function setupRarimoModule(deployer: Deployer, nftF: LandNFT): Promise<[EquityRarimoModule, RarimoSBT]> {
@@ -51,14 +74,17 @@ async function setupRarimoModule(deployer: Deployer, nftF: LandNFT): Promise<[Eq
 }
 
 export = async (deployer: Deployer) => {
-  const [nftF, kycCompliance] = await setupCoreContracts(deployer);
+  const [nftF, kycCompliance, regulatoryCompliance] = await setupCoreContracts(deployer);
 
   const [rarimoModule, rarimoSBT] = await setupRarimoModule(deployer, nftF);
+  const transferLimitsModule = await setupTransferLimitsModule(deployer, nftF);
 
   await kycCompliance.addKYCModules([rarimoModule]);
+  await regulatoryCompliance.addRegulatoryModules([transferLimitsModule]);
 
   Reporter.reportContracts(
     ["LandNFT", await nftF.getAddress()],
+    ["ERC20TransferLimitsModule", await transferLimitsModule.getAddress()],
     ["RarimoModule", await rarimoModule.getAddress()],
     ["RarimoSBT", await rarimoSBT.getAddress()],
   );
