@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
+import { getInterfaceID } from "@solarity/hardhat-habits";
 import { Reverter } from "@/test/helpers/reverter";
 import { ComplianceFalseHooksMock, ComplianceRevertHooksMock, FacetMock, NFTFMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
@@ -246,15 +247,16 @@ describe("NFT F", () => {
   });
 
   describe("supportsInterface", () => {
-    it("should support following interfaces: IAccessControl, IERC721Enumerable", async () => {
-      // IERC721Enumerable -- 0x780e9d63
-      expect(await nftF.supportsInterface("0x780e9d63")).to.be.true;
+    it("should support following interfaces: IAccessControl, IERC721Enumerable, INFTF", async () => {
+      const IAccessControlId = await getInterfaceID("IAccessControl");
+      const IERC721EnumerableId = await getInterfaceID("IERC721Enumerable");
+      const INFTFId = await getInterfaceID("INFTF");
+      const IERC165Id = await getInterfaceID("IERC165");
 
-      // ERC165 -- 0x01ffc9a7
-      expect(await nftF.supportsInterface("0x01ffc9a7")).to.be.true;
-
-      // IAccessControl -- 0x7965db0b
-      expect(await nftF.supportsInterface("0x7965db0b")).to.be.true;
+      expect(await nftF.supportsInterface(IAccessControlId)).to.be.true;
+      expect(await nftF.supportsInterface(IERC721EnumerableId)).to.be.true;
+      expect(await nftF.supportsInterface(INFTFId)).to.be.true;
+      expect(await nftF.supportsInterface(IERC165Id)).to.be.true;
     });
   });
 

@@ -212,7 +212,7 @@ abstract contract NFTF is
         override(AccessControlUpgradeable, ERC721EnumerableUpgradeable, IERC165)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId_);
+        return interfaceId_ == type(INFTF).interfaceId || super.supportsInterface(interfaceId_);
     }
 
     function _setTokenURI(uint256 tokenId_, string memory tokenURI_) internal virtual {
