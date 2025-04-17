@@ -15,11 +15,11 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
 
     uint256 public constant MAX_TRANSFER_LIMIT = type(uint256).max;
 
-    // keccak256("tokenf.standard.transfer.limits.module.storage")
-    bytes32 private constant TRANSFER_LIMIT_MODULE_STORAGE =
-        0x82b479944bd9cd9d0ec7327a8e71ac032b254d7dc2d3bf169455e0079540dee7;
+    // keccak256("tokenf.standard.erc20.transfer.limits.module.storage")
+    bytes32 private constant ERC20_TRANSFER_LIMIT_MODULE_STORAGE =
+        0xb508b88c3efe6016398b209dc4cb50f1b49d3372ae29cb231d8f0359d29797e9;
 
-    struct TransferLimitsModuleStorage {
+    struct ERC20TransferLimitsModuleStorage {
         uint256 minTransferLimit;
         uint256 maxTransferLimit;
     }
@@ -28,7 +28,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
         uint256 minTransferValue_,
         uint256 maxTransferValue_
     ) internal onlyInitializing {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         $.minTransferLimit = minTransferValue_;
         $.maxTransferLimit = maxTransferValue_;
@@ -37,7 +37,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     function setMinTransferLimit(
         uint256 minTransferLimit_
     ) public virtual onlyRole(_moduleRole()) {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         $.minTransferLimit = minTransferLimit_;
     }
@@ -45,7 +45,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     function setMaxTransferLimit(
         uint256 maxTransferLimit_
     ) public virtual onlyRole(_moduleRole()) {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         $.maxTransferLimit = maxTransferLimit_;
     }
@@ -56,7 +56,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     }
 
     function getTransferLimits() public view virtual returns (uint256, uint256) {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         return ($.minTransferLimit, $.maxTransferLimit);
     }
@@ -64,7 +64,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     function _handleMinTransferLimitTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         return ctx_.amount >= $.minTransferLimit;
     }
@@ -72,7 +72,7 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     function _handleMaxTransferLimitTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        TransferLimitsModuleStorage storage $ = _getTransferLimitsModuleStorage();
+        ERC20TransferLimitsModuleStorage storage $ = _getERC20TransferLimitsModuleStorage();
 
         return ctx_.amount <= $.maxTransferLimit;
     }
@@ -80,13 +80,13 @@ abstract contract ERC20TransferLimitsModule is AbstractRegulatoryModule {
     /**
      * @dev Returns a pointer to the storage namespace
      */
-    function _getTransferLimitsModuleStorage()
+    function _getERC20TransferLimitsModuleStorage()
         private
         pure
-        returns (TransferLimitsModuleStorage storage $)
+        returns (ERC20TransferLimitsModuleStorage storage $)
     {
         assembly {
-            $.slot := TRANSFER_LIMIT_MODULE_STORAGE
+            $.slot := ERC20_TRANSFER_LIMIT_MODULE_STORAGE
         }
     }
 }
