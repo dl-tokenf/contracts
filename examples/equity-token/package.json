@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "npx hardhat compile --force",
     "deploy-localhost": "npx hardhat migrate --network localhost",
+    "private-network": "npx hardhat node",
     "lint-fix": "npm run lint-sol-fix && npm run lint-ts-fix && npm run lint-json-fix",
     "lint-json-fix": "prettier --write \"./**/*.json\"",
     "lint-ts-fix": "prettier --write \"./**/*.ts\"",

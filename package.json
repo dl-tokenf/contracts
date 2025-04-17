@@ -28,8 +28,6 @@
     "coverage": "npx hardhat coverage --solcoverjs ./.solcover.ts",
     "clean": "npx hardhat clean",
     "test": "npx hardhat test",
-    "test-all": "npm run deploy-localhost && npm run test",
-    "private-network": "npx hardhat node",
     "generate-types": "TYPECHAIN_FORCE=true npx hardhat typechain && npx hardhat gobind",
     "generate-docs": "npx hardhat markup",
     "solhint-check": "solhint \"./contracts/**/*.sol\"",
