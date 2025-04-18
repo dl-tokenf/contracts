@@ -94,7 +94,12 @@ abstract contract ERC721TransferLimitsModule is AbstractRegulatoryModule {
     function _isNewPeriod(address user_) public view virtual returns (bool) {
         ERC721TransferLimitsModuleStorage storage $ = _getERC721TransferLimitsModuleStorage();
 
-        return block.timestamp - $.transferData[user_].lastTransferTimestamp > $.timePeriod;
+        return
+            block.timestamp /
+                $.timePeriod -
+                $.transferData[user_].lastTransferTimestamp /
+                $.timePeriod >=
+            1;
     }
 
     /**
