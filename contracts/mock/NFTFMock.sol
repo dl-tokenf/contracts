@@ -29,6 +29,10 @@ contract NFTFMock is NFTF {
         __NFTF_init(address(0), address(0), "", "");
     }
 
+    function __AssetFDirect_init() external {
+        __AbstractAssetF_init(address(0), address(0), "", "");
+    }
+
     function defaultMintRole() external view returns (bytes32) {
         return super._mintRole();
     }

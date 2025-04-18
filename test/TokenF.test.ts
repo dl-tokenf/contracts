@@ -62,6 +62,7 @@ describe("TokenF", () => {
 
     it("should initialize only by top level contract", async () => {
       await expect(tokenF.__TokenFDirect_init()).to.be.revertedWithCustomError(tokenF, "NotInitializing");
+      await expect(tokenF.__AssetFDirect_init()).to.be.revertedWithCustomError(tokenF, "NotInitializing");
     });
   });
 

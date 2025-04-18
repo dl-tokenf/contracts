@@ -5,30 +5,20 @@ import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
 import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import {ERC721EnumerableUpgradeable, ERC721Upgradeable, IERC165} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 
-import {Diamond} from "@solarity/solidity-lib/diamond/Diamond.sol";
-
-import {INFTF} from "./interfaces/INFTF.sol";
+import {IAssetF, INFTF} from "./interfaces/INFTF.sol";
 import {IKYCCompliance} from "./interfaces/core/IKYCCompliance.sol";
 import {IRegulatoryCompliance} from "./interfaces/core/IRegulatoryCompliance.sol";
 
-import {AgentAccessControl, AccessControlUpgradeable} from "./core/AgentAccessControl.sol";
+import {AbstractAssetF} from "./AbstractAssetF.sol";
+import {AccessControlUpgradeable} from "./core/AgentAccessControl.sol";
 import {NFTFStorage} from "./storages/NFTFStorage.sol";
-import {RegulatoryComplianceStorage} from "./storages/core/RegulatoryComplianceStorage.sol";
-import {KYCComplianceStorage} from "./storages/core/KYCComplianceStorage.sol";
 
-abstract contract NFTF is
-    INFTF,
-    NFTFStorage,
-    Diamond,
-    ERC721EnumerableUpgradeable,
-    AgentAccessControl
-{
+abstract contract NFTF is INFTF, AbstractAssetF, NFTFStorage, ERC721EnumerableUpgradeable {
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;
     bytes4 public constant BURN_SELECTOR = this.burn.selector;
     bytes4 public constant FORCED_TRANSFER_SELECTOR = this.forcedTransfer.selector;
-    bytes4 public constant RECOVERY_SELECTOR = this.recovery.selector;
 
     function __NFTF_init(
         address regulatoryCompliance_,
@@ -36,28 +26,7 @@ abstract contract NFTF is
         bytes memory initRegulatory_,
         bytes memory initKYC_
     ) internal virtual onlyInitializing {
-        bytes4[] memory rComplianceSelectors_ = new bytes4[](6);
-        rComplianceSelectors_[0] = IRegulatoryCompliance.addRegulatoryModules.selector;
-        rComplianceSelectors_[1] = IRegulatoryCompliance.removeRegulatoryModules.selector;
-        rComplianceSelectors_[2] = IRegulatoryCompliance.transferred.selector;
-        rComplianceSelectors_[3] = IRegulatoryCompliance.canTransfer.selector;
-        rComplianceSelectors_[4] = RegulatoryComplianceStorage.getRegulatoryModules.selector;
-        rComplianceSelectors_[5] = RegulatoryComplianceStorage.getRegulatoryModulesCount.selector;
-
-        bytes4[] memory kycComplianceSelectors_ = new bytes4[](5);
-        kycComplianceSelectors_[0] = IKYCCompliance.addKYCModules.selector;
-        kycComplianceSelectors_[1] = IKYCCompliance.removeKYCModules.selector;
-        kycComplianceSelectors_[2] = IKYCCompliance.isKYCed.selector;
-        kycComplianceSelectors_[3] = KYCComplianceStorage.getKYCModules.selector;
-        kycComplianceSelectors_[4] = KYCComplianceStorage.getKYCModulesCount.selector;
-
-        Facet[] memory facets_ = new Facet[](2);
-        facets_[0] = Facet(regulatoryCompliance_, FacetAction.Add, rComplianceSelectors_);
-        facets_[1] = Facet(kycCompliance_, FacetAction.Add, kycComplianceSelectors_);
-
-        _diamondCut(facets_, address(0), "");
-        _diamondCut(new Facet[](0), regulatoryCompliance_, initRegulatory_);
-        _diamondCut(new Facet[](0), kycCompliance_, initKYC_);
+        __AbstractAssetF_init(regulatoryCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }
 
     /// @inheritdoc INFTF
@@ -125,11 +94,11 @@ abstract contract NFTF is
         _transferred(from_, to_, tokenId_, msg.sender);
     }
 
-    /// @inheritdoc INFTF
+    /// @inheritdoc IAssetF
     function recovery(
         address oldAccount_,
         address newAccount_
-    ) public virtual override onlyRole(_recoveryRole()) {
+    ) public virtual override onlyRole(_recoveryRole()) returns (bool) {
         uint256 oldBalance_ = balanceOf(oldAccount_);
 
         for (uint256 i = oldBalance_; i > 0; --i) {
@@ -142,22 +111,8 @@ abstract contract NFTF is
 
             _transferred(oldAccount_, newAccount_, tokenId_, msg.sender);
         }
-    }
 
-    /// @inheritdoc INFTF
-    function diamondCut(
-        Facet[] memory modules_
-    ) public virtual override onlyRole(_diamondCutRole()) {
-        diamondCut(modules_, address(0), "");
-    }
-
-    /// @inheritdoc INFTF
-    function diamondCut(
-        Facet[] memory modules_,
-        address initModule_,
-        bytes memory initData_
-    ) public virtual override onlyRole(_diamondCutRole()) {
-        _diamondCut(modules_, initModule_, initData_);
+        return true;
     }
 
     /// @inheritdoc INFTF
@@ -273,26 +228,6 @@ abstract contract NFTF is
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _getNftFStorage().baseURI;
-    }
-
-    function _mintRole() internal view virtual returns (bytes32) {
-        return AGENT_ROLE;
-    }
-
-    function _burnRole() internal view virtual returns (bytes32) {
-        return AGENT_ROLE;
-    }
-
-    function _forcedTransferRole() internal view virtual returns (bytes32) {
-        return AGENT_ROLE;
-    }
-
-    function _recoveryRole() internal view virtual returns (bytes32) {
-        return AGENT_ROLE;
-    }
-
-    function _diamondCutRole() internal view virtual returns (bytes32) {
-        return AGENT_ROLE;
     }
 
     function _uriRole() internal view virtual returns (bytes32) {
