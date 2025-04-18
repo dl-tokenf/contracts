@@ -6,7 +6,6 @@ import { Reverter } from "@/test/helpers/reverter";
 import { ERC721TransferLimitsModuleMock, NFTFMock, RegulatoryComplianceMock } from "@ethers-v6";
 import { SECONDS_IN_DAY, ZERO_ADDR } from "@/scripts/utils/constants";
 import { AGENT_ROLE, MINT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
-import { randomBytes } from "crypto";
 
 describe("ERC721TransferLimitsModule", () => {
   const reverter = new Reverter();
@@ -113,7 +112,7 @@ describe("ERC721TransferLimitsModule", () => {
   describe("transferred", () => {
     it("should not call transferred from non-AssetF address", async () => {
       const ctx = {
-        selector: randomBytes(4),
+        selector: "0x12345678",
         from: alice,
         to: bob,
         amount: 0,
@@ -167,6 +166,8 @@ describe("ERC721TransferLimitsModule", () => {
 
       await setupHandlerTopics();
 
+      const periodOfFirstTransfer = Math.round((await time.latest()) / TIME_PERIOD);
+
       for (let tokenId = 0; tokenId <= MAX_TRANSFER_LIMIT; tokenId++) {
         await nftF.connect(agent).mint(alice, tokenId, tokenURI);
 
@@ -180,7 +181,8 @@ describe("ERC721TransferLimitsModule", () => {
         "CannotTransfer",
       );
 
-      await time.increase(TIME_PERIOD + 1);
+      const newPeriodStartTimestamp = (periodOfFirstTransfer + 1) * TIME_PERIOD;
+      await time.increaseTo(newPeriodStartTimestamp);
 
       await expect(await nftF.connect(alice).transfer(bob, offLimitTokenId)).to.not.be.reverted;
       expect(await nftF.ownerOf(offLimitTokenId)).to.be.eq(bob);
