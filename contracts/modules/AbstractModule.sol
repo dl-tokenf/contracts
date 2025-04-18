@@ -22,24 +22,24 @@ abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using SetHelper for EnumerableSet.Bytes32Set;
 
+    // keccak256("tokenf.standard.abstract.module.storage")
+    bytes32 private constant ABSTRACT_MODULE_STORAGE =
+        0x73478beeb98dbbe8aeb575ee0a6a3e8cf588ce66ddf6854e72e7413d32c854e2;
+
     struct Handler {
         bool isHandlerSet;
         function(IAssetF.Context memory) internal view returns (bool) handler;
     }
 
-    modifier onlyRole(bytes32 role_) {
-        _onlyRole(role_);
-        _;
-    }
-
-    // keccak256("tokenf.standard.abstract.module.storage")
-    bytes32 private constant ABSTRACT_MODULE_STORAGE =
-        0x73478beeb98dbbe8aeb575ee0a6a3e8cf588ce66ddf6854e72e7413d32c854e2;
-
     struct AbstractModuleStorage {
         address assetF;
         mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handlerTopics) handlerTopics;
         mapping(bytes32 handlerTopic => Handler handler) handlers;
+    }
+
+    modifier onlyRole(bytes32 role_) {
+        _onlyRole(role_);
+        _;
     }
 
     error HandlerNotSet();
