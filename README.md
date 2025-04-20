@@ -7,7 +7,7 @@ Bring Real World Assets (RWA) on-chain via flexible tokenization framework - Tok
 
 TokenF and NFTF architecture:
 
-!["AssetF Architecture"](https://github.com/user-attachments/assets/ef4b0bd1-c078-47d4-bd0c-7b7052f920b0)
+!["AssetF Architecture"](https://github.com/user-attachments/assets/5594c199-db9b-4aa3-b16a-5b464621311c)
 
 Built with [Solarity](https://github.com/dl-solarity), [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts), and aspiration to perfection.
 
