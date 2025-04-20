@@ -45,7 +45,6 @@ abstract contract ERC721TransferLimitsModule is AbstractRegulatoryModule {
         }
 
         $.transferData[ctx_.from].amountOfTransfers++;
-
         $.transferData[ctx_.from].lastTransferTimestamp = block.timestamp;
 
         super.transferred(ctx_);
@@ -95,11 +94,8 @@ abstract contract ERC721TransferLimitsModule is AbstractRegulatoryModule {
         ERC721TransferLimitsModuleStorage storage $ = _getERC721TransferLimitsModuleStorage();
 
         return
-            block.timestamp /
-                $.timePeriod -
-                $.transferData[user_].lastTransferTimestamp /
-                $.timePeriod >=
-            1;
+            block.timestamp / $.timePeriod >
+            $.transferData[user_].lastTransferTimestamp / $.timePeriod;
     }
 
     /**
