@@ -166,7 +166,7 @@ describe("ERC721TransferLimitsModule", () => {
 
       await setupHandlerTopics();
 
-      const periodOfFirstTransfer = Math.round((await time.latest()) / TIME_PERIOD);
+      const periodOfFirstTransfer = Math.floor((await time.latest()) / TIME_PERIOD);
 
       for (let tokenId = 0; tokenId <= MAX_TRANSFER_LIMIT; tokenId++) {
         await nftF.connect(agent).mint(alice, tokenId, tokenURI);
