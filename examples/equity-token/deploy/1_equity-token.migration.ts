@@ -1,12 +1,12 @@
 import { Deployer, Reporter } from "@solarity/hardhat-migrate";
 
 import {
-  EquityKYCCompliance,
-  EquityKYCCompliance__factory,
+  KYCComplianceFacet,
+  KYCComplianceFacet__factory,
   EquityRarimoModule,
   EquityRarimoModule__factory,
-  EquityRegulatoryCompliance,
-  EquityRegulatoryCompliance__factory,
+  RegulatoryComplianceFacet,
+  RegulatoryComplianceFacet__factory,
   EquityToken,
   EquityToken__factory,
   EquityERC20TransferLimitsModule,
@@ -17,15 +17,15 @@ import {
 
 async function setupCoreContracts(
   deployer: Deployer,
-): Promise<[EquityToken, EquityKYCCompliance, EquityRegulatoryCompliance]> {
+): Promise<[EquityToken, KYCComplianceFacet, RegulatoryComplianceFacet]> {
   const tokenF = await deployer.deploy(EquityToken__factory);
-  const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
-  const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
+  const kycCompliance = await deployer.deploy(KYCComplianceFacet__factory);
+  const regulatoryCompliance = await deployer.deploy(RegulatoryComplianceFacet__factory);
 
   const regulatoryComplianceInitData = regulatoryCompliance.interface.encodeFunctionData(
-    "__EquityRegulatoryCompliance_init",
+    "__RegulatoryComplianceFacet_init",
   );
-  const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init");
+  const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__KYCComplianceFacet_init");
 
   await tokenF.__EquityToken_init(
     regulatoryCompliance,
@@ -36,8 +36,8 @@ async function setupCoreContracts(
 
   return [
     tokenF,
-    kycCompliance.attach(tokenF) as EquityKYCCompliance,
-    regulatoryCompliance.attach(tokenF) as EquityRegulatoryCompliance,
+    kycCompliance.attach(tokenF) as KYCComplianceFacet,
+    regulatoryCompliance.attach(tokenF) as RegulatoryComplianceFacet,
   ];
 }
 

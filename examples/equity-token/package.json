@@ -5,7 +5,8 @@
   "author": "Distributed Lab",
   "scripts": {
     "compile": "npx hardhat compile --force",
-    "deploy-localhost": "npx hardhat migrate --network localhost",
+    "deploy-tokenf": "npx hardhat migrate --only 1",
+    "deploy-nftf": "npx hardhat migrate --only 2",
     "private-network": "npx hardhat node",
     "lint-fix": "npm run lint-sol-fix && npm run lint-ts-fix && npm run lint-json-fix",
     "lint-json-fix": "prettier --write \"./**/*.json\"",

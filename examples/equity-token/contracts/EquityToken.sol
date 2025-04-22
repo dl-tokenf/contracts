@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {TokenF} from "@tokenf/contracts/core/TokenF.sol";
+import {TokenF} from "@tokenf/contracts/TokenF.sol";
 
 contract EquityToken is TokenF {
     function __EquityToken_init(

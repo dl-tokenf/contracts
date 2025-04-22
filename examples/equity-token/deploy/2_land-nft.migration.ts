@@ -1,38 +1,38 @@
 import { Deployer, Reporter } from "@solarity/hardhat-migrate";
 
 import {
-  EquityKYCCompliance,
-  EquityKYCCompliance__factory,
+  KYCComplianceFacet,
+  KYCComplianceFacet__factory,
   LandNFT,
   LandNFT__factory,
   EquityRarimoModule,
   EquityRarimoModule__factory,
-  EquityRegulatoryCompliance__factory,
+  RegulatoryComplianceFacet,
+  RegulatoryComplianceFacet__factory,
   RarimoSBT,
   RarimoSBT__factory,
-  EquityRegulatoryCompliance,
   LandERC721TransferLimitsModule,
   LandERC721TransferLimitsModule__factory,
 } from "@ethers-v6";
 
 async function setupCoreContracts(
   deployer: Deployer,
-): Promise<[LandNFT, EquityKYCCompliance, EquityRegulatoryCompliance]> {
+): Promise<[LandNFT, KYCComplianceFacet, RegulatoryComplianceFacet]> {
   const nftF = await deployer.deploy(LandNFT__factory);
-  const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
-  const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
+  const kycCompliance = await deployer.deploy(KYCComplianceFacet__factory);
+  const regulatoryCompliance = await deployer.deploy(RegulatoryComplianceFacet__factory);
 
   const regulatoryComplianceInitData = regulatoryCompliance.interface.encodeFunctionData(
-    "__EquityRegulatoryCompliance_init",
+    "__RegulatoryComplianceFacet_init",
   );
-  const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__EquityKYCCompliance_init");
+  const kycComplianceInitData = kycCompliance.interface.encodeFunctionData("__KYCComplianceFacet_init");
 
   await nftF.__LandNFT_init(regulatoryCompliance, kycCompliance, regulatoryComplianceInitData, kycComplianceInitData);
 
   return [
     nftF,
-    kycCompliance.attach(nftF) as EquityKYCCompliance,
-    regulatoryCompliance.attach(nftF) as EquityRegulatoryCompliance,
+    kycCompliance.attach(nftF) as KYCComplianceFacet,
+    regulatoryCompliance.attach(nftF) as RegulatoryComplianceFacet,
   ];
 }
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {IAssetF} from "@tokenf/contracts/contracts/interfaces/IAssetF.sol";
-import {ERC721TransferLimitsModule} from "@tokenf/contracts/contracts/modules/regulatory/ERC721TransferLimitsModule.sol";
+import {IAssetF} from "@tokenf/contracts/interfaces/IAssetF.sol";
+import {ERC721TransferLimitsModule} from "@tokenf/contracts/modules/regulatory/ERC721TransferLimitsModule.sol";
 
 contract LandERC721TransferLimitsModule is ERC721TransferLimitsModule {
     uint256 public constant MAX_TRANSFERS_PER_PERIOD = 10;
