@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {TokenF} from "../../core/TokenF.sol";
+import {IAssetF} from "../../interfaces/IAssetF.sol";
 
 contract ComplianceRevertHooksMock {
-    function transferred(TokenF.Context memory) external pure {
-        revert("ComplianceRevertHooksMock: revert");
+    error ComplianceHooksMockRevert();
+
+    function transferred(IAssetF.Context memory) external pure {
+        revert ComplianceHooksMockRevert();
     }
 
-    function isKYCed(TokenF.Context memory) external pure returns (bool) {
-        revert("ComplianceRevertHooksMock: revert");
+    function isKYCed(IAssetF.Context memory) external pure returns (bool) {
+        revert ComplianceHooksMockRevert();
     }
 
-    function canTransfer(TokenF.Context memory) external pure returns (bool) {
-        revert("ComplianceRevertHooksMock: revert");
+    function canTransfer(IAssetF.Context memory) external pure returns (bool) {
+        revert ComplianceHooksMockRevert();
     }
 }

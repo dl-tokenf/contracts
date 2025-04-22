@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
 import { KYCComplianceMock, KYCIncorrectModuleMock, KYCCorrectModuleMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR, ZERO_SELECTOR } from "@/scripts/utils/constants";
-import { AGENT_ROLE, DIAMOND_CUT_ROLE, hasRoleErrorMessage, KYC_COMPLIANCE_ROLE } from "@/test/helpers/utils";
+import { AGENT_ROLE, DIAMOND_CUT_ROLE, KYC_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
 describe("KYCCompliance", () => {
   const reverter = new Reverter();
@@ -36,8 +36,8 @@ describe("KYCCompliance", () => {
     kycCompliance = await KYCComplianceMock.deploy();
     const rCompliance = await RegulatoryComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -59,7 +59,7 @@ describe("KYCCompliance", () => {
           [
             "diamondCut((address,uint8,bytes4[])[],address,bytes)"
           ]([], kycCompliance, kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init")),
-      ).to.be.revertedWith("Initializable: contract is already initialized");
+      ).to.be.revertedWithCustomError(kycCompliance, "InvalidInitialization");
     });
 
     it("should initialize only by top level contract", async () => {
@@ -69,7 +69,7 @@ describe("KYCCompliance", () => {
           [
             "diamondCut((address,uint8,bytes4[])[],address,bytes)"
           ]([], kycCompliance, kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init")),
-      ).to.be.revertedWith("Initializable: contract is not initializing");
+      ).to.be.revertedWithCustomError(kycCompliance, "NotInitializing");
     });
   });
 
@@ -83,15 +83,15 @@ describe("KYCCompliance", () => {
     it("should not add KYC modules if no role", async () => {
       await kycComplianceProxy.revokeRole(KYC_COMPLIANCE_ROLE, agent);
 
-      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect])).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, KYC_COMPLIANCE_ROLE),
-      );
+      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect]))
+        .to.be.revertedWithCustomError(kycComplianceProxy, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, KYC_COMPLIANCE_ROLE);
     });
 
     it("should not add KYC modules if duplicates", async () => {
-      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect, kycCorrect])).to.be.revertedWith(
-        "SetHelper: element already exists",
-      );
+      await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect, kycCorrect]))
+        .to.be.revertedWithCustomError(kycComplianceProxy, "ElementAlreadyExistsAddress")
+        .withArgs(kycCorrect);
     });
 
     it("should add KYC modules if all conditions are met", async () => {
@@ -106,15 +106,15 @@ describe("KYCCompliance", () => {
     it("should not remove KYC modules if no role", async () => {
       await kycComplianceProxy.revokeRole(KYC_COMPLIANCE_ROLE, agent);
 
-      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect])).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, KYC_COMPLIANCE_ROLE),
-      );
+      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect]))
+        .to.be.revertedWithCustomError(kycComplianceProxy, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, KYC_COMPLIANCE_ROLE);
     });
 
     it("should not remove KYC modules if no module", async () => {
-      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect])).to.be.revertedWith(
-        "SetHelper: no such element",
-      );
+      await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect]))
+        .to.be.revertedWithCustomError(kycComplianceProxy, "NoSuchAddress")
+        .withArgs(kycCorrect);
     });
 
     it("should remove KYC modules if all conditions are met", async () => {
@@ -136,6 +136,7 @@ describe("KYCCompliance", () => {
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,
+          tokenId: 0,
           operator: ZERO_ADDR,
           data: "0x",
         }),
@@ -151,6 +152,7 @@ describe("KYCCompliance", () => {
           from: ZERO_ADDR,
           to: ZERO_ADDR,
           amount: 0,
+          tokenId: 0,
           operator: ZERO_ADDR,
           data: "0x",
         }),

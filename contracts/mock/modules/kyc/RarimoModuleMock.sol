@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {TokenF} from "../../../core/TokenF.sol";
+import {IAssetF} from "../../../interfaces/IAssetF.sol";
 import {RarimoModule} from "../../../modules/kyc/RarimoModule.sol";
 
 contract RarimoModuleMock is RarimoModule {
-    function __RarimoModuleMock_init(address tokenF_, address sbt_) external initializer {
-        __AbstractModule_init(tokenF_);
+    function __RarimoModuleMock_init(address assetF_, address sbt_) external initializer {
+        __AbstractModule_init(assetF_);
         __AbstractKYCModule_init();
         __RarimoModule_init(sbt_);
     }
@@ -15,10 +15,10 @@ contract RarimoModuleMock is RarimoModule {
         __RarimoModule_init(address(0));
     }
 
-    function getClaimTopicKey(bytes4 selector_) external view returns (bytes32) {
-        TokenF.Context memory ctx_;
+    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+        IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
-        return _getClaimTopicKey(ctx_);
+        return _getContextKey(ctx_);
     }
 }

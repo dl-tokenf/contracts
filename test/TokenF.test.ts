@@ -12,7 +12,6 @@ import {
   DIAMOND_CUT_ROLE,
   FacetAction,
   FORCED_TRANSFER_ROLE,
-  hasRoleErrorMessage,
   MINT_ROLE,
   RECOVERY_ROLE,
 } from "@/test/helpers/utils";
@@ -38,8 +37,8 @@ describe("TokenF", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -56,13 +55,14 @@ describe("TokenF", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(tokenF.__TokenFMock_init("TokenF", "TF", ZERO_ADDR, ZERO_ADDR, "0x", "0x")).to.be.revertedWith(
-        "Initializable: contract is already initialized",
-      );
+      await expect(
+        tokenF.__TokenFMock_init("TokenF", "TF", ZERO_ADDR, ZERO_ADDR, "0x", "0x"),
+      ).to.be.revertedWithCustomError(tokenF, "InvalidInitialization");
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(tokenF.__TokenFDirect_init()).to.be.revertedWith("Initializable: contract is not initializing");
+      await expect(tokenF.__TokenFDirect_init()).to.be.revertedWithCustomError(tokenF, "NotInitializing");
+      await expect(tokenF.__AssetFDirect_init()).to.be.revertedWithCustomError(tokenF, "NotInitializing");
     });
   });
 
@@ -112,9 +112,9 @@ describe("TokenF", () => {
     it("should not mint if no role", async () => {
       await tokenF.revokeRole(MINT_ROLE, agent);
 
-      await expect(tokenF.connect(agent).mint(bob, wei("1"))).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, MINT_ROLE),
-      );
+      await expect(tokenF.connect(agent).mint(bob, wei("1")))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, MINT_ROLE);
     });
 
     it("should mint if all conditions are met", async () => {
@@ -126,12 +126,12 @@ describe("TokenF", () => {
     it("should not burn if no role", async () => {
       await tokenF.revokeRole(BURN_ROLE, agent);
 
-      await expect(tokenF.connect(agent).burn(bob, wei("1"))).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, BURN_ROLE),
-      );
+      await expect(tokenF.connect(agent).burn(bob, wei("1")))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, BURN_ROLE);
     });
 
-    it("should mint if all conditions are met", async () => {
+    it("should burn if all conditions are met", async () => {
       await tokenF.connect(agent).mint(bob, wei("1"));
 
       await expect(tokenF.connect(agent).burn(bob, wei("1"))).to.changeTokenBalance(tokenF, bob, -wei("1"));
@@ -142,9 +142,9 @@ describe("TokenF", () => {
     it("should not forced transfer if no role", async () => {
       await tokenF.revokeRole(FORCED_TRANSFER_ROLE, agent);
 
-      await expect(tokenF.connect(agent).forcedTransfer(bob, alice, wei("1"))).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, FORCED_TRANSFER_ROLE),
-      );
+      await expect(tokenF.connect(agent).forcedTransfer(bob, alice, wei("1")))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, FORCED_TRANSFER_ROLE);
     });
 
     it("should forced transfer if all conditions are met", async () => {
@@ -162,9 +162,9 @@ describe("TokenF", () => {
     it("should not recover if no role", async () => {
       await tokenF.revokeRole(RECOVERY_ROLE, agent);
 
-      await expect(tokenF.connect(agent).recovery(bob, alice)).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, RECOVERY_ROLE),
-      );
+      await expect(tokenF.connect(agent).recovery(bob, alice))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, RECOVERY_ROLE);
     });
 
     it("should recover if all conditions are met", async () => {
@@ -200,12 +200,15 @@ describe("TokenF", () => {
         },
       ];
 
-      await expect(tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets)).to.be.revertedWith(
-        await hasRoleErrorMessage(agent, DIAMOND_CUT_ROLE),
-      );
+      await expect(tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets))
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, DIAMOND_CUT_ROLE);
+
       await expect(
         tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[],address,bytes)"](facets, ZERO_ADDR, "0x"),
-      ).to.be.revertedWith(await hasRoleErrorMessage(agent, DIAMOND_CUT_ROLE));
+      )
+        .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+        .withArgs(agent, DIAMOND_CUT_ROLE);
     });
 
     it("should diamond cut if all conditions are met", async () => {
@@ -217,7 +220,12 @@ describe("TokenF", () => {
         },
       ];
 
-      await expect(facetProxy.mockFunction()).to.be.revertedWith("Diamond: selector is not registered");
+      const encodedFunc = new TextEncoder().encode("mockFunction()");
+      const selector = ethers.keccak256(encodedFunc).slice(0, 10);
+
+      await expect(facetProxy.mockFunction())
+        .to.be.revertedWithCustomError(tokenF, "SelectorNotRegistered")
+        .withArgs(selector);
 
       await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
@@ -233,7 +241,12 @@ describe("TokenF", () => {
         },
       ];
 
-      await expect(facetProxy.mockFunction()).to.be.revertedWith("Diamond: selector is not registered");
+      const encodedFunc = new TextEncoder().encode("mockFunction()");
+      const selector = ethers.keccak256(encodedFunc).slice(0, 10);
+
+      await expect(facetProxy.mockFunction())
+        .to.be.revertedWithCustomError(tokenF, "SelectorNotRegistered")
+        .withArgs(selector);
 
       await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[],address,bytes)"](facets, ZERO_ADDR, "0x");
 
@@ -269,7 +282,7 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(tokenF, "NotKYCed");
       });
 
       it("should revert if revert hook", async () => {
@@ -283,7 +296,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: isKYCed reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "IsKYCedReverted",
+        );
       });
     });
 
@@ -299,7 +315,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: cannot transfer");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "CannotTransfer",
+        );
       });
 
       it("should revert if revert hook", async () => {
@@ -313,7 +332,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: canTransfer reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "CanTransferReverted",
+        );
       });
     });
 
@@ -329,7 +351,10 @@ describe("TokenF", () => {
 
         await tokenF.connect(agent)["diamondCut((address,uint8,bytes4[])[])"](facets);
 
-        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWith("TokenF: transferred reverted");
+        await expect(tokenF.connect(agent).mint(alice, wei("1"))).to.be.revertedWithCustomError(
+          tokenF,
+          "TransferredReverted",
+        );
       });
     });
   });

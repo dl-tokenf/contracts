@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 /**
  * @notice The `IRegulatoryComplianceView` interface stores all the view functions that are in the `RegulatoryCompliance` contract

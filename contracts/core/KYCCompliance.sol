@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
-import {IKYCCompliance} from "../interfaces/IKYCCompliance.sol";
+import {IKYCCompliance} from "../interfaces/core/IKYCCompliance.sol";
+
+import {IAssetF} from "../interfaces/IAssetF.sol";
 
 import {AgentAccessControl} from "./AgentAccessControl.sol";
-import {TokenF} from "./TokenF.sol";
-import {KYCComplianceStorage} from "./storages/KYCComplianceStorage.sol";
+import {KYCComplianceStorage} from "../storages/core/KYCComplianceStorage.sol";
 
 import {AbstractKYCModule} from "../modules/AbstractKYCModule.sol";
 
@@ -17,13 +18,13 @@ import {AbstractKYCModule} from "../modules/AbstractKYCModule.sol";
  * @notice The KYCCompliance contract
  *
  * The KYCCompliance is a core contract that serves as a repository for KYC modules.
- * It tracks every transfer made within the TokenF contract and disseminates its context to registered KYC modules.
+ * It tracks every transfer made within the TokenF and NFTF contracts and disseminates its context to registered KYC modules.
  */
 abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SetHelper for EnumerableSet.AddressSet;
 
-    function __KYCCompliance_init() internal onlyInitializing(KYC_COMPLIANCE_STORAGE_SLOT) {}
+    function __KYCCompliance_init() internal onlyInitializing {}
 
     /// @inheritdoc IKYCCompliance
     function addKYCModules(
@@ -40,7 +41,7 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
     }
 
     /// @inheritdoc IKYCCompliance
-    function isKYCed(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function isKYCed(IAssetF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getKYCModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

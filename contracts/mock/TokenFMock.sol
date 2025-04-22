@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {TokenF} from "../../core/TokenF.sol";
+import {TokenF} from "../TokenF.sol";
 
 contract TokenFMock is TokenF {
     bytes32 public constant MINT_ROLE = keccak256("MINT_ROLE");
@@ -17,21 +17,19 @@ contract TokenFMock is TokenF {
         address kycCompliance_,
         bytes memory initRegulatory_,
         bytes memory initKYC_
-    )
-        external
-        initializer(DIAMOND_ERC20_STORAGE_SLOT)
-        initializer(DIAMOND_ACCESS_CONTROL_STORAGE_SLOT)
-        initializer(AGENT_ACCESS_CONTROL_STORAGE_SLOT)
-        initializer(TOKEN_F_STORAGE_SLOT)
-    {
-        __DiamondAccessControl_init();
-        __DiamondERC20_init(name_, symbol_);
+    ) external initializer {
+        __AccessControl_init();
+        __ERC20_init(name_, symbol_);
         __AgentAccessControl_init();
         __TokenF_init(rCompliance_, kycCompliance_, initRegulatory_, initKYC_);
     }
 
     function __TokenFDirect_init() external {
         __TokenF_init(address(0), address(0), "", "");
+    }
+
+    function __AssetFDirect_init() external {
+        __AbstractAssetF_init(address(0), address(0), "", "");
     }
 
     function defaultMintRole() external view returns (bytes32) {

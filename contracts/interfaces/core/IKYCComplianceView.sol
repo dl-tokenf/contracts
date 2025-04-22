@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 /**
  * @notice `IKYCComplianceView` interface stores all view functions that are in the `KYCCompliance` contract

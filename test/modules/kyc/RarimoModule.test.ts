@@ -32,8 +32,8 @@ describe("RarimoModule", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -57,15 +57,14 @@ describe("RarimoModule", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWith(
-        "Initializable: contract is already initialized",
+      await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWithCustomError(
+        rarimo,
+        "InvalidInitialization",
       );
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
+      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWithCustomError(rarimo, "NotInitializing");
     });
   });
 
@@ -79,12 +78,12 @@ describe("RarimoModule", () => {
     let transferKey: string;
     let transferFromKey: string;
 
-    const setupClaimTopics = async () => {
-      await rarimo.addClaimTopics(transferKey, [
+    const setupHandlerTopics = async () => {
+      await rarimo.addHandlerTopics(transferKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
       ]);
-      await rarimo.addClaimTopics(transferFromKey, [
+      await rarimo.addHandlerTopics(transferFromKey, [
         await rarimo.HAS_SOUL_SENDER_TOPIC(),
         await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
         await rarimo.HAS_SOUL_OPERATOR_TOPIC(),
@@ -92,11 +91,11 @@ describe("RarimoModule", () => {
     };
 
     beforeEach(async () => {
-      transferKey = await rarimo.getClaimTopicKey(await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await rarimo.getClaimTopicKey(await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await rarimo.getContextKey(await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await rarimo.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
-    it("should not apply kyc limits if claim topic keys are not set", async () => {
+    it("should not apply kyc limits if context keys are not set", async () => {
       await tokenF.connect(agent).mint(alice, wei("1"));
 
       await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.changeTokenBalances(
@@ -114,20 +113,22 @@ describe("RarimoModule", () => {
       );
     });
 
-    it("should apply kyc limits if claim topic keys are set", async () => {
-      await setupClaimTopics();
+    it("should apply kyc limits if context keys are set", async () => {
+      await setupHandlerTopics();
 
       await tokenF.connect(agent).mint(alice, wei("1"));
 
-      await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
-
+      await expect(tokenF.connect(alice).transfer(agent, wei("1"))).to.be.revertedWithCustomError(tokenF, "NotKYCed");
       await tokenF.connect(agent).approve(alice, wei("1"));
 
-      await expect(tokenF.connect(alice).transferFrom(agent, bob, wei("1"))).to.be.revertedWith("TokenF: not KYCed");
+      await expect(tokenF.connect(alice).transferFrom(agent, bob, wei("1"))).to.be.revertedWithCustomError(
+        tokenF,
+        "NotKYCed",
+      );
     });
 
     it("should transfer if sbt tokens are minted", async () => {
-      await setupClaimTopics();
+      await setupHandlerTopics();
 
       await sbt.mint(agent, 1);
       await sbt.mint(alice, 2);

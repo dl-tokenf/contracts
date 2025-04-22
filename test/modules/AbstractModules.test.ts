@@ -2,24 +2,9 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import {
-  KYCComplianceMock,
-  ModuleMock,
-  RarimoModuleMock,
-  RegulatoryComplianceMock,
-  SBTMock,
-  TokenFMock,
-} from "@ethers-v6";
+import { ModuleMock, RegulatoryComplianceMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR, ZERO_BYTES32, ZERO_SELECTOR } from "@/scripts/utils/constants";
-import {
-  AGENT_ROLE,
-  hasRoleErrorMessage,
-  KYC_COMPLIANCE_ROLE,
-  MINT_ROLE,
-  REGULATORY_COMPLIANCE_ROLE,
-} from "@/test/helpers/utils";
-import { wei } from "@/scripts/utils/utils";
-import { token } from "@/generated-types/ethers/@openzeppelin/contracts";
+import { AGENT_ROLE, REGULATORY_COMPLIANCE_ROLE } from "@/test/helpers/utils";
 
 describe("AbstractModules", () => {
   const reverter = new Reverter();
@@ -42,8 +27,8 @@ describe("AbstractModules", () => {
     const rCompliance = await RegulatoryComplianceMock.deploy();
     const kycCompliance = await KYCComplianceMock.deploy();
 
-    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceMock_init");
-    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceMock_init");
+    const initRegulatory = rCompliance.interface.encodeFunctionData("__RegulatoryComplianceDirect_init");
+    const initKYC = kycCompliance.interface.encodeFunctionData("__KYCComplianceDirect_init");
 
     await tokenF.__TokenFMock_init("TokenF", "TF", rCompliance, kycCompliance, initRegulatory, initKYC);
 
@@ -64,27 +49,24 @@ describe("AbstractModules", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(module.__ModuleMock_init(ZERO_ADDR)).to.be.revertedWith(
-        "Initializable: contract is already initialized",
-      );
+      await expect(module.__ModuleMock_init(ZERO_ADDR)).to.be.revertedWithCustomError(module, "InvalidInitialization");
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(module.__AbstractModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
+      await expect(module.__AbstractModuleDirect_init()).to.be.revertedWithCustomError(module, "NotInitializing");
+
+      await expect(module.__AbstractRegulatoryModuleDirect_init()).to.be.revertedWithCustomError(
+        module,
+        "NotInitializing",
       );
-      await expect(module.__AbstractRegulatoryModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
-      await expect(module.__AbstractKYCModuleDirect_init()).to.be.revertedWith(
-        "Initializable: contract is not initializing",
-      );
+
+      await expect(module.__AbstractKYCModuleDirect_init()).to.be.revertedWithCustomError(module, "NotInitializing");
     });
   });
 
   describe("getters", () => {
     it("should return base data", async () => {
-      expect(await module.getTokenF()).to.eq(tokenF);
+      expect(await module.getAssetF()).to.eq(tokenF);
     });
   });
 
@@ -93,7 +75,7 @@ describe("AbstractModules", () => {
       it("should not handle if handler is not set", async () => {
         await module
           .connect(agent)
-          .addClaimTopics(await module.getClaimTopicKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
 
         await expect(
           module.canTransfer({
@@ -101,16 +83,17 @@ describe("AbstractModules", () => {
             from: ZERO_ADDR,
             to: ZERO_ADDR,
             amount: 0,
+            tokenId: 0,
             operator: ZERO_ADDR,
             data: "0x",
           }),
-        ).to.be.revertedWith("AModule: handler is not set");
+        ).to.be.revertedWithCustomError(module, "HandlerNotSet");
       });
 
       it("should handle if all conditions are met", async () => {
         await module
           .connect(agent)
-          .addClaimTopics(await module.getClaimTopicKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
 
         await module.handlerer();
 
@@ -120,6 +103,7 @@ describe("AbstractModules", () => {
             from: ZERO_ADDR,
             to: ZERO_ADDR,
             amount: 0,
+            tokenId: 0,
             operator: ZERO_ADDR,
             data: "0x",
           }),
@@ -127,48 +111,48 @@ describe("AbstractModules", () => {
       });
     });
 
-    describe("addClaimTopics", () => {
-      it("should not add claim topics if no role", async () => {
+    describe("addHandlerTopics", () => {
+      it("should not add handler topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          await hasRoleErrorMessage(agent, AGENT_ROLE),
-        );
+        await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+          .withArgs(agent, AGENT_ROLE);
       });
 
-      it("should not add claim topics if duplicates", async () => {
-        await expect(
-          module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]),
-        ).to.be.revertedWith("SetHelper: element already exists");
+      it("should not add handler topics if duplicates", async () => {
+        await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(module, "ElementAlreadyExistsBytes32")
+          .withArgs(ZERO_BYTES32);
       });
 
-      it("should add claim topics if all conditions are met", async () => {
-        await module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+      it("should add handler topics if all conditions are met", async () => {
+        await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 
-        expect(await module.getClaimTopics(ZERO_BYTES32)).to.deep.eq([ZERO_BYTES32]);
+        expect(await module.getHandlerTopics(ZERO_BYTES32)).to.deep.eq([ZERO_BYTES32]);
       });
     });
 
-    describe("removeClaimTopics", () => {
-      it("should not remove claim topics if no role", async () => {
+    describe("removeHandlerTopics", () => {
+      it("should not remove handler topics if no role", async () => {
         await tokenF.revokeRole(AGENT_ROLE, agent);
 
-        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          await hasRoleErrorMessage(agent, AGENT_ROLE),
-        );
+        await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(tokenF, "AccessControlUnauthorizedAccount")
+          .withArgs(agent, AGENT_ROLE);
       });
 
-      it("should not remove claim topics if no claim topic", async () => {
-        await expect(module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32])).to.be.revertedWith(
-          "SetHelper: no such element",
-        );
+      it("should not remove handler topics if no handler topic", async () => {
+        await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
+          .to.be.revertedWithCustomError(module, "NoSuchBytes32")
+          .withArgs(ZERO_BYTES32);
       });
 
-      it("should remove claim topics if all conditions are met", async () => {
-        await module.connect(agent).addClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]);
-        await module.connect(agent).removeClaimTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+      it("should remove handler topics if all conditions are met", async () => {
+        await module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
+        await module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]);
 
-        expect(await module.getClaimTopics(ZERO_BYTES32)).to.deep.eq([]);
+        expect(await module.getHandlerTopics(ZERO_BYTES32)).to.deep.eq([]);
       });
     });
   });
@@ -182,10 +166,13 @@ describe("AbstractModules", () => {
             from: ZERO_ADDR,
             to: ZERO_ADDR,
             amount: 0,
+            tokenId: 0,
             operator: ZERO_ADDR,
             data: "0x",
           }),
-        ).to.be.revertedWith("ARModule: not TokenF");
+        )
+          .to.be.revertedWithCustomError(module, "SenderNotAssetF")
+          .withArgs(owner);
       });
     });
   });

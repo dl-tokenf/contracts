@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {ITokenF} from "./ITokenF.sol";
+import {IAssetF} from "../IAssetF.sol";
 import {IKYCComplianceView} from "./IKYCComplianceView.sol";
 
 /**
  * @notice `KYCCompliance` contract is used to manage KYC Compliance modules.
  * It performs storage, addition of new KYC modules and deletion of existing KYC modules.
  *
- * It also implements the `isKYCed` hook, which in turn is called by the `TokenF` contract.
+ * It also implements the `isKYCed` hook, which in turn is called by the `TokenF` or `NFTF` contract.
  *
  * All actions for module management can only be done by users who have a special role.
- * In the basic version of `TokenF` this role is the Agent role.
+ * In the basic version of `TokenF` and `NFTF` this role is the Agent role.
  *
  * It is possible to override the role that is required to configure the module list.
  *
- * Also this contract is used as a facet in the `TokenF` contract.
+ * Also this contract is used as a facet in the `TokenF` or `NFTF` contract.
  */
 interface IKYCCompliance is IKYCComplianceView {
     /**
@@ -24,7 +24,7 @@ interface IKYCCompliance is IKYCComplianceView {
      * If you try to add a module that already exists in the list of KYC modules,
      * the transaction will fail with an error - `SetHelper: element already exists`.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have Agent role.
+     * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have Agent role.
      *
      * An internal function `_KYCComplianceRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
@@ -39,7 +39,7 @@ interface IKYCCompliance is IKYCComplianceView {
      * If you try to delete a module that is not in the list of KYC modules,
      * the transaction will fail with an error - `SetHelper: no such element`.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in the basic `TokenF` or `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_KYCComplianceRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
@@ -56,5 +56,5 @@ interface IKYCCompliance is IKYCComplianceView {
      * @param ctx_ The context of the transaction
      * @return true if the passed context satisfies the checks on all modules
      */
-    function isKYCed(ITokenF.Context memory ctx_) external view returns (bool);
+    function isKYCed(IAssetF.Context memory ctx_) external view returns (bool);
 }

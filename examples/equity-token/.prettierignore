@@ -1,0 +1,12 @@
+node_modules
+package-lock.json
+
+# Hardhat files
+cache
+artifacts
+
+# Typechain generated files
+generated-types
+
+# Hardhat migrate
+.storage.json

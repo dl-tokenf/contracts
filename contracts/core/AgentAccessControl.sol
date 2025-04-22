@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {DiamondAccessControl} from "@solarity/solidity-lib/diamond/access/access-control/DiamondAccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
+import {IAgentAccessControl} from "../interfaces/core/IAgentAccessControl.sol";
 
-import {AgentAccessControlStorage} from "./storages/AgentAccessControlStorage.sol";
+import {AgentAccessControlStorage} from "../storages/core/AgentAccessControlStorage.sol";
 
 /**
  * @notice The AgentAccessControl contract
@@ -16,15 +16,14 @@ import {AgentAccessControlStorage} from "./storages/AgentAccessControlStorage.so
 abstract contract AgentAccessControl is
     IAgentAccessControl,
     AgentAccessControlStorage,
-    DiamondAccessControl
+    AccessControlUpgradeable
 {
     /// @inheritdoc IAgentAccessControl
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
 
-    function __AgentAccessControl_init()
-        internal
-        onlyInitializing(AGENT_ACCESS_CONTROL_STORAGE_SLOT)
-    {
+    function __AgentAccessControl_init() internal onlyInitializing {
+        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
+
         grantRole(AGENT_ROLE, msg.sender);
     }
 

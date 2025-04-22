@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
-import {TokenF} from "../../../core/TokenF.sol";
+import {IAssetF} from "../../../interfaces/IAssetF.sol";
 import {AbstractKYCModule} from "../../../modules/AbstractKYCModule.sol";
 
 contract KYCIncorrectModuleMock is AbstractKYCModule {
     function _handlerer() internal override {}
 
-    function isKYCed(TokenF.Context memory) public pure override returns (bool) {
+    function isKYCed(IAssetF.Context memory) public pure override returns (bool) {
         return false;
     }
 }

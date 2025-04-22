@@ -1,30 +1,40 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
-import {IAgentAccessControl} from "../interfaces/IAgentAccessControl.sol";
+import {IAgentAccessControl} from "../interfaces/core/IAgentAccessControl.sol";
 
-import {TokenF} from "../core/TokenF.sol";
+import {IAssetF} from "../interfaces/IAssetF.sol";
 
 /**
  * @notice The `AbstractModule` contract
  *
  * The `AbstractModule` contract provides a framework for implementing compliance modules.
  *
- * Each module is capable of matching claim topics to corresponding handlers, with claim topics organized under
- * user-defined claim topic keys.
+ * Each module is capable of matching handler topics to corresponding handlers, with handler topics organized under
+ * user-defined context keys.
  */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using SetHelper for EnumerableSet.Bytes32Set;
 
+    // keccak256("tokenf.standard.abstract.module.storage")
+    bytes32 private constant ABSTRACT_MODULE_STORAGE =
+        0x73478beeb98dbbe8aeb575ee0a6a3e8cf588ce66ddf6854e72e7413d32c854e2;
+
     struct Handler {
         bool isHandlerSet;
-        function(TokenF.Context memory) internal view returns (bool) handler;
+        function(IAssetF.Context memory) internal view returns (bool) handler;
+    }
+
+    struct AbstractModuleStorage {
+        address assetF;
+        mapping(bytes32 contextKey => EnumerableSet.Bytes32Set handlerTopics) handlerTopics;
+        mapping(bytes32 handlerTopic => Handler handler) handlers;
     }
 
     modifier onlyRole(bytes32 role_) {
@@ -32,104 +42,109 @@ abstract contract AbstractModule is Initializable {
         _;
     }
 
-    address private _tokenF;
+    error HandlerNotSet();
 
-    mapping(bytes32 claimTopicKey => EnumerableSet.Bytes32Set claimTopics) private _claimTopics;
-    mapping(bytes32 claimTopic => Handler handler) private _handlers;
+    function __AbstractModule_init(address assetF_) internal onlyInitializing {
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
 
-    function __AbstractModule_init(address tokenF_) internal onlyInitializing {
-        _tokenF = tokenF_;
+        $.assetF = assetF_;
 
         _handlerer();
     }
 
     /**
-     * @notice Function for adding an array of claim topics for the corresponding claim topic key.
+     * @notice Function for adding an array of handler topics for the corresponding context key.
      *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
-     *
-     * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
-     * which can be overridden if you want to use a role other than Agent.
-     *
-     * @param claimTopicKey_ The key of the claim topics
-     * @param claimTopics_ Array of claim topics to add
-     */
-    function addClaimTopics(
-        bytes32 claimTopicKey_,
-        bytes32[] memory claimTopics_
-    ) public virtual onlyRole(_moduleRole()) {
-        _addClaimTopics(claimTopicKey_, claimTopics_);
-    }
-
-    /**
-     * @notice Function for removing an array of claim topics from the list of the corresponding claim topic key.
-     *
-     * This function in the basic `TokenF` implementation can only be called by users who have the Agent role.
+     * This function in the basic `TokenF` and `NFTF` implementations can only be called by users who have the Agent role.
      *
      * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
      * which can be overridden if you want to use a role other than Agent.
      *
-     * @param claimTopicKey_ The key of the claim topics
-     * @param claimTopics_ Array of claim topics to be removed
+     * @param contextKey_ The key of the handler topics
+     * @param handlerTopics_ Array of handler topics to add
      */
-    function removeClaimTopics(
-        bytes32 claimTopicKey_,
-        bytes32[] memory claimTopics_
+    function addHandlerTopics(
+        bytes32 contextKey_,
+        bytes32[] memory handlerTopics_
     ) public virtual onlyRole(_moduleRole()) {
-        _removeClaimTopics(claimTopicKey_, claimTopics_);
+        _addHandlerTopics(contextKey_, handlerTopics_);
     }
 
     /**
-     * @notice Function to retrieve all stored claim topics by the passed claim topic key.
+     * @notice Function for removing an array of handler topics from the list of the corresponding context key.
      *
-     * @param claimTopicsKey_ The key of the claim topics for which the array should be obtained
-     * @return claim topics array
+     * This function in basic `TokenF` and `NFTF` implementation can only be called by users who have the Agent role.
+     *
+     * An internal function `_complianceModuleRole` is used to retrieve the role that is used in the validation,
+     * which can be overridden if you want to use a role other than Agent.
+     *
+     * @param contextKey_ The key of the handler topics
+     * @param handlerTopics_ Array of handler topics to be removed
      */
-    function getClaimTopics(
-        bytes32 claimTopicsKey_
-    ) public view virtual returns (bytes32[] memory) {
-        return _claimTopics[claimTopicsKey_].values();
+    function removeHandlerTopics(
+        bytes32 contextKey_,
+        bytes32[] memory handlerTopics_
+    ) public virtual onlyRole(_moduleRole()) {
+        _removeHandlerTopics(contextKey_, handlerTopics_);
     }
 
     /**
-     * @notice Function to get the `TokenF` address of the contract to which this module contract is bound.
+     * @notice Function to retrieve all stored handler topics by the passed context key.
      *
-     * @return address of `TokenF` contract
+     * @param contextKey_ The key of the handler topics for which the array should be obtained
+     * @return handler topics array
      */
-    function getTokenF() public view virtual returns (address) {
-        return _tokenF;
+    function getHandlerTopics(bytes32 contextKey_) public view virtual returns (bytes32[] memory) {
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return $.handlerTopics[contextKey_].values();
     }
 
     /**
-     * @notice Internal function to add an array of claim topics for the passed claim topic key.
+     * @notice Function to retrieve the address of the corresponding `TokenF` or `NFTF` contract to which this module contract is bound.
      *
-     * In case it is necessary to change or extend the logic of adding claim topics,
+     * @return address of `TokenF` or `NFTF` contract
+     */
+    function getAssetF() public view virtual returns (address) {
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return $.assetF;
+    }
+
+    /**
+     * @notice Internal function to add an array of handler topics for the passed context key.
+     *
+     * In case it is necessary to change or extend the logic of adding handler topics,
      * you can override this function and make any necessary changes.
      *
-     * @param claimTopicKey_ The claim topic key
-     * @param claimTopics_ The array of claim topics to add
+     * @param contextKey_ The context key
+     * @param handlerTopics_ The array of handler topics to add
      */
-    function _addClaimTopics(
-        bytes32 claimTopicKey_,
-        bytes32[] memory claimTopics_
+    function _addHandlerTopics(
+        bytes32 contextKey_,
+        bytes32[] memory handlerTopics_
     ) internal virtual {
-        _claimTopics[claimTopicKey_].strictAdd(claimTopics_);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        $.handlerTopics[contextKey_].strictAdd(handlerTopics_);
     }
 
     /**
-     * @notice Internal function to remove the claim topics array for the passed claim topic key.
+     * @notice Internal function to remove the handler topics array for the passed context key.
      *
-     * In case you want to change or extend the logic of deleting claim topics,
+     * In case you want to change or extend the logic of deleting handler topics,
      * you can override this function and make any necessary changes.
      *
-     * @param claimTopicKey_ The claim topic key
-     * @param claimTopics_ The array of claim topicsto be removed
+     * @param contextKey_ The context key
+     * @param handlerTopics_ The array of handler topics to be removed
      */
-    function _removeClaimTopics(
-        bytes32 claimTopicKey_,
-        bytes32[] memory claimTopics_
+    function _removeHandlerTopics(
+        bytes32 contextKey_,
+        bytes32[] memory handlerTopics_
     ) internal virtual {
-        _claimTopics[claimTopicKey_].strictRemove(claimTopics_);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        $.handlerTopics[contextKey_].strictRemove(handlerTopics_);
     }
 
     /**
@@ -138,14 +153,15 @@ abstract contract AbstractModule is Initializable {
      *
      * If you need to extend the logic, you can also override this function.
      *
-     * @param claimTopic_ The label of the topic for which the handler is to be set
+     * @param handlerTopic_ The label of the topic for which the handler is to be set
      * @param handler_ Pointer to the handler function
      */
     function _setHandler(
-        bytes32 claimTopic_,
-        function(TokenF.Context memory) internal view returns (bool) handler_
+        bytes32 handlerTopic_,
+        function(IAssetF.Context memory) internal view returns (bool) handler_
     ) internal virtual {
-        Handler storage _handler = _handlers[claimTopic_];
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+        Handler storage _handler = $.handlers[handlerTopic_];
 
         _handler.isHandlerSet = true;
         _handler.handler = handler_;
@@ -161,45 +177,43 @@ abstract contract AbstractModule is Initializable {
      *
      * ```solidity
      *     function _handlerer() internal virtual override {
-     *         _setHandler(<YOUR_CLAIM_TOPIC>, _yourHandlerFunc);
+     *         _setHandler(<YOUR_HANDLER_TOPIC>, _yourHandlerFunc);
      *     }
      * ```
      */
     function _handlerer() internal virtual;
 
     /**
-     * @notice Function to retrieve the claim topic key from the transaction context.
+     * @notice Function to retrieve the context key from the transaction context.
      *
-     * The `bytes32` type has been chosen for the claim topic key so that it could be customised.
-     * Depending on the future purpose of the module, it will be possible to define the process of creating a claim topic key,
+     * The `bytes32` type has been chosen for the context key so that it could be customised.
+     * Depending on the future purpose of the module, it will be possible to define the process of creating a context key,
      * which allows the modules to be quite flexible.
      *
-     * By default, the claim topic key is a hash of the function selector, i.e. the module is able to define different
+     * By default, the context key is a hash of the function selector, i.e. the module is able to define different
      * rules for different functions.
      *
      * @param ctx_ The transaction context
-     * @return claim topic key
+     * @return context key
      */
-    function _getClaimTopicKey(
-        TokenF.Context memory ctx_
-    ) internal view virtual returns (bytes32) {
+    function _getContextKey(IAssetF.Context memory ctx_) internal view virtual returns (bytes32) {
         return keccak256(abi.encodePacked(ctx_.selector));
     }
 
     /**
      * @notice The main function to process the passed transaction context.
      *
-     * Within it, all the set claim topics are retrieved by the claim topic key.
-     * Then for each claim topic a handler function is obtained, which processes the passed context.
+     * Within it, all the set of handler topics are retrieved by the context key.
+     * Then for each handler topic a handler function is obtained, which processes the passed context.
      *
      * @param ctx_ The transaction context
      */
-    function _handle(TokenF.Context memory ctx_) internal view virtual returns (bool) {
-        bytes32 claimTopicKey_ = _getClaimTopicKey(ctx_);
-        bytes32[] memory claimTopics_ = getClaimTopics(claimTopicKey_);
+    function _handle(IAssetF.Context memory ctx_) internal view virtual returns (bool) {
+        bytes32 contextKey_ = _getContextKey(ctx_);
+        bytes32[] memory handlerTopics_ = getHandlerTopics(contextKey_);
 
-        for (uint256 j = 0; j < claimTopics_.length; ++j) {
-            if (!_getHandler(claimTopics_[j])(ctx_)) {
+        for (uint256 j = 0; j < handlerTopics_.length; ++j) {
+            if (!_getHandler(handlerTopics_[j])(ctx_)) {
                 return false;
             }
         }
@@ -208,36 +222,48 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
-     * @notice Function to retrieve a previously saved handler function by claim topic.
+     * @notice Function to retrieve a previously saved handler function by handler topic.
      *
-     * In case no function handler has been set for the passed claim topic,
-     * transaction will fail with the error - `AModule: handler is not set`.
+     * In case no function handler has been set for the passed handler topic,
+     * transaction will fail with the error - `HandlerNotSet()`.
      *
-     * @param claimTopic_ The claim topic for which a handler function is to be retrieved
+     * @param handlerTopic_ The handler topic for which a handler function is to be retrieved
      * @return pointer to the previously saved handler function
      */
     function _getHandler(
-        bytes32 claimTopic_
+        bytes32 handlerTopic_
     )
         internal
         view
         virtual
-        returns (function(TokenF.Context memory) internal view returns (bool))
+        returns (function(IAssetF.Context memory) internal view returns (bool))
     {
-        Handler storage _handler = _handlers[claimTopic_];
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+        Handler storage _handler = $.handlers[handlerTopic_];
 
-        require(_handler.isHandlerSet, "AModule: handler is not set");
+        require(_handler.isHandlerSet, HandlerNotSet());
 
         return _handler.handler;
     }
 
     function _moduleRole() internal view virtual returns (bytes32) {
-        return IAgentAccessControl(_tokenF).AGENT_ROLE();
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        return IAgentAccessControl($.assetF).AGENT_ROLE();
     }
 
     function _onlyRole(bytes32 role_) internal view virtual {
-        IAgentAccessControl(_tokenF).checkRole(role_, msg.sender);
+        AbstractModuleStorage storage $ = _getAbstractModuleStorage();
+
+        IAgentAccessControl($.assetF).checkRole(role_, msg.sender);
     }
 
-    uint256[47] private _gap;
+    /**
+     * @dev Returns a pointer to the storage namespace
+     */
+    function _getAbstractModuleStorage() private pure returns (AbstractModuleStorage storage $) {
+        assembly {
+            $.slot := ABSTRACT_MODULE_STORAGE
+        }
+    }
 }

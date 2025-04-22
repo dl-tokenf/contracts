@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
 
-import {IRegulatoryCompliance} from "../interfaces/IRegulatoryCompliance.sol";
+import {IRegulatoryCompliance} from "../interfaces/core/IRegulatoryCompliance.sol";
 
-import {TokenF} from "./TokenF.sol";
+import {IAssetF} from "../interfaces/IAssetF.sol";
+
 import {AgentAccessControl} from "./AgentAccessControl.sol";
-import {RegulatoryComplianceStorage} from "./storages/RegulatoryComplianceStorage.sol";
+import {RegulatoryComplianceStorage} from "../storages/core/RegulatoryComplianceStorage.sol";
 
 import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol";
 
@@ -17,7 +18,7 @@ import {AbstractRegulatoryModule} from "../modules/AbstractRegulatoryModule.sol"
  * @notice The RegulatoryCompliance contract
  *
  * The RegulatoryCompliance is a core contract that serves as a repository for regulatory modules.
- * It tracks every transfer made within the TokenF contract and disseminates its context to registered regulatory modules.
+ * It tracks every transfer made within the TokenF and NFTF contracts and disseminates its context to registered regulatory modules.
  */
 abstract contract RegulatoryCompliance is
     IRegulatoryCompliance,
@@ -27,15 +28,12 @@ abstract contract RegulatoryCompliance is
     using EnumerableSet for EnumerableSet.AddressSet;
     using SetHelper for EnumerableSet.AddressSet;
 
-    modifier onlyThis() {
-        require(msg.sender == address(this), "RCompliance: not this");
+    modifier onlyThisContract() {
+        require(msg.sender == address(this), SenderIsNotThisContract(msg.sender));
         _;
     }
 
-    function __RegulatoryCompliance_init()
-        internal
-        onlyInitializing(REGULATORY_COMPLIANCE_STORAGE_SLOT)
-    {}
+    function __RegulatoryCompliance_init() internal onlyInitializing {}
 
     /// @inheritdoc IRegulatoryCompliance
     function addRegulatoryModules(
@@ -52,7 +50,7 @@ abstract contract RegulatoryCompliance is
     }
 
     /// @inheritdoc IRegulatoryCompliance
-    function transferred(TokenF.Context memory ctx_) public virtual onlyThis {
+    function transferred(IAssetF.Context memory ctx_) public virtual onlyThisContract {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {
@@ -61,7 +59,7 @@ abstract contract RegulatoryCompliance is
     }
 
     /// @inheritdoc IRegulatoryCompliance
-    function canTransfer(TokenF.Context memory ctx_) public view virtual returns (bool) {
+    function canTransfer(IAssetF.Context memory ctx_) public view virtual returns (bool) {
         address[] memory regulatoryModules_ = getRegulatoryModules();
 
         for (uint256 i = 0; i < regulatoryModules_.length; ++i) {

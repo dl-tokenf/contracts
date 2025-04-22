@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {IKYCComplianceView} from "../../interfaces/IKYCComplianceView.sol";
+import {IKYCComplianceView} from "../../interfaces/core/IKYCComplianceView.sol";
 
 abstract contract KYCComplianceStorage is IKYCComplianceView {
     using EnumerableSet for EnumerableSet.AddressSet;
