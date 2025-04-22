@@ -11,7 +11,6 @@ TokenF and NFTF architecture:
 
 Built with [Solarity](https://github.com/dl-solarity), [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts), and aspiration to perfection.
 
-
 ## Application
 
 TokenF is an on-chain framework that enables development, management, and deployment of permissioned ERC-20-compatible and ERC-721-compatible assets on EVM networks. TokenF enables custom rules to be configured for RWA tokens, providing flexible KYC/AML and regulatory compliance checks for the users to abide during interaction with the smart contracts.

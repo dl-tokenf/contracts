@@ -15,7 +15,9 @@ import {
   LandERC721TransferLimitsModule__factory,
 } from "@ethers-v6";
 
-async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityKYCCompliance, EquityRegulatoryCompliance]> {
+async function setupCoreContracts(
+  deployer: Deployer,
+): Promise<[LandNFT, EquityKYCCompliance, EquityRegulatoryCompliance]> {
   const nftF = await deployer.deploy(LandNFT__factory);
   const kycCompliance = await deployer.deploy(EquityKYCCompliance__factory);
   const regulatoryCompliance = await deployer.deploy(EquityRegulatoryCompliance__factory);
@@ -27,13 +29,14 @@ async function setupCoreContracts(deployer: Deployer): Promise<[LandNFT, EquityK
 
   await nftF.__LandNFT_init(regulatoryCompliance, kycCompliance, regulatoryComplianceInitData, kycComplianceInitData);
 
-  return [nftF, kycCompliance.attach(nftF) as EquityKYCCompliance, regulatoryCompliance.attach(nftF) as EquityRegulatoryCompliance];
+  return [
+    nftF,
+    kycCompliance.attach(nftF) as EquityKYCCompliance,
+    regulatoryCompliance.attach(nftF) as EquityRegulatoryCompliance,
+  ];
 }
 
-async function setupTransferLimitsModule(
-  deployer: Deployer,
-  nftF: LandNFT,
-): Promise<LandERC721TransferLimitsModule> {
+async function setupTransferLimitsModule(deployer: Deployer, nftF: LandNFT): Promise<LandERC721TransferLimitsModule> {
   const transferLimitsModule = await deployer.deploy(LandERC721TransferLimitsModule__factory);
   await transferLimitsModule.__LandERC721TransferLimitsModule_init(nftF);
 
