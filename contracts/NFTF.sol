@@ -14,6 +14,12 @@ import {AccessControlUpgradeable} from "./core/AgentAccessControl.sol";
 import {NFTFStorage} from "./storages/NFTFStorage.sol";
 
 abstract contract NFTF is INFTF, AbstractAssetF, NFTFStorage, ERC721EnumerableUpgradeable {
+    /// @dev Precomputed selectors for safe transfers from the IERC721.
+    /// @dev Selector for `safeTransferFrom(address,address,uint256)`
+    bytes4 public constant SAFE_TRANSFER_FROM_SELECTOR = 0x42842e0e;
+    /// @dev Selector for `safeTransferFrom(address,address,uint256,bytes)`
+    bytes4 public constant SAFE_TRANSFER_FROM_WITH_DATA_SELECTOR = 0xb88d4fde;
+
     bytes4 public constant TRANSFER_SELECTOR = this.transfer.selector;
     bytes4 public constant TRANSFER_FROM_SELECTOR = this.transferFrom.selector;
     bytes4 public constant MINT_SELECTOR = this.mint.selector;

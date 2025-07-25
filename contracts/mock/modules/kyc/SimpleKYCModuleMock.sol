@@ -2,17 +2,17 @@
 pragma solidity ^0.8.21;
 
 import {IAssetF} from "../../../interfaces/IAssetF.sol";
-import {RarimoModule} from "../../../modules/kyc/RarimoModule.sol";
+import {SimpleKYCModule} from "../../../modules/kyc/SimpleKYCModule.sol";
 
-contract RarimoModuleMock is RarimoModule {
-    function __RarimoModuleMock_init(address assetF_, address sbt_) external initializer {
+contract SimpleKYCModuleMock is SimpleKYCModule {
+    function __SimpleKYCModuleMock_init(address assetF_, address sbt_) external initializer {
         __AbstractModule_init(assetF_);
         __AbstractKYCModule_init();
-        __RarimoModule_init(sbt_);
+        __SimpleKYCModule_init(sbt_);
     }
 
-    function __RarimoModuleDirect_init() external {
-        __RarimoModule_init(address(0));
+    function __SimpleKYCModuleDirect_init() external {
+        __SimpleKYCModule_init(address(0));
     }
 
     function getContextKey(bytes4 selector_) external view returns (bytes32) {

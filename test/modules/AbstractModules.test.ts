@@ -75,7 +75,9 @@ describe("AbstractModules", () => {
       it("should not handle if handler is not set", async () => {
         await module
           .connect(agent)
-          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module["getContextKey(bytes4)"](await tokenF.MINT_SELECTOR()), [
+            await module.MOCK_TOPIC(),
+          ]);
 
         await expect(
           module.canTransfer({
@@ -93,7 +95,9 @@ describe("AbstractModules", () => {
       it("should handle if all conditions are met", async () => {
         await module
           .connect(agent)
-          .addHandlerTopics(await module.getContextKey(await tokenF.MINT_SELECTOR()), [await module.MOCK_TOPIC()]);
+          .addHandlerTopics(await module["getContextKey(bytes4)"](await tokenF.MINT_SELECTOR()), [
+            await module.MOCK_TOPIC(),
+          ]);
 
         await module.handlerer();
 
