@@ -2,12 +2,12 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Reverter } from "@/test/helpers/reverter";
-import { KYCComplianceMock, RarimoModuleMock, SBTMock, TokenFMock } from "@ethers-v6";
+import { KYCComplianceMock, SimpleKYCModuleMock, SBTMock, TokenFMock } from "@ethers-v6";
 import { ZERO_ADDR } from "@/scripts/utils/constants";
 import { KYC_COMPLIANCE_ROLE, MINT_ROLE } from "@/test/helpers/utils";
 import { wei } from "@/scripts/utils/utils";
 
-describe("RarimoModule", () => {
+describe("SimpleKYCModule", () => {
   const reverter = new Reverter();
 
   let owner: SignerWithAddress;
@@ -16,7 +16,7 @@ describe("RarimoModule", () => {
   let bob: SignerWithAddress;
 
   let tokenF: TokenFMock;
-  let rarimo: RarimoModuleMock;
+  let simpleKYCModule: SimpleKYCModuleMock;
   let sbt: SBTMock;
 
   before("setup", async () => {
@@ -25,7 +25,7 @@ describe("RarimoModule", () => {
     const TokenFMock = await ethers.getContractFactory("TokenFMock");
     const KYCComplianceMock = await ethers.getContractFactory("KYCComplianceMock");
     const RegulatoryComplianceMock = await ethers.getContractFactory("RegulatoryComplianceMock");
-    const RarimoModuleMock = await ethers.getContractFactory("RarimoModuleMock");
+    const SimpleKYCModuleMock = await ethers.getContractFactory("SimpleKYCModuleMock");
     const SBTMock = await ethers.getContractFactory("SBTMock");
 
     tokenF = await TokenFMock.deploy();
@@ -45,10 +45,10 @@ describe("RarimoModule", () => {
     sbt = await SBTMock.deploy();
     await sbt.__SBTMock_init();
 
-    rarimo = await RarimoModuleMock.deploy();
-    await rarimo.__RarimoModuleMock_init(tokenF, sbt);
+    simpleKYCModule = await SimpleKYCModuleMock.deploy();
+    await simpleKYCModule.__SimpleKYCModuleMock_init(tokenF, sbt);
 
-    await kycComplianceProxy.connect(agent).addKYCModules([rarimo]);
+    await kycComplianceProxy.connect(agent).addKYCModules([simpleKYCModule]);
 
     await reverter.snapshot();
   });
@@ -57,20 +57,23 @@ describe("RarimoModule", () => {
 
   describe("access", () => {
     it("should initialize only once", async () => {
-      await expect(rarimo.__RarimoModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWithCustomError(
-        rarimo,
+      await expect(simpleKYCModule.__SimpleKYCModuleMock_init(ZERO_ADDR, ZERO_ADDR)).to.be.revertedWithCustomError(
+        simpleKYCModule,
         "InvalidInitialization",
       );
     });
 
     it("should initialize only by top level contract", async () => {
-      await expect(rarimo.__RarimoModuleDirect_init()).to.be.revertedWithCustomError(rarimo, "NotInitializing");
+      await expect(simpleKYCModule.__SimpleKYCModuleDirect_init()).to.be.revertedWithCustomError(
+        simpleKYCModule,
+        "NotInitializing",
+      );
     });
   });
 
   describe("getters", () => {
     it("should return base data", async () => {
-      expect(await rarimo.getSBT()).to.eq(await sbt.getAddress());
+      expect(await simpleKYCModule.getSBT()).to.eq(await sbt.getAddress());
     });
   });
 
@@ -79,20 +82,20 @@ describe("RarimoModule", () => {
     let transferFromKey: string;
 
     const setupHandlerTopics = async () => {
-      await rarimo.addHandlerTopics(transferKey, [
-        await rarimo.HAS_SOUL_SENDER_TOPIC(),
-        await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
+      await simpleKYCModule.addHandlerTopics(transferKey, [
+        await simpleKYCModule.HAS_SOUL_SENDER_TOPIC(),
+        await simpleKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
       ]);
-      await rarimo.addHandlerTopics(transferFromKey, [
-        await rarimo.HAS_SOUL_SENDER_TOPIC(),
-        await rarimo.HAS_SOUL_RECIPIENT_TOPIC(),
-        await rarimo.HAS_SOUL_OPERATOR_TOPIC(),
+      await simpleKYCModule.addHandlerTopics(transferFromKey, [
+        await simpleKYCModule.HAS_SOUL_SENDER_TOPIC(),
+        await simpleKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
+        await simpleKYCModule.HAS_SOUL_OPERATOR_TOPIC(),
       ]);
     };
 
     beforeEach(async () => {
-      transferKey = await rarimo.getContextKey(await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await rarimo.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await simpleKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await simpleKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
     it("should not apply kyc limits if context keys are not set", async () => {

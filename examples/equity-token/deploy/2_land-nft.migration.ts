@@ -5,12 +5,12 @@ import {
   KYCComplianceFacet__factory,
   LandNFT,
   LandNFT__factory,
-  EquityRarimoModule,
-  EquityRarimoModule__factory,
+  EquityKYCModule,
+  EquityKYCModule__factory,
   RegulatoryComplianceFacet,
   RegulatoryComplianceFacet__factory,
-  RarimoSBT,
-  RarimoSBT__factory,
+  EquitySBT,
+  EquitySBT__factory,
   LandERC721TransferLimitsModule,
   LandERC721TransferLimitsModule__factory,
 } from "@ethers-v6";
@@ -53,42 +53,58 @@ async function setupTransferLimitsModule(deployer: Deployer, nftF: LandNFT): Pro
   return transferLimitsModule;
 }
 
-async function setupRarimoModule(deployer: Deployer, nftF: LandNFT): Promise<[EquityRarimoModule, RarimoSBT]> {
-  const rarimoSBT = await deployer.deploy(RarimoSBT__factory);
-  await rarimoSBT.__RarimoSBT_init();
+async function setupKYCModule(deployer: Deployer, nftF: LandNFT): Promise<[EquityKYCModule, EquitySBT]> {
+  const equitySBT = await deployer.deploy(EquitySBT__factory);
+  await equitySBT.__EquitySBT_init();
 
-  const rarimoModule = await deployer.deploy(EquityRarimoModule__factory);
-  await rarimoModule.__EquityRarimoModule_init(nftF, rarimoSBT);
+  const equityKYCModule = await deployer.deploy(EquityKYCModule__factory);
+  await equityKYCModule.__EquityKYCModule_init(nftF, equitySBT);
 
-  const transferContextKey = await rarimoModule.getContextKey(await nftF.TRANSFER_SELECTOR());
-  const transferFromContextKey = await rarimoModule.getContextKey(await nftF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await equityKYCModule["getContextKey(bytes4)"](await nftF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await equityKYCModule["getContextKey(bytes4)"](await nftF.TRANSFER_FROM_SELECTOR());
+  const safeTransferFromContextKey = await equityKYCModule["getContextKey(bytes4)"](
+    await nftF.SAFE_TRANSFER_FROM_SELECTOR(),
+  );
+  const safeTransferFromWithDataContextKey = await equityKYCModule["getContextKey(bytes4)"](
+    await nftF.SAFE_TRANSFER_FROM_WITH_DATA_SELECTOR(),
+  );
 
-  await rarimoModule.addHandlerTopics(transferContextKey, [
-    await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
-    await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
+  await equityKYCModule.addHandlerTopics(transferContextKey, [
+    await equityKYCModule.HAS_SOUL_SENDER_TOPIC(),
+    await equityKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
   ]);
-  await rarimoModule.addHandlerTopics(transferFromContextKey, [
-    await rarimoModule.HAS_SOUL_SENDER_TOPIC(),
-    await rarimoModule.HAS_SOUL_RECIPIENT_TOPIC(),
-    await rarimoModule.HAS_SOUL_OPERATOR_TOPIC(),
+  await equityKYCModule.addHandlerTopics(transferFromContextKey, [
+    await equityKYCModule.HAS_SOUL_SENDER_TOPIC(),
+    await equityKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
+    await equityKYCModule.HAS_SOUL_OPERATOR_TOPIC(),
+  ]);
+  await equityKYCModule.addHandlerTopics(safeTransferFromContextKey, [
+    await equityKYCModule.HAS_SOUL_SENDER_TOPIC(),
+    await equityKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
+    await equityKYCModule.HAS_SOUL_OPERATOR_TOPIC(),
+  ]);
+  await equityKYCModule.addHandlerTopics(safeTransferFromWithDataContextKey, [
+    await equityKYCModule.HAS_SOUL_SENDER_TOPIC(),
+    await equityKYCModule.HAS_SOUL_RECIPIENT_TOPIC(),
+    await equityKYCModule.HAS_SOUL_OPERATOR_TOPIC(),
   ]);
 
-  return [rarimoModule, rarimoSBT];
+  return [equityKYCModule, equitySBT];
 }
 
 export = async (deployer: Deployer) => {
   const [nftF, kycCompliance, regulatoryCompliance] = await setupCoreContracts(deployer);
 
-  const [rarimoModule, rarimoSBT] = await setupRarimoModule(deployer, nftF);
+  const [equityKYCModule, equitySBT] = await setupKYCModule(deployer, nftF);
   const transferLimitsModule = await setupTransferLimitsModule(deployer, nftF);
 
-  await kycCompliance.addKYCModules([rarimoModule]);
+  await kycCompliance.addKYCModules([equityKYCModule]);
   await regulatoryCompliance.addRegulatoryModules([transferLimitsModule]);
 
   Reporter.reportContracts(
     ["LandNFT", await nftF.getAddress()],
     ["ERC20TransferLimitsModule", await transferLimitsModule.getAddress()],
-    ["RarimoModule", await rarimoModule.getAddress()],
-    ["RarimoSBT", await rarimoSBT.getAddress()],
+    ["EquityKYCModule", await equityKYCModule.getAddress()],
+    ["EquitySBT", await equitySBT.getAddress()],
   );
 };

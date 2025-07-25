@@ -14,6 +14,6 @@ contract EquityERC20TransferLimitsModule is ERC20TransferLimitsModule {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
-        return _getContextKey(ctx_);
+        return getContextKey(ctx_);
     }
 }

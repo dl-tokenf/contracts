@@ -124,8 +124,8 @@ describe("ERC20TransferLimitsModule", () => {
     };
 
     beforeEach(async () => {
-      transferKey = await transferLimits.getContextKey(await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await transferLimits.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await transferLimits["getContextKey(bytes4)"](await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await transferLimits["getContextKey(bytes4)"](await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
     it("should not apply transfer limits if context keys are not set", async () => {

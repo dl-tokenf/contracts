@@ -7,30 +7,30 @@ import {IAssetF} from "../../interfaces/IAssetF.sol";
 import {AbstractKYCModule} from "../AbstractKYCModule.sol";
 
 /**
- * @notice `RarimoModule` is an example of a possible KYC module implementation,
+ * @notice `SimpleKYCModule` is an example of a possible KYC module implementation,
  * within which the user's SBT token is checked.
  */
-abstract contract RarimoModule is AbstractKYCModule {
+abstract contract SimpleKYCModule is AbstractKYCModule {
     bytes32 public constant HAS_SOUL_SENDER_TOPIC = keccak256("HAS_SOUL_SENDER");
     bytes32 public constant HAS_SOUL_RECIPIENT_TOPIC = keccak256("HAS_SOUL_RECIPIENT");
     bytes32 public constant HAS_SOUL_OPERATOR_TOPIC = keccak256("HAS_SOUL_OPERATOR");
 
-    // keccak256("tokenf.standard.rarimo.module.storage")
-    bytes32 private constant RARIMO_MODULE_STORAGE =
-        0x4daee3f1bcf471e40cb8bb42f6957ecf0fb0ccfdf6e24496c76bda599dbc8902;
+    // keccak256("tokenf.standard.simple.kyc.module.storage")
+    bytes32 private constant SIMPLE_KYC_MODULE_STORAGE =
+        0x38deaaaa98559b0911f428b8b3b9bbf960af9ad1ba4f2251fc09aa6872c543ae;
 
-    struct RarimoModuleStorage {
+    struct SimpleKYCModuleStorage {
         address sbt;
     }
 
-    function __RarimoModule_init(address sbt_) internal onlyInitializing {
-        RarimoModuleStorage storage $ = _getRarimoModuleStorage();
+    function __SimpleKYCModule_init(address sbt_) internal onlyInitializing {
+        SimpleKYCModuleStorage storage $ = _getSimpleKYCModuleStorage();
 
         $.sbt = sbt_;
     }
 
     function getSBT() public view virtual returns (address) {
-        RarimoModuleStorage storage $ = _getRarimoModuleStorage();
+        SimpleKYCModuleStorage storage $ = _getSimpleKYCModuleStorage();
 
         return $.sbt;
     }
@@ -44,33 +44,31 @@ abstract contract RarimoModule is AbstractKYCModule {
     function _handleHasSoulSenderTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        RarimoModuleStorage storage $ = _getRarimoModuleStorage();
-
-        return ISBT($.sbt).balanceOf(ctx_.from) > 0;
+        return _hasSBT(ctx_.from);
     }
 
     function _handleHasSoulRecipientTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        RarimoModuleStorage storage $ = _getRarimoModuleStorage();
-
-        return ISBT($.sbt).balanceOf(ctx_.to) > 0;
+        return _hasSBT(ctx_.to);
     }
 
     function _handleHasSoulOperatorTopic(
         IAssetF.Context memory ctx_
     ) internal view virtual returns (bool) {
-        RarimoModuleStorage storage $ = _getRarimoModuleStorage();
+        return _hasSBT(ctx_.operator);
+    }
 
-        return ISBT($.sbt).balanceOf(ctx_.operator) > 0;
+    function _hasSBT(address userAddr_) internal view returns (bool) {
+        return ISBT(_getSimpleKYCModuleStorage().sbt).balanceOf(userAddr_) > 0;
     }
 
     /**
      * @dev Returns a pointer to the storage namespace
      */
-    function _getRarimoModuleStorage() private pure returns (RarimoModuleStorage storage $) {
+    function _getSimpleKYCModuleStorage() private pure returns (SimpleKYCModuleStorage storage $) {
         assembly {
-            $.slot := RARIMO_MODULE_STORAGE
+            $.slot := SIMPLE_KYC_MODULE_STORAGE
         }
     }
 }
