@@ -5,9 +5,9 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 
 import {ASBT} from "@solarity/solidity-lib/tokens/ASBT.sol";
 
-contract RarimoSBT is ASBT, OwnableUpgradeable {
-    function __RarimoSBT_init() external initializer {
-        __ASBT_init("RarimoSBT", "RarimoSBT");
+contract EquitySBT is ASBT, OwnableUpgradeable {
+    function __EquitySBT_init() external initializer {
+        __ASBT_init("EquitySBT", "EquitySBT");
         __Ownable_init(msg.sender);
     }
 

@@ -89,6 +89,20 @@ abstract contract AbstractModule is Initializable {
     }
 
     /**
+     * @notice Function to retrieve the context key from the provided transaction context.
+     *
+     * This function calls the internal `_getContextKey` function, which can be overridden
+     * in derived contracts to customize how the context key is generated based on the
+     * specific module's requirements.
+     *
+     * @param ctx_ The transaction context
+     * @return context key
+     */
+    function getContextKey(IAssetF.Context memory ctx_) public view virtual returns (bytes32) {
+        return _getContextKey(ctx_);
+    }
+
+    /**
      * @notice Function to retrieve all stored handler topics by the passed context key.
      *
      * @param contextKey_ The key of the handler topics for which the array should be obtained
@@ -184,7 +198,7 @@ abstract contract AbstractModule is Initializable {
     function _handlerer() internal virtual;
 
     /**
-     * @notice Function to retrieve the context key from the transaction context.
+     * @notice Internal function to calculate and retrieve the context key from the transaction context.
      *
      * The `bytes32` type has been chosen for the context key so that it could be customised.
      * Depending on the future purpose of the module, it will be possible to define the process of creating a context key,
@@ -209,7 +223,7 @@ abstract contract AbstractModule is Initializable {
      * @param ctx_ The transaction context
      */
     function _handle(IAssetF.Context memory ctx_) internal view virtual returns (bool) {
-        bytes32 contextKey_ = _getContextKey(ctx_);
+        bytes32 contextKey_ = getContextKey(ctx_);
         bytes32[] memory handlerTopics_ = getHandlerTopics(contextKey_);
 
         for (uint256 j = 0; j < handlerTopics_.length; ++j) {

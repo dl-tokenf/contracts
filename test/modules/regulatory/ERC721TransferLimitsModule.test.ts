@@ -130,17 +130,22 @@ describe("ERC721TransferLimitsModule", () => {
   describe("integration", () => {
     let transferKey: string;
     let transferFromKey: string;
+    let safeTransferFromKey: string;
 
     const tokenURI = "";
 
     const setupHandlerTopics = async () => {
       await transferLimits.addHandlerTopics(transferKey, [await transferLimits.MAX_TRANSFERS_PER_PERIOD_TOPIC()]);
       await transferLimits.addHandlerTopics(transferFromKey, [await transferLimits.MAX_TRANSFERS_PER_PERIOD_TOPIC()]);
+      await transferLimits.addHandlerTopics(safeTransferFromKey, [
+        await transferLimits.MAX_TRANSFERS_PER_PERIOD_TOPIC(),
+      ]);
     };
 
     beforeEach(async () => {
-      transferKey = await transferLimits.getContextKey(await nftF.TRANSFER_SELECTOR());
-      transferFromKey = await transferLimits.getContextKey(await nftF.TRANSFER_FROM_SELECTOR());
+      transferKey = await transferLimits.getContextKeyBySelector(await nftF.TRANSFER_SELECTOR());
+      transferFromKey = await transferLimits.getContextKeyBySelector(await nftF.TRANSFER_FROM_SELECTOR());
+      safeTransferFromKey = await transferLimits.getContextKeyBySelector(await nftF.SAFE_TRANSFER_FROM_SELECTOR());
     });
 
     it("should not apply transfer limits if context keys are not set", async () => {
@@ -212,6 +217,34 @@ describe("ERC721TransferLimitsModule", () => {
       await time.increase(TIME_PERIOD + 1);
 
       await expect(await nftF.connect(bob).transferFrom(alice, bob, offLimitTokenId)).to.not.be.reverted;
+      expect(await nftF.ownerOf(offLimitTokenId)).to.be.eq(bob);
+    });
+
+    it("should apply transfer limits for a safeTransferFrom if context keys are set", async () => {
+      await setupHandlerTopics();
+
+      const offLimitTokenId = MAX_TRANSFER_LIMIT + 1n;
+
+      for (let tokenId = 0; tokenId <= MAX_TRANSFER_LIMIT; tokenId++) {
+        await nftF.connect(agent).mint(alice, tokenId, tokenURI);
+        await nftF.connect(alice).approve(bob, tokenId);
+
+        await expect(await nftF.connect(bob)["safeTransferFrom(address,address,uint256)"](alice, bob, tokenId)).to.not
+          .be.reverted;
+        expect(await nftF.ownerOf(tokenId)).to.be.eq(bob);
+      }
+
+      await nftF.connect(agent).mint(alice, offLimitTokenId, tokenURI);
+      await nftF.connect(alice).approve(bob, offLimitTokenId);
+
+      await expect(
+        nftF.connect(bob)["safeTransferFrom(address,address,uint256)"](alice, bob, offLimitTokenId),
+      ).to.be.revertedWithCustomError(nftF, "CannotTransfer");
+
+      await time.increase(TIME_PERIOD + 1);
+
+      await expect(await nftF.connect(bob)["safeTransferFrom(address,address,uint256)"](alice, bob, offLimitTokenId)).to
+        .not.be.reverted;
       expect(await nftF.ownerOf(offLimitTokenId)).to.be.eq(bob);
     });
   });

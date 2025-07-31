@@ -10,10 +10,10 @@ contract EquityERC20TransferLimitsModule is ERC20TransferLimitsModule {
         __ERC20TransferLimitsModule_init(1 ether, MAX_TRANSFER_LIMIT);
     }
 
-    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKeyBySelector(bytes4 selector_) external view returns (bytes32) {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
-        return _getContextKey(ctx_);
+        return getContextKey(ctx_);
     }
 }
