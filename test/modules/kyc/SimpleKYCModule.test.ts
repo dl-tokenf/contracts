@@ -94,8 +94,8 @@ describe("SimpleKYCModule", () => {
     };
 
     beforeEach(async () => {
-      transferKey = await simpleKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_SELECTOR());
-      transferFromKey = await simpleKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_FROM_SELECTOR());
+      transferKey = await simpleKYCModule.getContextKeyBySelector(await tokenF.TRANSFER_SELECTOR());
+      transferFromKey = await simpleKYCModule.getContextKeyBySelector(await tokenF.TRANSFER_FROM_SELECTOR());
     });
 
     it("should not apply kyc limits if context keys are not set", async () => {

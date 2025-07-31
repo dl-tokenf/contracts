@@ -13,7 +13,7 @@ contract LandERC721TransferLimitsModule is ERC721TransferLimitsModule {
         __ERC721TransferLimitsModule_init(MAX_TRANSFERS_PER_PERIOD, TIME_PERIOD);
     }
 
-    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKeyBySelector(bytes4 selector_) external view returns (bytes32) {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 

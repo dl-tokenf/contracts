@@ -32,7 +32,7 @@ contract ModuleMock is AbstractRegulatoryModule, AbstractKYCModule {
         __AbstractKYCModule_init();
     }
 
-    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKeyBySelector(bytes4 selector_) external view returns (bytes32) {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 

@@ -27,10 +27,10 @@ contract ERC721TransferLimitsModuleMock is ERC721TransferLimitsModule {
         __AbstractRegulatoryModule_init();
     }
 
-    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKeyBySelector(bytes4 selector_) external view returns (bytes32) {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 
-        return _getContextKey(ctx_);
+        return getContextKey(ctx_);
     }
 }

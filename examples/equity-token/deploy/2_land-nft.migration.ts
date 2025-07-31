@@ -40,8 +40,10 @@ async function setupTransferLimitsModule(deployer: Deployer, nftF: LandNFT): Pro
   const transferLimitsModule = await deployer.deploy(LandERC721TransferLimitsModule__factory);
   await transferLimitsModule.__LandERC721TransferLimitsModule_init(nftF);
 
-  const transferContextKey = await transferLimitsModule.getContextKey(await nftF.TRANSFER_SELECTOR());
-  const transferFromContextKey = await transferLimitsModule.getContextKey(await nftF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await transferLimitsModule.getContextKeyBySelector(await nftF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await transferLimitsModule.getContextKeyBySelector(
+    await nftF.TRANSFER_FROM_SELECTOR(),
+  );
 
   await transferLimitsModule.addHandlerTopics(transferContextKey, [
     await transferLimitsModule.MAX_TRANSFERS_PER_PERIOD_TOPIC(),
@@ -60,12 +62,12 @@ async function setupKYCModule(deployer: Deployer, nftF: LandNFT): Promise<[Equit
   const equityKYCModule = await deployer.deploy(EquityKYCModule__factory);
   await equityKYCModule.__EquityKYCModule_init(nftF, equitySBT);
 
-  const transferContextKey = await equityKYCModule["getContextKey(bytes4)"](await nftF.TRANSFER_SELECTOR());
-  const transferFromContextKey = await equityKYCModule["getContextKey(bytes4)"](await nftF.TRANSFER_FROM_SELECTOR());
-  const safeTransferFromContextKey = await equityKYCModule["getContextKey(bytes4)"](
+  const transferContextKey = await equityKYCModule.getContextKeyBySelector(await nftF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await equityKYCModule.getContextKeyBySelector(await nftF.TRANSFER_FROM_SELECTOR());
+  const safeTransferFromContextKey = await equityKYCModule.getContextKeyBySelector(
     await nftF.SAFE_TRANSFER_FROM_SELECTOR(),
   );
-  const safeTransferFromWithDataContextKey = await equityKYCModule["getContextKey(bytes4)"](
+  const safeTransferFromWithDataContextKey = await equityKYCModule.getContextKeyBySelector(
     await nftF.SAFE_TRANSFER_FROM_WITH_DATA_SELECTOR(),
   );
 

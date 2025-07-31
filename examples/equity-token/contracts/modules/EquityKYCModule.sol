@@ -10,7 +10,7 @@ contract EquityKYCModule is SimpleKYCModule {
         __SimpleKYCModule_init(sbt_);
     }
 
-    function getContextKey(bytes4 selector_) external view returns (bytes32) {
+    function getContextKeyBySelector(bytes4 selector_) external view returns (bytes32) {
         IAssetF.Context memory ctx_;
         ctx_.selector = selector_;
 

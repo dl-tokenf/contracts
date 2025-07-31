@@ -143,9 +143,9 @@ describe("ERC721TransferLimitsModule", () => {
     };
 
     beforeEach(async () => {
-      transferKey = await transferLimits["getContextKey(bytes4)"](await nftF.TRANSFER_SELECTOR());
-      transferFromKey = await transferLimits["getContextKey(bytes4)"](await nftF.TRANSFER_FROM_SELECTOR());
-      safeTransferFromKey = await transferLimits["getContextKey(bytes4)"](await nftF.SAFE_TRANSFER_FROM_SELECTOR());
+      transferKey = await transferLimits.getContextKeyBySelector(await nftF.TRANSFER_SELECTOR());
+      transferFromKey = await transferLimits.getContextKeyBySelector(await nftF.TRANSFER_FROM_SELECTOR());
+      safeTransferFromKey = await transferLimits.getContextKeyBySelector(await nftF.SAFE_TRANSFER_FROM_SELECTOR());
     });
 
     it("should not apply transfer limits if context keys are not set", async () => {

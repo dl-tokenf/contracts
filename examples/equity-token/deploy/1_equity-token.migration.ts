@@ -48,8 +48,10 @@ async function setupTransferLimitsModule(
   const transferLimitsModule = await deployer.deploy(EquityERC20TransferLimitsModule__factory);
   await transferLimitsModule.__EquityERC20TransferLimitsModule_init(tokenF);
 
-  const transferContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_SELECTOR());
-  const transferFromContextKey = await transferLimitsModule.getContextKey(await tokenF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await transferLimitsModule.getContextKeyBySelector(await tokenF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await transferLimitsModule.getContextKeyBySelector(
+    await tokenF.TRANSFER_FROM_SELECTOR(),
+  );
 
   await transferLimitsModule.addHandlerTopics(transferContextKey, [
     await transferLimitsModule.MIN_TRANSFER_LIMIT_TOPIC(),
@@ -70,8 +72,8 @@ async function setupKYCModule(deployer: Deployer, tokenF: EquityToken): Promise<
   const equityKYCModule = await deployer.deploy(EquityKYCModule__factory);
   await equityKYCModule.__EquityKYCModule_init(tokenF, equitySBT);
 
-  const transferContextKey = await equityKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_SELECTOR());
-  const transferFromContextKey = await equityKYCModule["getContextKey(bytes4)"](await tokenF.TRANSFER_FROM_SELECTOR());
+  const transferContextKey = await equityKYCModule.getContextKeyBySelector(await tokenF.TRANSFER_SELECTOR());
+  const transferFromContextKey = await equityKYCModule.getContextKeyBySelector(await tokenF.TRANSFER_FROM_SELECTOR());
 
   await equityKYCModule.addHandlerTopics(transferContextKey, [
     await equityKYCModule.HAS_SOUL_SENDER_TOPIC(),
