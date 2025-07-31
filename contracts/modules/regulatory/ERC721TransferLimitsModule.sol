@@ -44,7 +44,7 @@ abstract contract ERC721TransferLimitsModule is AbstractRegulatoryModule {
             $.transferData[ctx_.from].amountOfTransfers = 0;
         }
 
-        $.transferData[ctx_.from].amountOfTransfers++;
+        ++$.transferData[ctx_.from].amountOfTransfers;
         $.transferData[ctx_.from].lastTransferTimestamp = block.timestamp;
 
         super.transferred(ctx_);

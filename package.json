@@ -7,7 +7,7 @@
   "readme": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dl-tokenf/core-contracts"
+    "url": "git+https://github.com/dl-tokenf/core-contracts.git"
   },
   "keywords": [
     "solidity",
@@ -30,7 +30,7 @@
     "test": "npx hardhat test",
     "generate-types": "TYPECHAIN_FORCE=true npx hardhat typechain && npx hardhat gobind",
     "generate-docs": "npx hardhat markup",
-    "solhint-check": "solhint \"./contracts/**/*.sol\"",
+    "solhint-check": "solhint --noPoster \"./contracts/**/*.sol\"",
     "lint-fix": "npm run lint-sol-fix && npm run lint-ts-fix && npm run lint-json-fix && npm run solhint-check",
     "lint-json-fix": "prettier --write \"./**/*.json\"",
     "lint-ts-fix": "prettier --write \"./**/*.ts\"",
@@ -63,7 +63,7 @@
     "mocha": "^11.1.0",
     "prettier": "^3.5.3",
     "prettier-plugin-solidity": "^1.4.2",
-    "solhint": "^5.0.5",
+    "solhint": "^6.0.0",
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.14",
     "ts-node": "^10.9.2",
