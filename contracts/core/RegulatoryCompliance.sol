@@ -3,8 +3,6 @@ pragma solidity ^0.8.21;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
-
 import {IRegulatoryCompliance} from "../interfaces/core/IRegulatoryCompliance.sol";
 
 import {IAssetF} from "../interfaces/IAssetF.sol";
@@ -26,7 +24,9 @@ abstract contract RegulatoryCompliance is
     AgentAccessControl
 {
     using EnumerableSet for EnumerableSet.AddressSet;
-    using SetHelper for EnumerableSet.AddressSet;
+
+    error FailedToAddRegulatoryModule(address regulatoryModule);
+    error FailedToRemoveRegulatoryModule(address regulatoryModule);
 
     modifier onlyThisContract() {
         require(msg.sender == address(this), SenderIsNotThisContract(msg.sender));
@@ -72,11 +72,29 @@ abstract contract RegulatoryCompliance is
     }
 
     function _addRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
-        _getRegulatoryComplianceStorage().regulatoryModules.strictAdd(regulatoryModules_);
+        RCStorage storage $ = _getRegulatoryComplianceStorage();
+
+        uint256 length_ = regulatoryModules_.length;
+        for (uint256 i = 0; i < length_; ++i) {
+            address regulatoryModule_ = regulatoryModules_[i];
+            require(
+                $.regulatoryModules.add(regulatoryModule_),
+                FailedToAddRegulatoryModule(regulatoryModule_)
+            );
+        }
     }
 
     function _removeRegulatoryModules(address[] memory regulatoryModules_) internal virtual {
-        _getRegulatoryComplianceStorage().regulatoryModules.strictRemove(regulatoryModules_);
+        RCStorage storage $ = _getRegulatoryComplianceStorage();
+
+        uint256 length_ = regulatoryModules_.length;
+        for (uint256 i = 0; i < length_; ++i) {
+            address regulatoryModule_ = regulatoryModules_[i];
+            require(
+                $.regulatoryModules.remove(regulatoryModule_),
+                FailedToRemoveRegulatoryModule(regulatoryModule_)
+            );
+        }
     }
 
     function _regulatoryComplianceRole() internal view virtual returns (bytes32) {

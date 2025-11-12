@@ -100,7 +100,7 @@ describe("RegulatoryCompliance", () => {
 
     it("should not add regulatory modules if duplicates", async () => {
       await expect(rComplianceProxy.connect(agent).addRegulatoryModules([rCorrect, rCorrect]))
-        .to.be.revertedWithCustomError(rComplianceProxy, "ElementAlreadyExistsAddress")
+        .to.be.revertedWithCustomError(rComplianceProxy, "FailedToAddRegulatoryModule")
         .withArgs(rCorrect);
     });
 
@@ -123,7 +123,7 @@ describe("RegulatoryCompliance", () => {
 
     it("should not remove regulatory modules if no module", async () => {
       await expect(rComplianceProxy.connect(agent).removeRegulatoryModules([rCorrect]))
-        .to.be.revertedWithCustomError(rComplianceProxy, "NoSuchAddress")
+        .to.be.revertedWithCustomError(rComplianceProxy, "FailedToRemoveRegulatoryModule")
         .withArgs(rCorrect);
     });
 

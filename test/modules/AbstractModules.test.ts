@@ -126,7 +126,7 @@ describe("AbstractModules", () => {
 
       it("should not add handler topics if duplicates", async () => {
         await expect(module.connect(agent).addHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32, ZERO_BYTES32]))
-          .to.be.revertedWithCustomError(module, "ElementAlreadyExistsBytes32")
+          .to.be.revertedWithCustomError(module, "FailedToAddHandlerTopic")
           .withArgs(ZERO_BYTES32);
       });
 
@@ -148,7 +148,7 @@ describe("AbstractModules", () => {
 
       it("should not remove handler topics if no handler topic", async () => {
         await expect(module.connect(agent).removeHandlerTopics(ZERO_BYTES32, [ZERO_BYTES32]))
-          .to.be.revertedWithCustomError(module, "NoSuchBytes32")
+          .to.be.revertedWithCustomError(module, "FailedToRemoveHandlerTopic")
           .withArgs(ZERO_BYTES32);
       });
 
