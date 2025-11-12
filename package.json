@@ -1,6 +1,6 @@
 {
   "name": "@tokenf/contracts",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "author": "Distributed Lab",
   "description": "On-chain Real World Assets Tokenization Framework",
@@ -40,7 +40,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@openzeppelin/contracts-upgradeable": "5.3.0",
-    "@solarity/solidity-lib": "3.1.4"
+    "@solarity/solidity-lib": "3.2.8"
   },
   "devDependencies": {
     "@metamask/eth-sig-util": "^8.2.0",

@@ -4,8 +4,6 @@ pragma solidity ^0.8.21;
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {SetHelper} from "@solarity/solidity-lib/libs/arrays/SetHelper.sol";
-
 import {IAgentAccessControl} from "../interfaces/core/IAgentAccessControl.sol";
 
 import {IAssetF} from "../interfaces/IAssetF.sol";
@@ -20,7 +18,6 @@ import {IAssetF} from "../interfaces/IAssetF.sol";
  */
 abstract contract AbstractModule is Initializable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
-    using SetHelper for EnumerableSet.Bytes32Set;
 
     // keccak256("tokenf.standard.abstract.module.storage")
     bytes32 private constant ABSTRACT_MODULE_STORAGE =
@@ -43,6 +40,8 @@ abstract contract AbstractModule is Initializable {
     }
 
     error HandlerNotSet();
+    error FailedToAddHandlerTopic(bytes32 handlerTopic);
+    error FailedToRemoveHandlerTopic(bytes32 handlerTopic);
 
     function __AbstractModule_init(address assetF_) internal onlyInitializing {
         AbstractModuleStorage storage $ = _getAbstractModuleStorage();
@@ -140,7 +139,14 @@ abstract contract AbstractModule is Initializable {
     ) internal virtual {
         AbstractModuleStorage storage $ = _getAbstractModuleStorage();
 
-        $.handlerTopics[contextKey_].strictAdd(handlerTopics_);
+        uint256 length_ = handlerTopics_.length;
+        for (uint256 i = 0; i < length_; ++i) {
+            bytes32 handlerTopic_ = handlerTopics_[i];
+            require(
+                $.handlerTopics[contextKey_].add(handlerTopic_),
+                FailedToAddHandlerTopic(handlerTopic_)
+            );
+        }
     }
 
     /**
@@ -158,7 +164,14 @@ abstract contract AbstractModule is Initializable {
     ) internal virtual {
         AbstractModuleStorage storage $ = _getAbstractModuleStorage();
 
-        $.handlerTopics[contextKey_].strictRemove(handlerTopics_);
+        uint256 length_ = handlerTopics_.length;
+        for (uint256 i = 0; i < length_; ++i) {
+            bytes32 handlerTopic_ = handlerTopics_[i];
+            require(
+                $.handlerTopics[contextKey_].remove(handlerTopic_),
+                FailedToRemoveHandlerTopic(handlerTopic_)
+            );
+        }
     }
 
     /**
