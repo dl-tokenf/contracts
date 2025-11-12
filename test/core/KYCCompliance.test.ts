@@ -90,7 +90,7 @@ describe("KYCCompliance", () => {
 
     it("should not add KYC modules if duplicates", async () => {
       await expect(kycComplianceProxy.connect(agent).addKYCModules([kycCorrect, kycCorrect]))
-        .to.be.revertedWithCustomError(kycComplianceProxy, "ElementAlreadyExistsAddress")
+        .to.be.revertedWithCustomError(kycComplianceProxy, "FailedToAddKYCModule")
         .withArgs(kycCorrect);
     });
 
@@ -113,7 +113,7 @@ describe("KYCCompliance", () => {
 
     it("should not remove KYC modules if no module", async () => {
       await expect(kycComplianceProxy.connect(agent).removeKYCModules([kycCorrect]))
-        .to.be.revertedWithCustomError(kycComplianceProxy, "NoSuchAddress")
+        .to.be.revertedWithCustomError(kycComplianceProxy, "FailedToRemoveKYCModule")
         .withArgs(kycCorrect);
     });
 

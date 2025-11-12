@@ -54,24 +54,22 @@ abstract contract KYCCompliance is IKYCCompliance, KYCComplianceStorage, AgentAc
     }
 
     function _addKYCModules(address[] memory kycModules_) internal virtual {
+        KYCCStorage storage $ = _getKYCComplianceStorage();
+
         uint256 length_ = kycModules_.length;
         for (uint256 i = 0; i < length_; ++i) {
             address kycModule_ = kycModules_[i];
-            require(
-                _getKYCComplianceStorage().kycModules.add(kycModule_),
-                FailedToAddKYCModule(kycModule_)
-            );
+            require($.kycModules.add(kycModule_), FailedToAddKYCModule(kycModule_));
         }
     }
 
     function _removeKYCModules(address[] memory kycModules_) internal virtual {
+        KYCCStorage storage $ = _getKYCComplianceStorage();
+
         uint256 length_ = kycModules_.length;
         for (uint256 i = 0; i < length_; ++i) {
             address kycModule_ = kycModules_[i];
-            require(
-                _getKYCComplianceStorage().kycModules.remove(kycModule_),
-                FailedToRemoveKYCModule(kycModule_)
-            );
+            require($.kycModules.remove(kycModule_), FailedToRemoveKYCModule(kycModule_));
         }
     }
 
